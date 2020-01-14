@@ -1,0 +1,760 @@
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    1
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+722 lines read, no errors in pass 1.
+                        ;****************************************
+                        ;        PROGRAMA MONITOR NESTOR
+                        ;            NOVA ELETRÔNICA
+                        ;     SAO PAULO S.P. 01/84 MSCS/JRP
+                        ;****************************************
+                        
+0003 =                  PDIG	equ $03 ; saída coluna teclado e display
+0001 =                  PSEG	equ $01 ; saída caracter para o display
+0001 =                  PTEC	equ $01 ; entrada linha teclado
+                        
+0001 =                  ATRASO	equ $0001
+0be4 =                  TOPSP	equ $0be4
+0be5 =                  MENCON	equ $0be5
+0be6 =                  FLAG	equ $0be6
+0be7 =                  BUFDISP	equ $0be7
+0beb =                  BYTES	equ $0beb
+0bed =                  ENDISP	equ $0bed
+0bee =                  PBE		equ $0bee
+0bef =                  PAE		equ $0bef
+0bf0 =                  ROT		equ $0bf0
+0bf2 =                  ROTNMI	equ $0bf2
+0bf7 =                  MENI	equ $0bf7
+0bf8 =                  MENF	equ $0bf8
+0bf9 =                  MENA	equ $0bf9
+0bfa =                  MENL	equ $0bfa
+0bfb =                  MENH	equ $0bfb
+0bfc =                  MENE	equ $0bfc
+0bfd =                  MEND	equ $0bfd
+0bfe =                  MENC	equ $0bfe
+0bff =                  MENB	equ $0bff
+0c00 =                  SPPOS	equ	$0c00
+                        
+0000 =                  		org $0000
+0000 : 31000c           		ld sp,SPPOS
+0003 : c5               		push bc
+0004 : d5               		push de
+0005 : e5               		push hl
+0006 : f5               		push af
+0007 : 21e60b           		ld hl,FLAG
+000a : 3619             		ld (hl),$19
+000c : 215c00           		ld hl,MENS
+000f : 11e70b           		ld de,BUFDISP
+0012 : 010600           		ld bc,$0006
+0015 : edb0             		ldir
+                        
+0017 : 31e40b           INICIO	ld sp,TOPSP
+001a : 21e70b           		ld hl,BUFDISP
+001d : 0600             		ld b,$00
+001f : 1e06             		ld e,$06
+0021 : 3e01             		ld a,$01
+0023 : cd9000           NE1		call VARR
+0026 : 79               		ld a,c
+0027 : 87               		add a,a
+0028 : 1d               		dec e
+0029 : c22300           		jp nz,NE1
+002c : 78               		ld a,b
+002d : fe00             		cp $00
+002f : ca1700           		jp z,INICIO
+0032 : 21e70b           NE2		ld hl,BUFDISP
+0035 : cd9c00           		call REST
+0038 : 7a               		ld a,d
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    2
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+0039 : d303             		out (PDIG),a
+003b : db01             		in a,(PTEC)
+003d : fe00             		cp $00
+003f : c23200           		jp nz,NE2
+0042 : cdbd00           		call AJCOL
+0045 : cdd800           		call AJTEC
+0048 : fe13             		cp $13
+004a : ca7700           		jp z,NE3
+004d : fe10             		cp $10
+004f : da8300           		jp c,NE4
+0052 : cdf000           NE5		call ALTCOM
+0055 : 21e60b           NE6		ld hl,FLAG
+0058 : 7e               		ld a,(hl)
+0059 : c36900           		jp RECCOM
+                        
+005c : c8               MENS	db $c8	; N
+005d : 86               		db $86	; E
+005e : 92               		db $92	; S
+005f : 87               		db $87	; T
+0060 : c0               		db $c0	; O
+0061 : ce               		db $ce	; R
+0062 : 00               		db $00
+0063 : 00               		db $00
+0064 : 00               		db $00
+0065 : 00               		db $00
+                        
+                        ;****************************************
+                        ;  ponto de entrada de interrupção nmi
+                        ;****************************************
+                        
+0066 : c3f20b           NMINT	jp ROTNMI		; antes estava "RIV"
+                        
+0069 : 212003           RECCOM	ld hl,TABCOM + 1
+006c : 85               		add a,l
+006d : 6f               		ld l,a
+006e : 7e               		ld a,(hl)
+006f : 4f               		ld c,a
+0070 : 3e0a             		ld a,$0a
+0072 : 85               		add a,l
+0073 : 6f               		ld l,a
+0074 : 6e               		ld l,(hl)
+0075 : 61               		ld h,c
+0076 : e9               		jp (hl)
+                        
+0077 : 21e60b           NE3		ld hl,FLAG
+007a : 7e               		ld a,(hl)
+007b : fe15             		cp $15
+007d : caf401           		jp z,SELREG
+0080 : c35200           		jp NE5
+                        
+0083 : 21e60b           NE4		ld hl,FLAG
+0086 : 7e               		ld a,(hl)
+0087 : fe15             		cp $15
+0089 : ca0502           		jp z,ALTREG
+008c : 00               		nop
+008d : c35500           		jp NE6
+                        
+                        ;****************************************
+                        ;  rotina de varredura
+                        ;****************************************
+                        
+0090 : 4f               VARR	ld c,a
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    3
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+0091 : cda900           		call TEMPO
+0094 : db01             		in a,(PTEC)
+0096 : fe00             		cp $00
+0098 : c8               		ret z
+0099 : 47               		ld b,a
+009a : 51               		ld d,c
+009b : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de restauração
+                        ;****************************************
+                        
+009c : 0e06             REST	ld c,$06
+009e : 3e01             		ld a,$01
+00a0 : cda900           NE7		call TEMPO
+00a3 : 87               		add a,a
+00a4 : 0d               		dec c
+00a5 : c8               		ret z
+00a6 : c3a000           		jp NE7
+                        
+                        ;****************************************
+                        ;  rotina de tempo
+                        ;****************************************
+                        
+00a9 : f5               TEMPO	push af
+00aa : d303             		out (PDIG),a
+00ac : 7e               		ld a,(hl)
+00ad : d301             		out (PSEG),a
+00af : d9               		exx
+00b0 : 110100           		ld de,ATRASO
+00b3 : 1b               LOOP1	dec de
+00b4 : 7a               		ld a,d
+00b5 : b3               		or e
+00b6 : c2b300           		jp nz,LOOP1
+00b9 : d9               		exx
+00ba : 23               		inc hl
+00bb : f1               		pop af
+00bc : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de ajuste de coluna
+                        ;****************************************
+                        
+00bd : 0e00             AJCOL	ld c,$00
+00bf : 3e01             		ld a,$01
+00c1 : ba               		cp d
+00c2 : cad600           		jp z,NE8
+00c5 : 87               		add a,a
+00c6 : 0e08             		ld c,$08
+00c8 : ba               		cp d
+00c9 : cad600           		jp z,NE8
+00cc : 87               		add a,a
+00cd : 0e10             		ld c,$10
+00cf : ba               		cp d
+00d0 : cad600           		jp z,NE8
+00d3 : c31700           		jp INICIO
+                        
+00d6 : 51               NE8		ld d,c
+00d7 : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de ajuste de tecla
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    4
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+                        ;****************************************
+                        
+00d8 : 1e08             AJTEC	ld e,$08
+00da : 0e00             		ld c,$00
+00dc : 3e01             		ld a,$01
+00de : b8               NE10	cp b
+00df : caeb00           		jp z,NE9
+00e2 : 0c               		inc c
+00e3 : 87               		add a,a
+00e4 : 1d               		dec e
+00e5 : c2de00           		jp nz,NE10
+00e8 : c31700           		jp INICIO
+                        
+00eb : 79               NE9		ld a,c
+00ec : 82               		add a,d
+00ed : 47               		ld b,a
+00ee : 00               		nop
+00ef : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de alterar comando
+                        ;****************************************
+                        
+00f0 : 21e60b           ALTCOM	ld hl,FLAG
+00f3 : 70               		ld (hl),b
+00f4 : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de permissão
+                        ;****************************************
+                        
+00f5 : 0e06             ROTPER	ld c,$06
+00f7 : 21e60b           		ld hl,FLAG
+00fa : 3617             		ld (hl),$17
+00fc : 23               		inc hl
+00fd : 36ff             NE11	ld (hl),$FF
+00ff : 23               		inc hl
+0100 : 0d               		dec c
+0101 : c2fd00           		jp nz,NE11
+0104 : 3600             		ld (hl),$00
+0106 : 23               		inc hl
+0107 : 3600             		ld (hl),$00
+0109 : 23               		inc hl
+010a : 3600             		ld (hl),$00
+010c : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  rotina de campo de endereços
+                        ;****************************************
+                        
+010f : 21ee0b           ROTCP	ld hl,PBE
+0112 : 78               		ld a,b
+0113 : ed6f             		rld
+0115 : 23               		inc hl
+0116 : ed6f             		rld
+0118 : cd5201           		call DECOD
+011b : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  rotina de leitura
+                        ;****************************************
+                        
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    5
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+011e : cd4001           ROTLT	call ATUAL
+0121 : 21e60b           		ld hl,FLAG
+0124 : 3618             		ld (hl),$18
+0126 : 21ef0b           		ld hl,PAE
+0129 : cd5201           		call DECOD
+012c : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  rotina de campo de dados
+                        ;****************************************
+                        
+012f : cd4001           ROTCD	call ATUAL
+0132 : 78               		ld a,b
+0133 : ed6f             		rld
+0135 : 7e               		ld a,(hl)
+0136 : 12               		ld (de),a
+0137 : 21ef0b           		ld hl,PAE
+013a : cd5201           		call DECOD
+013d : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  rotina de atualização
+                        ;****************************************
+                        
+0140 : 21ee0b           ATUAL	ld hl,PBE
+0143 : 5e               		ld e,(hl)
+0144 : 23               		inc hl
+0145 : 56               		ld d,(hl)
+0146 : 1a               		ld a,(de)
+0147 : 2b               		dec hl
+0148 : 2b               		dec hl
+0149 : 77               		ld (hl),a
+014a : e5               		push hl
+014b : 21e60b           		ld hl,FLAG
+014e : 3618             		ld (hl),$18
+0150 : e1               		pop hl
+0151 : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de decodificação
+                        ;****************************************
+                        
+0152 : 01e70b           DECOD	ld bc,BUFDISP
+0155 : cd6e01           		call DISPLAY
+0158 : 2b               		dec hl
+0159 : cd6e01           		call DISPLAY
+015c : 2b               		dec hl
+015d : cd6e01           		call DISPLAY
+0160 : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de ajuste memória de endereço
+                        ;****************************************
+                        
+0161 : 21ee0b           RAME	ld hl,PBE
+0164 : 73               		ld (hl),e
+0165 : 23               		inc hl
+0166 : 72               		ld (hl),d
+0167 : 2b               		dec hl
+0168 : 2b               		dec hl
+0169 : 1a               		ld a,(de)
+016a : 77               		ld (hl),a
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    6
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+016b : c9               		ret
+016c : ffff             		dw $ffff
+                        
+                        ;****************************************
+                        ;  rotina de display
+                        ;****************************************
+                        
+016e : 7e               DISPLAY	ld a,(hl)
+016f : e5               		push hl
+0170 : 21f00b           		ld hl,ROT
+0173 : 77               		ld (hl),a
+0174 : af               		xor a
+0175 : ed6f             		rld
+0177 : cd8601           		call FORMAT
+017a : 02               		ld (bc),a
+017b : 03               		inc bc
+017c : af               		xor a
+017d : ed6f             		rld
+017f : cd8601           		call FORMAT
+0182 : 02               		ld (bc),a
+0183 : 03               		inc bc
+0184 : e1               		pop hl
+0185 : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de formatação
+                        ;****************************************
+                        
+0186 : d5               FORMAT	push de
+0187 : 118f01           		ld de,INTD
+018a : 83               		add a,e
+018b : 5f               		ld e,a
+018c : 1a               		ld a,(de)
+018d : d1               		pop de
+018e : c9               		ret
+                        
+                        ;****************************************
+                        ;  tabela de formatos alfa (números)
+                        ;****************************************
+                        
+018f : c0               INTD	db $c0
+0190 : f9               		db $f9
+0191 : a4               		db $a4
+0192 : b0               		db $b0
+0193 : 99               		db $99
+0194 : 92               		db $92
+0195 : 82               		db $82
+0196 : f8               		db $f8
+0197 : 80               		db $80
+0198 : 90               		db $90
+0199 : 88               		db $88
+019a : 83               		db $83
+019b : c6               		db $c6
+019c : a1               		db $a1
+019d : 86               		db $86
+019e : 8e               		db $8e
+                        
+                        ;****************************************
+                        ;  rotina de próximo
+                        ;****************************************
+                        
+019f : cd4001           ROTPR	call ATUAL
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    7
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+01a2 : 13               		inc de
+01a3 : cd6101           		call RAME
+01a6 : 21ef0b           		ld hl,PAE
+01a9 : cd5201           		call DECOD
+01ac : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  rotina de último
+                        ;****************************************
+                        
+01af : cd4001           ROTUL	call ATUAL
+01b2 : 1b               		dec de
+01b3 : cd6101           		call RAME
+01b6 : 21ef0b           		ld hl,PAE
+01b9 : cd5201           		call DECOD
+01bc : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  rotina de rodar
+                        ;****************************************
+                        
+01c8 =                  		org $01c8
+01c8 : 3eff             ROTRD	ld a,$FF
+01ca : d303             		out (PDIG),a
+01cc : 3e7f             		ld a,$7f
+01ce : d301             		out (PSEG),a
+01d0 : 21ed0b           		ld hl,ENDISP	; antes estava "MEND"
+01d3 : 36c3             		ld (hl),$c3	; $c3 = "jp"
+01d5 : 31f80b           		ld sp,MENF		; antes estava "MENI"
+01d8 : f5               		push af
+01d9 : e5               		push hl
+01da : d5               		push de
+01db : c5               		push bc
+01dc : 31e40b           		ld sp,TOPSP
+01df : c3ed0b           		jp ENDISP
+                        
+                        ;****************************************
+                        ;  rotina de exame de registradores
+                        ;****************************************
+                        
+01e2 : 21e50b           ROTER	ld hl,MENCON
+01e5 : 36fe             		ld (hl),$FE
+01e7 : c3f401           		jp SELREG
+                        
+                        ;****************************************
+                        ;  rotina de inicialização
+                        ;****************************************
+                        
+01ea : 21e70b           INICIAL	ld hl,BUFDISP
+01ed : 36ff             		ld (hl),$FF
+01ef : 23               		inc hl
+01f0 : 36ff             		ld (hl),$FF
+01f2 : 23               		inc hl
+01f3 : c9               		ret
+                        
+                        ;****************************************
+                        ;  rotina de seleção de registradores
+                        ;****************************************
+                        
+01f4 : 110403           SELREG	ld de,TABREG
+01f7 : 21e50b           		ld hl,MENCON
+01fa : 34               		inc (hl)
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    8
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+01fb : 34               		inc (hl)
+01fc : 7b               		ld a,e
+01fd : 86               		add a,(hl)
+01fe : 5f               NE12	ld e,a
+01ff : 1a               		ld a,(de)
+0200 : 6f               		ld l,a
+0201 : 13               		inc de
+0202 : 1a               		ld a,(de)
+0203 : 67               		ld h,a
+0204 : e9               		jp (hl)
+                        
+                        ;****************************************
+                        ;  rotina de alteração de registradores
+                        ;****************************************
+                        
+0205 : 21e50b           ALTREG	ld hl,MENCON
+0208 : 111b03           		ld de,TABALT
+020b : 7b               		ld a,e
+020c : 86               		add a,(hl)
+020d : c3fe01           		jp NE12
+                        
+                        ;****************************************
+                        ;  registrador a
+                        ;****************************************
+                        
+0210 : cdea01           REGA	call INICIAL
+0213 : 3688             		ld (hl),$88
+0215 : 23               		inc hl
+0216 : 36b7             		ld (hl),$b7
+0218 : 21f90b           		ld hl,MENA
+021b : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  rotina de saída
+                        ;****************************************
+                        
+021e : 01eb0b           ROTSA	ld bc,BYTES
+0221 : cd6e01           		call DISPLAY
+0224 : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  altera registrador a
+                        ;****************************************
+                        
+0227 : 21f90b           ALTA	ld hl,MENA
+022a : 78               		ld a,b
+022b : ed6f             		rld
+022d : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador b
+                        ;****************************************
+                        
+0230 : cdea01           REGB	call INICIAL
+0233 : 3683             		ld (hl),$83
+0235 : 23               		inc hl
+0236 : 36b7             		ld (hl),$b7
+0238 : 21ff0b           		ld hl,MENB
+023b : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador b
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    9
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+                        ;****************************************
+                        
+023e : 21ff0b           ALTB	ld hl,MENB
+0241 : 78               		ld a,b
+0242 : ed6f             		rld
+0244 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador c
+                        ;****************************************
+                        
+0247 : cdea01           REGC	call INICIAL
+024a : 36c6             		ld (hl),$c6
+024c : 23               		inc hl
+024d : 36b7             		ld (hl),$b7
+024f : 21fe0b           		ld hl,MENC
+0252 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador c
+                        ;****************************************
+                        
+0255 : 21fe0b           ALTC	ld hl,MENC
+0258 : 78               		ld a,b
+0259 : ed6f             		rld
+025b : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador d
+                        ;****************************************
+                        
+025e : cdea01           REGD	call INICIAL
+0261 : 36a1             		ld (hl),$a1
+0263 : 23               		inc hl
+0264 : 36b7             		ld (hl),$b7
+0266 : 21fd0b           		ld hl,MEND
+0269 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador d
+                        ;****************************************
+                        
+026c : 21fd0b           ALTD	ld hl,MEND
+026f : 78               		ld a,b
+0270 : ed6f             		rld
+0272 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador e
+                        ;****************************************
+                        
+0275 : cdea01           REGE	call INICIAL
+0278 : 3686             		ld (hl),$86
+027a : 23               		inc hl
+027b : 36b7             		ld (hl),$b7
+027d : 21fc0b           		ld hl,MENE
+0280 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador e
+                        ;****************************************
+                        
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page   10
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+0283 : 21fc0b           ALTE	ld hl,MENE
+0286 : 78               		ld a,b
+0287 : ed6f             		rld
+0289 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador h
+                        ;****************************************
+                        
+028c : cdea01           REGH	call INICIAL
+028f : 3689             		ld (hl),$89
+0291 : 23               		inc hl
+0292 : 36b7             		ld (hl),$b7
+0294 : 21fb0b           		ld hl,MENH
+0297 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador h
+                        ;****************************************
+                        
+029a : 21fb0b           ALTH	ld hl,MENH
+029d : 78               		ld a,b
+029e : ed6f             		rld
+02a0 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador l
+                        ;****************************************
+                        
+02a3 : cdea01           REGL	call INICIAL
+02a6 : 36c7             		ld (hl),$c7
+02a8 : 23               		inc hl
+02a9 : 36b7             		ld (hl),$b7
+02ab : 21fa0b           		ld hl,MENL
+02ae : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador l
+                        ;****************************************
+                        
+02b1 : 21fa0b           ALTL	ld hl,MENL
+02b4 : 78               		ld a,b
+02b5 : ed6f             		rld
+02b7 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador f
+                        ;****************************************
+                        
+02ba : cdea01           REGF	call INICIAL
+02bd : 368e             		ld (hl),$8e
+02bf : 23               		inc hl
+02c0 : 36b7             		ld (hl),$b7
+02c2 : 21f80b           		ld hl,MENF
+02c5 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador f
+                        ;****************************************
+                        
+02c8 : 21f80b           ALTF	ld hl,MENF
+02cb : 78               		ld a,b
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page   11
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+02cc : ed6f             		rld
+02ce : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  registrador i
+                        ;****************************************
+                        
+02d1 : ed57             REGI	ld a,i
+02d3 : 21f70b           		ld hl,MENI
+02d6 : 77               		ld (hl),a
+02d7 : cdea01           		call INICIAL
+02da : 36f9             		ld (hl),$f9
+02dc : 23               		inc hl
+02dd : 36b7             		ld (hl),$b7
+02df : 21f70b           		ld hl,MENI
+02e2 : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  altera registrador i
+                        ;****************************************
+                        
+02e5 : 21f70b           ALTI	ld hl,MENI
+02e8 : 78               		ld a,b
+02e9 : ed6f             		rld
+02eb : 7e               		ld a,(hl)
+02ec : ed47             		ld i,a
+02ee : c31e02           		jp ROTSA
+                        
+                        ;****************************************
+                        ;  rotina para o vetor de interrupção
+                        ;****************************************
+                        
+02f1 : 01f20b           RIV		ld bc,ROTNMI
+02f4 : 3ec3             		ld a,$c3		; $c3 = "jp"
+02f6 : 02               		ld (bc),a
+02f7 : 03               		inc bc
+02f8 : 21ee0b           		ld hl,PBE
+02fb : 7e               		ld a,(hl)
+02fc : 02               		ld (bc),a
+02fd : 03               		inc bc
+02fe : 23               		inc hl
+02ff : 7e               		ld a,(hl)
+0300 : 02               		ld (bc),a
+0301 : c31700           		jp INICIO
+                        
+                        ;****************************************
+                        ;  tabela de seleção de registradores
+                        ;****************************************
+                        
+0304 : 1002             TABREG	dw REGA
+0306 : 3002             		dw REGB
+0308 : 4702             		dw REGC
+030a : 5e02             		dw REGD
+030c : 7502             		dw REGE
+030e : 8c02             		dw REGH
+0310 : a302             		dw REGL
+0312 : ba02             		dw REGF
+0314 : d102             		dw REGI
+0316 : 1803             		dw $ + 2
+0318 : c3e201           		jp ROTER
+                        
+                        ;****************************************
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page   12
+---------------------------------------------------------------------------------- NESTORNE.ASM -----------------------------------------------------------------------------------
+
+                        ;  tabela de alteração de registradores
+                        ;****************************************
+                        
+031b : 2702             TABALT	dw ALTA
+031d : 3e02             		dw ALTB
+031f : 5502             TABCOM	dw ALTC
+0321 : 6c02             		dw ALTD
+0323 : 8302             		dw ALTE
+0325 : 9a02             		dw ALTH
+0327 : b102             		dw ALTL
+0329 : c802             		dw ALTF
+032b : e502             		dw ALTI
+032d : 00               		db $00
+032e : 00               		db $00
+032f : 00               		db $00
+                        
+                        ;****************************************
+                        ;  tabela de seleção de comandos
+                        ;****************************************
+                        
+0330 : 00               		db (ROTPER >> 8) & $FF ; ROTPER (MSB)
+0331 : 01               		db (ROTLT  >> 8) & $FF ; ROTLT  (MSB)
+0332 : 01               		db (ROTUL  >> 8) & $FF ; ROTUL  (MSB)
+0333 : 01               		db (ROTPR  >> 8) & $FF ; ROTPR  (MSB)
+0334 : 01               		db (ROTRD  >> 8) & $FF ; ROTRD  (MSB)
+0335 : 01               		db (ROTER  >> 8) & $FF ; ROTER  (MSB)
+0336 : 02               		db (RIV    >> 8) & $FF ; RIV    (MSB)
+0337 : 01               		db (ROTCP  >> 8) & $FF ; ROTCP  (MSB)
+0338 : 01               		db (ROTCD  >> 8) & $FF ; ROTCD  (MSB)
+0339 : 00               		db (INICIO >> 8) & $FF ; INICIO (MSB)
+                        
+033a : f5               		db (ROTPER & $FF) 		; ROTPER (LSB)
+033b : 1e               		db (ROTLT  & $FF) 		; ROTLT  (LSB)
+033c : af               		db (ROTUL  & $FF) 		; ROTUL  (LSB)
+033d : 9f               		db (ROTPR  & $FF) 		; ROTPR  (LSB)
+033e : c8               		db (ROTRD  & $FF) 		; ROTRD  (LSB)
+033f : e2               		db (ROTER  & $FF) 		; ROTER  (LSB)
+0340 : f1               		db (RIV    & $FF) 		; RIV    (LSB)
+0341 : 0f               		db (ROTCP  & $FF) 		; ROTCP  (LSB)
+0342 : 2f               		db (ROTCD  & $FF) 		; ROTCD  (LSB)
+0343 : 17               		db (INICIO & $FF) 		; INICIO (LSB)
+No errors in pass 2.

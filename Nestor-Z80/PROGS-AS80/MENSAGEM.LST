@@ -1,0 +1,59 @@
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    1
+---------------------------------------------------------------------------------- MENSAGEM.ASM -----------------------------------------------------------------------------------
+
+54 lines read, no errors in pass 1.
+                        ;****************************************
+                        ;    MENSAGEM
+                        ;****************************************
+                        
+                        ;	include "NESTORNE.INC"
+                        
+0020 =                  TEMPOC	equ	$20	;$50	;$10	;$02
+009c =                  REST	equ	$009C
+                        
+0900 =                  		org	$0900
+0900 : 011a09           INIC	ld	bc,BMD
+0903 : 1620             L2		ld	d,TEMPOC
+0905 : 03               		inc	bc
+0906 : 79               		ld	a,c
+0907 : fe30             		cp	$30
+0909 : ca0009           		jp	z,INIC
+090c : 60               L1		ld	h,b
+090d : 69               		ld	l,c
+090e : c5               		push	bc
+090f : cd9c00           		call	REST
+0912 : c1               		pop	bc
+0913 : 15               		dec	d
+0914 : c20c09           		jp	nz,L1
+0917 : c30309           		jp	L2
+                        ;
+091a : ff               BMD	db	$FF ; spc
+091b : ff               	db	$FF ; spc
+091c : ff               	db	$FF ; spc
+091d : ff               	db	$FF ; spc
+091e : ff               	db	$FF ; spc
+091f : ff               	db	$FF ; spc
+0920 : 86               	db	$86 ; E
+0921 : c1               	db	$C1 ; U
+0922 : ff               	db	$FF ; spc
+0923 : 92               	db	$92 ; S
+0924 : c0               	db	$C0 ; O
+0925 : c1               	db	$C1 ; U
+0926 : ff               	db	$FF ; spc
+0927 : c0               	db	$C0 ; O
+0928 : ff               	db	$FF ; spc
+0929 : c8               	db	$C8 ; N
+092a : 86               	db	$86 ; E
+092b : 92               	db	$92 ; S
+092c : 87               	db	$87 ; T
+092d : c0               	db	$C0 ; O
+092e : 4e               	db	$4E ; R
+092f : ff               FIM	db	$FF ; spc
+0930 : ff               	db	$FF ; spc
+0931 : ff               	db	$FF ; spc
+0932 : ff               	db	$FF ; spc
+0933 : ff               	db	$FF ; spc
+0934 : ff               	db	$FF ; spc
+0935 : ff               	db	$FF ; spc
+0936 : ff               	db	$FF ; spc
+No errors in pass 2.

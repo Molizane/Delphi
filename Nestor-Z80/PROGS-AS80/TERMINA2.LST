@@ -1,0 +1,73 @@
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    1
+---------------------------------------------------------------------------------- TERMINA2.ASM -----------------------------------------------------------------------------------
+
+65 lines read, no errors in pass 1.
+                        ;****************************************
+                        ;    TESTE TERMINAL
+                        ;****************************************
+                        
+0040 =                  TEMPOC	EQU	$40
+                        
+0b00 =                  		ORG	$0B00
+                        
+0b00 : 3e0c             INIC	LD A, $0C
+0b02 : d360             		OUT ($60), A
+0b04 : 0600             		LD B,0
+0b06 : 0e00             		LD C,0
+0b08 : 78               CNT		LD A,B
+0b09 : c630             		ADD A,$30
+0b0b : d360             		OUT ($60), A
+0b0d : cd530b           		CALL DELAY
+0b10 : 04               		INC B
+0b11 : 78               		LD A, B
+0b12 : fe0a             		CP $0A
+0b14 : c2080b           		JP NZ, CNT
+0b17 : 0600             		LD B,0
+0b19 : 0c               		INC C
+0b1a : 79               		LD A,C
+0b1b : fe08             		CP $08
+0b1d : ca230b           		JP Z, CNT2
+0b20 : c3080b           		JP CNT
+0b23 : 3e0d             CNT2	LD A,13
+0b25 : d360             		OUT ($60), A
+0b27 : 3e0a             		LD A,10
+0b29 : d360             		OUT ($60), A
+0b2b : 0600             		LD B,0
+0b2d : 0e00             		LD C,0
+0b2f : 78               CNT3	LD A,B
+0b30 : c630             		ADD A,$30
+0b32 : d360             		OUT ($60), A
+0b34 : 3e0d             		LD A,13
+0b36 : d360             		OUT ($60), A
+0b38 : 3e0a             		LD A,10
+0b3a : d360             		OUT ($60), A
+0b3c : cd530b           		CALL DELAY
+0b3f : 04               		INC B
+0b40 : 78               		LD A, B
+0b41 : fe0a             		CP $0A
+0b43 : c22f0b           		JP NZ, CNT3
+0b46 : 0600             		LD B,0
+0b48 : 0c               		INC C
+0b49 : 79               		LD A,C
+0b4a : fe04             		CP $04
+0b4c : ca520b           		JP Z, DONE
+0b4f : c32f0b           		JP CNT3
+0b52 : 76               DONE	HALT
+                        
+0b53 : c5               DELAY	PUSH BC		; save BC
+0b54 : 0640             		LD B,TEMPOC	; start of delay
+0b56 : cd5b0b           		CALL DELAY1
+0b59 : c1               		POP BC			; restore BC
+0b5a : c9               		RET
+0b5b : 0eff             DELAY1	LD C,$FF		; fill c too with max delay
+0b5d : 0d               DELAY2	DEC C			; decrement c
+0b5e : c25d0b           		JP NZ,DELAY2
+0b61 : 05               		DEC B			; c is empty...
+AS80 Assembler for i8080-Z180 [1.09].  Copyright 1994-95, Frank A. Vorstenbosch                                                                                           Page    2
+---------------------------------------------------------------------------------- TERMINA2.ASM -----------------------------------------------------------------------------------
+
+0b62 : c25b0b           		JP NZ,DELAY1	; do c again
+0b65 : c9               		RET				; retorna
+                        
+0b66 : 00               CHR	DB 0
+No errors in pass 2.

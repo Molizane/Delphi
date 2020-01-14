@@ -1,0 +1,4 @@
+<Configuration>
+  <Nestor Source=".\SOURCE-AS80\NESTORNE.ASM"/>
+  <Compiler Command=".\TOOLS\AS80.EXE" Parameters="-i -l -n -s2 -x3 -w180 #ASM"/>
+</Configuration>
