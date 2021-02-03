@@ -5,8 +5,8 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, ExtCtrls, StdCtrls, StdActns, ActnList, ImgList, ComCtrls,
-  ToolWin, Menus, ValEdit, Buttons, DBTables, EngineZ80, BSLed, LEDDisplay,
-  MemoryZ80;
+  ToolWin, Menus, ValEdit, Buttons, DBTables, EngineZ80, MemoryZ80, BSLed,
+  LEDDisplay;
 
 type
   TFrmMain = class(TForm)
@@ -59,14 +59,14 @@ type
     btnLivre: TSpeedButton;
     Panel2: TPanel;
     Panel3: TPanel;
-    bsLED0: TBSLed;
-    bsLED1: TBSLed;
-    bsLED2: TBSLed;
-    bsLED3: TBSLed;
-    bsLED4: TBSLed;
-    bsLED5: TBSLed;
-    bsLED6: TBSLed;
-    bsLED7: TBSLed;
+    PS0: TBSLed;
+    PS1: TBSLed;
+    PS2: TBSLed;
+    PS3: TBSLed;
+    PS4: TBSLed;
+    PS5: TBSLed;
+    PS6: TBSLed;
+    PS7: TBSLed;
     Disassembler: TEdit;
     ImageList2: TImageList;
     Halt: TAction;
@@ -101,6 +101,15 @@ type
     Settings: TAction;
     DisplayHexa: TCheckBox;
     opcTerminal: TMenuItem;
+    Panel6: TPanel;
+    PE0: TCheckBox;
+    PE1: TCheckBox;
+    PE2: TCheckBox;
+    PE3: TCheckBox;
+    PE4: TCheckBox;
+    PE5: TCheckBox;
+    PE6: TCheckBox;
+    PE7: TCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure StepExecute(Sender: TObject);
     procedure ResetExecute(Sender: TObject);
@@ -123,12 +132,18 @@ type
     procedure StepEvent(Sender: TObject; IsRunning: Boolean);
     procedure StopEvent(Sender: TObject);
     procedure NMIEvent(Sender: TObject; IsRunning: Boolean);
-    procedure Col0MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Col0MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Col1MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Col1MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Col2MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure Col2MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure Col0MouseDown(Sender: TObject; Button: TMouseButton; Shift:
+      TShiftState; X, Y: Integer);
+    procedure Col0MouseUp(Sender: TObject; Button: TMouseButton; Shift:
+      TShiftState; X, Y: Integer);
+    procedure Col1MouseDown(Sender: TObject; Button: TMouseButton; Shift:
+      TShiftState; X, Y: Integer);
+    procedure Col1MouseUp(Sender: TObject; Button: TMouseButton; Shift:
+      TShiftState; X, Y: Integer);
+    procedure Col2MouseDown(Sender: TObject; Button: TMouseButton; Shift:
+      TShiftState; X, Y: Integer);
+    procedure Col2MouseUp(Sender: TObject; Button: TMouseButton; Shift:
+      TShiftState; X, Y: Integer);
     procedure ResetLEDs;
     procedure opcRegistrosClick(Sender: TObject);
     procedure opcFlagsClick(Sender: TObject);
@@ -142,27 +157,24 @@ type
     IO: TIOView;
     DispSetKbdGet: TPeripheral;
     DispKbdCol: TPeripheral;
-    LEDsCtrl: TPeripheral;
+    LEDsBuffer: Byte;
     LEDs: TPeripheral;
+    Buttons: TPeripheral;
     Terminal: TPeripheral;
     TerminalCtrl: TPeripheral;
     KbdCol: Byte;
     KeyCol: array[1..3] of Byte;
     DispCol: array[1..6] of Boolean;
     DisplayChar: Char;
-    LEDsBuffer: Byte;
-    LEDsMask: Byte;
     fimROM: Word;
     procedure CPUShow;
     procedure WriteChar(Data: Byte);
     function ReadKeyCol: Byte;
     procedure SelectDispKbdCol(Data: Byte);
     procedure RefreshDisplay;
-    procedure LEDsCtrlWrite(Data: Byte);
-    function LEDsCtrlRead: Byte;
     procedure LEDsWrite(Data: Byte);
     function LEDsRead: Byte;
-    procedure RefreshLEDs;
+    function ButtonsRead: Byte;
     procedure LeHexNestorZ80;
     procedure BreakEvent(Sender: TObject; Address: Word; var Go: Boolean);
     procedure Cleardata;
@@ -228,16 +240,15 @@ begin
   WriteChar($FF);
   SelectDispKbdCol($00);
 
-  LEDsBuffer := 0;
-  LEDsCtrl := TPeripheral.Create;
-  LEDsCtrl.OnRead := LEDsCtrlRead;
-  LEDsCtrl.OnWrite := LEDsCtrlWrite;
   LEDs := TPeripheral.Create;
   LEDs.OnRead := LEDsRead;
   LEDs.OnWrite := LEDsWrite;
-  LEDs.OnReset := ResetLEDs;
+  //LEDs.OnReset := ResetLEDs;
 
-  RefreshLEDs;
+  ResetLEDs;
+
+  Buttons := TPeripheral.Create;
+  Buttons.OnRead := ButtonsRead;
 
   Terminal := TPeripheral.Create;
   Terminal.OnRead := ReadTerminal;
@@ -252,9 +263,9 @@ begin
   //IO := IOView.Create(IOGrid, True);
   IO := TIOView.Create(nil, True);
   IO.AssignIOPort($01, DispSetKbdGet);
+  IO.AssignIOPort($02, Buttons);
   IO.AssignIOPort($03, DispKbdCol);
-  IO.AssignIOPort($04, LEDsCtrl);
-  IO.AssignIOPort($05, LEDs);
+  IO.AssignIOPort($04, LEDs);
   IO.AssignIOPort($60, Terminal);
   IO.AssignIOPort($61, TerminalCtrl);
 
@@ -604,17 +615,6 @@ begin
   Display6.Active := DispCol[6];
 end;
 
-function TFrmMain.LEDsCtrlRead: Byte;
-begin
-  Result := LEDsMask;
-end;
-
-procedure TFrmMain.LEDsCtrlWrite(Data: Byte);
-begin
-  LEDsMask := Data;
-  RefreshLEDs;
-end;
-
 function TFrmMain.LEDsRead: Byte;
 begin
   Result := LEDsBuffer;
@@ -622,79 +622,15 @@ end;
 
 procedure TFrmMain.LEDsWrite(Data: Byte);
 begin
-  if LEDsMask <> 0 then
-  begin
-    LEDsBuffer := 0;
-
-    if Data = 0 then
-    begin
-      if LEDsMask and 1 = 1 then
-        LEDsBuffer := LEDsBuffer and $FE {1111 1110};
-
-      if LEDsMask and 2 = 2 then
-        LEDsBuffer := LEDsBuffer and $FD {1111 1101};
-
-      if LEDsMask and 4 = 4 then
-        LEDsBuffer := LEDsBuffer and $FB {1111 1011};
-
-      if LEDsMask and 8 = 8 then
-        LEDsBuffer := LEDsBuffer and $F7 {1111 0111};
-
-      if LEDsMask and 16 = 16 then
-        LEDsBuffer := LEDsBuffer and $EF {1110 1111};
-
-      if LEDsMask and 32 = 32 then
-        LEDsBuffer := LEDsBuffer and $DF {1101 1111};
-
-      if LEDsMask and 64 = 64 then
-        LEDsBuffer := LEDsBuffer and $BF {1011 1111};
-
-      if LEDsMask and 128 = 128 then
-        LEDsBuffer := LEDsBuffer and $7F {0111 1111};
-    end
-    else
-    begin
-      if LEDsMask and 1 = 1 then
-        LEDsBuffer := LEDsBuffer or 1;
-
-      if LEDsMask and 2 = 2 then
-        LEDsBuffer := LEDsBuffer or 2;
-
-      if LEDsMask and 4 = 4 then
-        LEDsBuffer := LEDsBuffer or 4;
-
-      if LEDsMask and 8 = 8 then
-        LEDsBuffer := LEDsBuffer or 8;
-
-      if LEDsMask and 16 = 16 then
-        LEDsBuffer := LEDsBuffer or 16;
-
-      if LEDsMask and 32 = 32 then
-        LEDsBuffer := LEDsBuffer or 32;
-
-      if LEDsMask and 64 = 64 then
-        LEDsBuffer := LEDsBuffer or 64;
-
-      if LEDsMask and 128 = 128 then
-        LEDsBuffer := LEDsBuffer or 128;
-    end;
-  end
-  else
-    LEDsBuffer := Data;
-
-  RefreshLEDs;
-end;
-
-procedure TFrmMain.RefreshLEDs;
-begin
-  bsLED0.LightOn := LEDsBuffer and 1 = 1;
-  bsLED1.LightOn := LEDsBuffer and 2 = 2;
-  bsLED2.LightOn := LEDsBuffer and 4 = 4;
-  bsLED3.LightOn := LEDsBuffer and 8 = 8;
-  bsLED4.LightOn := LEDsBuffer and 16 = 16;
-  bsLED5.LightOn := LEDsBuffer and 32 = 32;
-  bsLED6.LightOn := LEDsBuffer and 64 = 64;
-  bsLED7.LightOn := LEDsBuffer and 128 = 128;
+  LEDsBuffer := Data;
+  PS0.LightOn := Data and 1 = 1;
+  PS1.LightOn := Data and 2 = 2;
+  PS2.LightOn := Data and 4 = 4;
+  PS3.LightOn := Data and 8 = 8;
+  PS4.LightOn := Data and 16 = 16;
+  PS5.LightOn := Data and 32 = 32;
+  PS6.LightOn := Data and 64 = 64;
+  PS7.LightOn := Data and 128 = 128;
 end;
 
 procedure TFrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -793,7 +729,8 @@ begin
   MustCompile := not (FileExists(hexfile) and FileExists(lstfile));
 
   if MustCompile and not FileExists(AsmFile) then
-    raise Exception.Create('Fonte do programa monitor não existe (' + AsmFile + ')');
+    raise Exception.Create('Fonte do programa monitor não existe (' + AsmFile +
+      ')');
 
   if not FileExists(Compiler) then
     raise Exception.Create('Compilador não encontrado: ' + Compiler);
@@ -807,8 +744,10 @@ begin
       Rewrite(f);
 
       try
-        command := '"' + Compiler + '" ' + StringReplace(Parameters, '#ASM', '"' + AsmFile + '"', [rfReplaceAll, rfIgnoreCase]);
-        command := StringReplace(command, '#LST', '"' + lstfile + '"', [rfReplaceAll, rfIgnoreCase]);
+        command := '"' + Compiler + '" ' + StringReplace(Parameters, '#ASM', '"'
+          + AsmFile + '"', [rfReplaceAll, rfIgnoreCase]);
+        command := StringReplace(command, '#LST', '"' + lstfile + '"',
+          [rfReplaceAll, rfIgnoreCase]);
 
         Writeln(f, '@ECHO OFF');
         Writeln(f, 'CD "' + asmpath + '"');
@@ -825,14 +764,17 @@ begin
       WinExec(PChar(asmpath + 'compnst.bat'), SW_HIDE);
       elapsed := GetTickCount() + 60000;
 
-      while not FileExists(asmpath + 'ok.out') and (GetTickCount() <= elapsed) do
+      while not FileExists(asmpath + 'ok.out') and (GetTickCount() <= elapsed)
+        do
         Application.ProcessMessages;
 
       if not FileExists(asmpath + 'ok.out') then
-        raise Exception.Create('Erro de compilação. Tempo de execução ultrapassou limite.');
+        raise
+          Exception.Create('Erro de compilação. Tempo de execução ultrapassou limite.');
 
       if not (FileExists(lstfile) and FileExists(hexfile)) then
-        raise Exception.Create('Erro de compilação. Programa monitor não foi gerado.');
+        raise
+          Exception.Create('Erro de compilação. Programa monitor não foi gerado.');
     finally
       DeleteFile(asmpath + 'ok.out');
       DeleteFile(asmpath + 'compnst.bat');
@@ -857,7 +799,6 @@ end;
 
 procedure TFrmMain.ResetLEDs;
 begin
-  LEDsCtrlWrite($FF);
   LEDsWrite($0);
 end;
 
@@ -1010,6 +951,35 @@ end;
 procedure TFrmMain.opcTerminalClick(Sender: TObject);
 begin
   FrmTerminal.Show;
+end;
+
+function TFrmMain.ButtonsRead: Byte;
+begin
+  Result := 0;
+
+  if PE0.Checked then
+    Result := Result or 1;
+
+  if PE1.Checked then
+    Result := Result or 2;
+
+  if PE2.Checked then
+    Result := Result or 4;
+
+  if PE3.Checked then
+    Result := Result or 8;
+
+  if PE4.Checked then
+    Result := Result or 16;
+
+  if PE5.Checked then
+    Result := Result or 32;
+
+  if PE6.Checked then
+    Result := Result or 64;
+
+  if PE7.Checked then
+    Result := Result or 128;
 end;
 
 end.

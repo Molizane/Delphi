@@ -1,6 +1,6 @@
 object FrmMain: TFrmMain
-  Left = 142
-  Top = 6
+  Left = 131
+  Top = 8
   BorderIcons = [biSystemMenu, biMinimize, biHelp]
   BorderStyle = bsSingle
   Caption = 'Nestor Z80'
@@ -27,7 +27,7 @@ object FrmMain: TFrmMain
     Align = alClient
     TabOrder = 1
     object GroupBox2: TGroupBox
-      Left = 204
+      Left = 237
       Top = 59
       Width = 78
       Height = 86
@@ -595,56 +595,56 @@ object FrmMain: TFrmMain
       Height = 151
       Caption = ' '
       TabOrder = 2
-      object bsLED0: TBSLed
+      object PS0: TBSLed
         Left = 4
         Top = 3
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED1: TBSLed
+      object PS1: TBSLed
         Left = 4
         Top = 21
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED2: TBSLed
+      object PS2: TBSLed
         Left = 4
         Top = 40
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED3: TBSLed
+      object PS3: TBSLed
         Left = 4
         Top = 58
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED4: TBSLed
+      object PS4: TBSLed
         Left = 4
         Top = 77
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED5: TBSLed
+      object PS5: TBSLed
         Left = 4
         Top = 95
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED6: TBSLed
+      object PS6: TBSLed
         Left = 4
         Top = 114
         Width = 15
         Height = 15
         BorderWidth = 0
       end
-      object bsLED7: TBSLed
+      object PS7: TBSLed
         Left = 4
         Top = 133
         Width = 15
@@ -663,7 +663,7 @@ object FrmMain: TFrmMain
       Text = 'Disassembler'
     end
     object pnlStatus: TPanel
-      Left = 204
+      Left = 237
       Top = 9
       Width = 78
       Height = 50
@@ -712,7 +712,7 @@ object FrmMain: TFrmMain
       end
     end
     object DisplayHexa: TCheckBox
-      Left = 205
+      Left = 238
       Top = 147
       Width = 49
       Height = 13
@@ -721,6 +721,94 @@ object FrmMain: TFrmMain
       State = cbChecked
       TabOrder = 6
       OnClick = DisplayHexaClick
+    end
+    object Panel6: TPanel
+      Left = 205
+      Top = 9
+      Width = 23
+      Height = 151
+      Caption = ' '
+      TabOrder = 7
+      object PE0: TCheckBox
+        Left = 4
+        Top = 3
+        Width = 15
+        Height = 15
+        Caption = 'PE0'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 0
+      end
+      object PE1: TCheckBox
+        Left = 4
+        Top = 21
+        Width = 15
+        Height = 15
+        Caption = 'PE1'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 1
+      end
+      object PE2: TCheckBox
+        Left = 4
+        Top = 40
+        Width = 15
+        Height = 15
+        Caption = 'PE2'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 2
+      end
+      object PE3: TCheckBox
+        Left = 4
+        Top = 58
+        Width = 15
+        Height = 15
+        Caption = 'PE3'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 3
+      end
+      object PE4: TCheckBox
+        Left = 4
+        Top = 77
+        Width = 15
+        Height = 15
+        Caption = 'PE4'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 4
+      end
+      object PE5: TCheckBox
+        Left = 4
+        Top = 95
+        Width = 15
+        Height = 15
+        Caption = 'PE5'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 5
+      end
+      object PE6: TCheckBox
+        Left = 4
+        Top = 114
+        Width = 15
+        Height = 15
+        Caption = 'PE6'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 6
+      end
+      object PE7: TCheckBox
+        Left = 4
+        Top = 133
+        Width = 15
+        Height = 15
+        Caption = 'PE7'
+        Color = clBtnFace
+        ParentColor = False
+        TabOrder = 7
+      end
     end
   end
   object ToolBar2: TToolBar
@@ -788,8 +876,8 @@ object FrmMain: TFrmMain
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    Left = 218
-    Top = 8
+    Left = 15
+    Top = 75
     object File1: TMenuItem
       Caption = '&Arquivo'
       object Open1: TMenuItem
@@ -843,8 +931,8 @@ object FrmMain: TFrmMain
   object ImageList1: TImageList
     DrawingStyle = dsTransparent
     Masked = False
-    Left = 218
-    Top = 54
+    Left = 22
+    Top = 126
     Bitmap = {
       494C010111001300040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000005000000001002000000000000050
@@ -1515,8 +1603,8 @@ object FrmMain: TFrmMain
   end
   object ActionList1: TActionList
     Images = ImageList1
-    Left = 218
-    Top = 103
+    Left = 110
+    Top = 129
     object Open: TAction
       Caption = '&Abrir ...'
       ImageIndex = 0
@@ -1577,13 +1665,13 @@ object FrmMain: TFrmMain
     Enabled = False
     Interval = 1
     OnTimer = TimerTimer
-    Left = 387
-    Top = 54
+    Left = 67
+    Top = 72
   end
   object ImageList2: TImageList
     Width = 32
-    Left = 274
-    Top = 54
+    Left = 72
+    Top = 129
     Bitmap = {
       494C010104000900040020001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000800000003000000001002000000000000060

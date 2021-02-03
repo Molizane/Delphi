@@ -1,0 +1,87 @@
+			;****************************************
+			;    TESTE TERMINAL
+			;****************************************
+			
+    -	0040          	TEMPOC	EQU $40
+			
+    -	0C50          			ORG $0C50
+			
+   0+7	0C50  3E0C    	INIC	LD A, $0C
+   7+11	0C52  D360    			OUT ($60), A
+  18+7	0C54  0600    			LD B,0
+  25+7	0C56  0E00    			LD C,0
+  32+4	0C58  78      	CNT		LD A,B
+  36+7	0C59  C630    			ADD A,$30
+  43+11	0C5B  D360    			OUT ($60), A
+  54+17	0C5D  CDA30C  			CALL DELAY
+  71+4	0C60  04      			INC B
+  75+4	0C61  78      			LD A, B
+  79+7	0C62  FE0A    			CP $0A
+  86+10	0C64  C2580C  			JP NZ, CNT
+  96+7	0C67  0600    			LD B,0
+ 103+4	0C69  0C      			INC C
+ 107+4	0C6A  79      			LD A,C
+ 111+7	0C6B  FE08    			CP $08
+ 118+10	0C6D  CA730C  			JP Z, CNT2
+ 128+10	0C70  C3580C  			JP CNT
+ 138+7	0C73  3E0D    	CNT2	LD A,13
+ 145+11	0C75  D360    			OUT ($60), A
+ 156+7	0C77  3E0A    			LD A,10
+ 163+11	0C79  D360    			OUT ($60), A
+ 174+7	0C7B  0600    			LD B,0
+ 181+7	0C7D  0E00    			LD C,0
+ 188+4	0C7F  78      	CNT3	LD A,B
+ 192+7	0C80  C630    			ADD A,$30
+ 199+11	0C82  D360    			OUT ($60), A
+ 210+7	0C84  3E0D    			LD A,13
+ 217+11	0C86  D360    			OUT ($60), A
+ 228+7	0C88  3E0A    			LD A,10
+ 235+11	0C8A  D360    			OUT ($60), A
+ 246+17	0C8C  CDA30C  			CALL DELAY
+ 263+4	0C8F  04      			INC B
+ 267+4	0C90  78      			LD A, B
+ 271+7	0C91  FE0A    			CP $0A
+ 278+10	0C93  C27F0C  			JP NZ, CNT3
+ 288+7	0C96  0600    			LD B,0
+ 295+4	0C98  0C      			INC C
+ 299+4	0C99  79      			LD A,C
+ 303+7	0C9A  FE04    			CP $04
+ 310+10	0C9C  CAA20C  			JP Z, DONE
+ 320+10	0C9F  C37F0C  			JP CNT3
+ 330+4	0CA2  76      	DONE	HALT
+			
+ 334+11	0CA3  C5      	DELAY	PUSH BC			; save BC
+ 345+7	0CA4  0640    			LD B,TEMPOC		; start of delay
+ 352+17	0CA6  CDAB0C  			CALL DELAY1
+ 369+10	0CA9  C1      			POP BC			; restore BC
+ 379+10	0CAA  C9      			RET
+			
+ 389+7	0CAB  0EFF    	DELAY1	LD C,$FF		; fill c too with max delay
+ 396+4	0CAD  0D      	DELAY2	DEC C			; decrement c
+ 400+10	0CAE  C2AD0C  			JP NZ,DELAY2
+ 410+4	0CB1  05      			DEC B			; c is empty...
+ 414+10	0CB2  C2AB0C  			JP NZ,DELAY1	; do c again
+ 424+10	0CB5  C9      			RET				; return
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+     9	symbols
+   102	bytes
+
+
+
+Symbol Table:
+
+cnt              c58     
+cnt2             c73     
+cnt3             c7f     
+delay            ca3     
+delay1           cab     
+delay2           cad     
+done             ca2     
+inic             c50     
+tempoc         =  40     

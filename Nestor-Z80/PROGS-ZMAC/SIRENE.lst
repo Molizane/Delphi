@@ -1,0 +1,124 @@
+			;***************************************************
+			;  SIRENE DE DOIS TONS
+			;***************************************************
+			
+			;***********************************************************************
+				include	"defs.inc"
+**** defs.inc ****
+**** SIRENE.ASM ****
+			;***********************************************************************
+			
+    -	0941          	TOM		equ		0941h
+			
+    -	0B30          			org	$0B30
+			
+   0+7	0B30  0E00    	LOOP	ld c, 00
+   7+10	0B32  21C000  			ld hl, 00C0h
+  17+17	0B35  CD4109  			call TOM
+  34+7	0B38  0EC0    			ld c, 0C0h
+  41+10	0B3A  210001  			ld hl, 0100h
+  51+17	0B3D  CD4109  			call TOM
+  68+12	0B40  18EE    			jr LOOP
+			
+    -	0B42          	FIM:
+
+
+
+Statistics:
+
+     3	passes
+     0	jr promotions
+    87	symbols
+    18	bytes
+
+
+
+Symbol Table:
+
+dig_0          =  c0     
+dig_1          =  f9     
+dig_2          =  a4     
+dig_3          =  b0     
+dig_4          =  99     
+dig_5          =  92     
+dig_6          =  82     
+dig_7          =  f8     
+dig_8          =  80     
+dig_9          =  90     
+dig_a          =  88     
+dig_apag       =  ff     
+dig_apo        =  fd     
+dig_asp        =  dd     
+dig_b          =  83     
+dig_c          =  a7     
+dig_chavd      =  8f     
+dig_chave      =  b9     
+dig_colchd     =  f0     
+dig_colche     =  c6     
+dig_crase      =  df     
+dig_d          =  a1     
+dig_dif        =  e4     
+dig_e          =  86     
+dig_excl       =  79     
+dig_f          =  8e     
+dig_g          =  98     
+dig_grau       =  9c     
+dig_h          =  89     
+dig_hm         =  8b     
+dig_i          =  cf     
+dig_igual      =  b7     
+dig_inter      =  ac     
+dig_j          =  e1     
+dig_l          =  c7     
+dig_m          =  c8     
+dig_mai        =  bb     
+dig_men        =  ef     
+dig_menos      =  bf     
+dig_n          =  ab     
+dig_num        =  94     
+dig_o          =  a3     
+dig_p          =  8c     
+dig_ponto      =  7f     
+dig_q          =  98     
+dig_r          =  af     
+dig_s          =  92     
+dig_t          =  87     
+dig_u          =  e3     
+dig_u_inv      =  dc     
+dig_under      =  f7     
+dig_upper      =  fe     
+dig_v          =  c1     
+dig_w          =  81     
+dig_y          =  91     
+fim              b42     
+key_0          =   0     
+key_1          =   1     
+key_1m         =  12     
+key_1p         =  13     
+key_2          =   2     
+key_3          =   3     
+key_4          =   4     
+key_5          =   5     
+key_6          =   6     
+key_7          =   7     
+key_8          =   8     
+key_9          =   9     
+key_a          =   a     
+key_b          =   b     
+key_c          =   c     
+key_d          =   d     
+key_e          =   e     
+key_er         =  15     
+key_f          =   f     
+key_iv         =  16     
+key_load       =  11     
+key_perm       =  10     
+key_quad       =  17     
+key_run        =  14     
+loop             b30     
+pdig           =   3     
+ppe            =   2     
+pps            =   4     
+pseg           =   1     
+ptec           =   1     
+tom            = 941     

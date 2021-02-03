@@ -1,0 +1,50 @@
+			;***************************************************
+			;  ACIONA AS PORTAS DE SÁIDA, ALTERNANDO O VALOR PARA 0 E 255
+			;***************************************************
+			
+			;***********************************************************************
+			;	include	"defs.inc"
+			;***********************************************************************
+			;	include	"nestor.inc"
+			;***********************************************************************
+			
+    -	2030          			org	$2030
+			
+    -	0004          	PPS		equ	4
+			
+   0+4	2030  AF      	INIT:	xor a
+   4+11	2031  D304    	LOOP:	out (PPS), a
+  15+11	2033  F5      			push af
+  26+17	2034  CD3B20  			call TIMER
+  43+10	2037  F1      			pop af
+  53+4	2038  3C      			inc a
+  57+12	2039  18F6    			jr LOOP
+			;
+  69+10	203B  11FF0A  	TIMER:	ld de, $0AFF
+  79+6	203E  1B      	TIMER1:	dec de
+  85+4	203F  7A      			ld a, d
+  89+4	2040  B3      			or e
+  93+5+6	2041  C8      			ret z
+  98+12	2042  18FA    			jr TIMER1
+			;
+    -	2044          	FIM:
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+     6	symbols
+    20	bytes
+
+
+
+Symbol Table:
+
+fim             2044     
+init            2030     
+loop            2031     
+pps            =   4     
+timer           203b     
+timer1          203e     

@@ -1,0 +1,74 @@
+			;****************************************
+			;    MENSAGEM
+			;****************************************
+			
+    -	0020          	TEMPOC	equ	$20	;$50	;$10	;$02
+    -	009C          	REST	equ	$009C
+			
+    -	0AA0          			org	$0AA0
+			
+   0+10	0AA0  01BA0A  	INIC	ld	bc,BMD
+  10+7	0AA3  1620    	L2		ld	d,TEMPOC
+  17+6	0AA5  03      			inc	bc
+  23+4	0AA6  79      			ld	a,c
+  27+7	0AA7  FE30    			cp	$30
+  34+10	0AA9  CAA00A  			jp	z,INIC
+  44+4	0AAC  60      	L1		ld	h,b
+  48+4	0AAD  69      			ld	l,c
+  52+11	0AAE  C5      			push	bc
+  63+17	0AAF  CD9C00  			call	REST
+  80+10	0AB2  C1      			pop	bc
+  90+4	0AB3  15      			dec	d
+  94+10	0AB4  C2AC0A  			jp	nz,L1
+ 104+10	0AB7  C3A30A  			jp	L2
+			;
+    -	0ABA  FF      	BMD	db	$FF ; spc
+    -	0ABB  FF      		db	$FF ; spc
+    -	0ABC  FF      		db	$FF ; spc
+    -	0ABD  FF      		db	$FF ; spc
+    -	0ABE  FF      		db	$FF ; spc
+    -	0ABF  FF      		db	$FF ; spc
+    -	0AC0  86      		db	$86 ; E
+    -	0AC1  C1      		db	$C1 ; U
+    -	0AC2  FF      		db	$FF ; spc
+    -	0AC3  92      		db	$92 ; S
+    -	0AC4  C0      		db	$C0 ; O
+    -	0AC5  C1      		db	$C1 ; U
+    -	0AC6  FF      		db	$FF ; spc
+    -	0AC7  C0      		db	$C0 ; O
+    -	0AC8  FF      		db	$FF ; spc
+    -	0AC9  C8      		db	$C8 ; N
+    -	0ACA  86      		db	$86 ; E
+    -	0ACB  92      		db	$92 ; S
+    -	0ACC  87      		db	$87 ; T
+    -	0ACD  C0      		db	$C0 ; O
+    -	0ACE  4E      		db	$4E ; R
+    -	0ACF  FF      	FIM	db	$FF ; spc
+    -	0AD0  FF      		db	$FF ; spc
+    -	0AD1  FF      		db	$FF ; spc
+    -	0AD2  FF      		db	$FF ; spc
+    -	0AD3  FF      		db	$FF ; spc
+    -	0AD4  FF      		db	$FF ; spc
+    -	0AD5  FF      		db	$FF ; spc
+    -	0AD6  FF      		db	$FF ; spc
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+     7	symbols
+    55	bytes
+
+
+
+Symbol Table:
+
+bmd              aba     
+fim              acf     
+inic             aa0     
+l1               aac     
+l2               aa3     
+rest           =  9c     
+tempoc         =  20     

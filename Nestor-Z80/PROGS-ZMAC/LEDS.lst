@@ -1,0 +1,82 @@
+			;****************************************
+			;    LEDS
+			;****************************************
+			
+    -	00FF          	TEMPOC	equ	$FF
+			
+    -	0A40          		org	$0A40
+			
+   0+7	0A40  3E80    	LOOP	ld a, $80
+   7+11	0A42  D304    			out ($04), a		; acende LED 7
+  18+17	0A44  CD7A0A  			call DELAY
+  35+7	0A47  3E40    			ld a, $40
+  42+11	0A49  D304    			out ($04), a		; acende LED 6
+  53+17	0A4B  CD7A0A  			call DELAY
+  70+7	0A4E  3E20    			ld a, $20
+  77+11	0A50  D304    			out ($04), a		; acende LED 5
+  88+17	0A52  CD7A0A  			call DELAY
+ 105+7	0A55  3E10    			ld a, $10
+ 112+11	0A57  D304    			out ($04), a		; acende LED 4
+ 123+17	0A59  CD7A0A  			call DELAY
+ 140+7	0A5C  3E08    			ld a, $08
+ 147+11	0A5E  D304    			out ($04), a		; acende LED 3
+ 158+17	0A60  CD7A0A  			call DELAY
+ 175+7	0A63  3E04    			ld a, $04
+ 182+11	0A65  D304    			out ($04), a		; acende LED 2
+ 193+17	0A67  CD7A0A  			call DELAY
+ 210+7	0A6A  3E02    			ld a, $02
+ 217+11	0A6C  D304    			out ($04), a		; acende LED 1
+ 228+17	0A6E  CD7A0A  			call DELAY
+ 245+7	0A71  3E01    			ld a, $01
+ 252+11	0A73  D304    			out ($04), a		; acende LED 0
+ 263+17	0A75  CD7A0A  			call DELAY
+					;ld a, $00
+					;out ($04), a		; apaga todos os LED's
+					;call MOREDELAY
+ 280+12	0A78  18C6    			jr LOOP
+			
+ 292+11	0A7A  C5      	DELAY	push bc			; save BC
+ 303+7	0A7B  06FF    			ld b, TEMPOC	; start of delay
+ 310+17	0A7D  CD820A  			call DELAY1
+ 327+10	0A80  C1      			pop bc			; restore BC
+ 337+10	0A81  C9      			ret
+				
+ 347+7	0A82  0EFF    	DELAY1	ld c, $ff		; fill c too with max delay
+ 354+4	0A84  0D      	DELAY2	dec c			; decrement c
+ 358+10	0A85  C2840A  			jp nz, DELAY2
+ 368+4	0A88  05      			dec b			; c is empty...
+ 372+10	0A89  C2820A  			jp nz, DELAY1	; do c again
+ 382+10	0A8C  C9      			ret				; retorna
+			
+    -	0A8D          	MOREDELAY
+ 392+11	0A8D  E5      			push hl
+ 403+7	0A8E  2E05    			ld l, 5
+			
+    -	0A90          	MOREDELAY1
+ 410+7	0A90  06FF    			ld b, $ff		; start of delay
+ 417+17	0A92  CD820A  			call DELAY1
+ 434+4	0A95  2D      			dec	l
+ 438+10	0A96  C2900A  			jp nz, MOREDELAY1
+ 448+10	0A99  E1      			pop	hl
+ 458+10	0A9A  C9      			ret
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+     7	symbols
+    91	bytes
+
+
+
+Symbol Table:
+
+delay            a7a     
+delay1           a82     
+delay2           a84     
+loop             a40     
+moredelay        a8d     
+moredelay1       a90     
+tempoc         =  ff     

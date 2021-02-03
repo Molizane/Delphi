@@ -1,0 +1,62 @@
+			;****************************************
+			;    CONTADOR 0 A 9 NO SEXTO DÍGITO
+			;****************************************
+			
+    -	0186          	FORMAT	equ $0186
+    -	009C          	REST	equ $009C
+			
+    -	0030          	TEMPOC	equ $30	;$10	;$20
+			
+    -	0800          			org $0800
+			
+   0+10	0800  212F08  	INIC	ld hl,MBD
+  10+7	0803  0606    			ld b,6
+  17+10	0805  36FF    	A1		ld (hl),$FF
+  27+6	0807  23      			inc	hl
+  33+8+5	0808  10FB    			djnz A1
+  41+10	080A  213508  	A2		ld hl,MENCONC
+  51+10	080D  36FF    			ld (hl),$FF
+  61+10	080F  213508  	A4		ld hl,MENCONC
+  71+11	0812  34      			inc (hl)
+  82+7	0813  7E      			ld a,(hl)
+  89+7	0814  FE0A    			cp $0A
+  96+10	0816  CA0A08  			jp z,A2
+ 106+17	0819  CD8601  			call FORMAT
+ 123+10	081C  213408  			ld hl,DIG6
+ 133+7	081F  77      			ld (hl),a
+ 140+7	0820  1630    			ld d,TEMPOC
+ 147+10	0822  212F08  	A3		ld hl,MBD
+ 157+17	0825  CD9C00  			call REST
+ 174+4	0828  15      			dec	d
+ 178+10	0829  C22208  			jp nz,A3
+ 188+10	082C  C30F08  			jp A4
+			
+    -	082F  00000000	MBD		db 0, 0, 0, 0, 0
+              00
+    -	0834  00      	DIG6	db 0
+    -	0835  00      	MENCONC	db 0
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    11	symbols
+    54	bytes
+
+
+
+Symbol Table:
+
+a1               805     
+a2               80a     
+a3               822     
+a4               80f     
+dig6             834     
+format         = 186     
+inic             800     
+mbd              82f     
+menconc          835     
+rest           =  9c     
+tempoc         =  30     

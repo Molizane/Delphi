@@ -6,7 +6,7 @@ object FrmTerminal: TFrmTerminal
   BorderStyle = bsToolWindow
   Caption = '  Terminal'
   ClientHeight = 364
-  ClientWidth = 880
+  ClientWidth = 1120
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -20,7 +20,7 @@ object FrmTerminal: TFrmTerminal
   object ComTerminal: TComTerminal
     Left = 0
     Top = 0
-    Width = 880
+    Width = 1120
     Height = 364
     AppendLF = True
     BorderStyle = bsNone
@@ -29,7 +29,7 @@ object FrmTerminal: TFrmTerminal
     Font.Charset = ANSI_CHARSET
     Font.Color = clWhite
     Font.Height = -12
-    Font.Name = 'Noto Mono'
+    Font.Name = 'Consolas'
     Font.Style = [fsBold]
     Rows = 26
     ScrollBars = ssVertical

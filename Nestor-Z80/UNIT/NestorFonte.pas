@@ -102,7 +102,8 @@ begin
       if FFileNames[i] = Source then
       begin
         pcFontes.ActivePageIndex := i;
-        raise Exception.Create('File already open!');
+        MessageDlg('File already open', mtInformation, [mbOK], 0);
+        Exit;
       end;
 
   TabSheet := TTabSheet.Create(Self);
@@ -177,12 +178,12 @@ begin
   srcname := ChangeFileExt(Trim(pcFontes.ActivePage.Caption), '.');
 
   try
-    DeleteFile(CompPath + srcname + 'asm');
-    DeleteFile(CompPath + srcname + 'hex');
-    DeleteFile(CompPath + srcname + 'lst');
+    DeleteFile(CompPath + srcname + 'ASM');
+    DeleteFile(CompPath + srcname + 'HEX');
+    DeleteFile(CompPath + srcname + 'LST');
     DeleteFile(CompPath + 'ok.out');
 
-    FMemosFontes[FonteIdx].Lines.SaveToFile(CompPath + srcname + 'asm');
+    FMemosFontes[FonteIdx].Lines.SaveToFile(CompPath + srcname + 'ASM');
     LstForm.Listagem.Lines.Clear;
 
     AssignFile(f, CompPath + 'comp.bat');
@@ -197,7 +198,7 @@ begin
       Writeln(f, 'IF EXIST ok.out DEL ok.out');
       Writeln(f, command);
       Writeln(f, 'IF NOT ERRORLEVEL 1 GOTO FIM');
-      Writeln(f, 'IF EXIST ' + srcname + 'hex DEL ' + srcname + 'hex');
+      Writeln(f, 'IF EXIST ' + srcname + 'HEX DEL ' + srcname + 'HEX');
       Writeln(f, ':FIM');
       Writeln(f, 'echo OK > ok.out');
     finally
@@ -213,30 +214,33 @@ begin
     if not FileExists(CompPath + 'ok.out') then
       raise Exception.Create('Compilation failed. Time-out in compilation.');
 
-    if FileExists(CompPath + srcname + 'lst') then
+    if FileExists(CompPath + srcname + 'LST') then
     begin
-      LstForm.Listagem.Lines.LoadFromFile(CompPath + srcname + 'lst');
-      FrmBreakPoints.Debug(FrmMain.Memory, CompPath + srcname + 'lst', False);
+      LstForm.Listagem.Lines.LoadFromFile(CompPath + srcname + 'LST');
+      FrmBreakPoints.Debug(FrmMain.Memory, CompPath + srcname + 'LST', False);
       btnListagem.Visible := True;
     end;
 
-    if not (FileExists(CompPath + srcname + 'lst') and FileExists(CompPath + srcname + 'hex')) then
-      raise Exception.Create('Compilation failed');
+    if FileExists(CompPath + srcname + 'HEX') then
+      LoadHex(CompPath, srcname + 'HEX', FrmMain.Memory);
 
-    LoadHex(CompPath, srcname + 'hex', FrmMain.Memory);
-
-    CopyFile(PChar(CompPath + srcname + 'HEX'), PChar(ChangeFileExt(FileName, '.HEX')), False);
+    //CopyFile(PChar(CompPath + srcname + 'HEX'), PChar(ChangeFileExt(FileName, '.HEX')), False);
     CopyFile(PChar(CompPath + srcname + 'LST'), PChar(ChangeFileExt(FileName, '.LST')), False);
+
+    if not (FileExists(CompPath + srcname + 'LST') and FileExists(CompPath + srcname + 'HEX')) then
+      MessageDlg('Compilation failed', mtError, [mbOK], 0);
 
     LstForm.ShowModal;
 
+    if not (FileExists(CompPath + srcname + 'LST') and FileExists(CompPath + srcname + 'HEX')) then
+      Exit;
+
     DeleteFile(CompPath + 'comp.bat');
-    DeleteFile(CompPath + srcname + 'asm');
-    DeleteFile(CompPath + srcname + 'lst');
-    DeleteFile(CompPath + srcname + 'hex');
+    DeleteFile(CompPath + srcname + 'ASM');
+    DeleteFile(CompPath + srcname + 'LST');
+    DeleteFile(CompPath + srcname + 'HEX');
   finally
     DeleteFile(CompPath + 'ok.out');
-
     Compile.Enabled := True;
     FrmMain.Run.Enabled := True;
     FrmMain.Step.Enabled := True;
@@ -352,7 +356,8 @@ begin
     else
       s := FFileNames[Idx];
 
-    r := Application.MessageBox(PChar('Save ' + s), 'Attention', MB_YESNOCANCEL);
+    r := Application.MessageBox(PChar('Save ' + s), 'Attention',
+      MB_YESNOCANCEL);
 
     if r = IDCANCEL then
       Abort
@@ -431,12 +436,14 @@ begin
   PixelPerCharExt := (Editor.Font.Size / 72) * 96;
   PixelPerCharInt := Trunc(PixelPerCharExt);
 
-  PixelsX := PixelPerCharInt * 2; // tab. 2 (4 characters), just change 2 with anything you like.
+  PixelsX := PixelPerCharInt * 2;
+  // tab. 2 (4 characters), just change 2 with anything you like.
 
   for i := Low(TabArray) to High(TabArray) do
     TabArray[i] := ((PixelsX * (i + 1)) * 4) div DialogUnitsX;
 
-  SendMessage(Editor.Handle, EM_SETTABSTOPS, Length(TabArray), LongInt(@TabArray));
+  SendMessage(Editor.Handle, EM_SETTABSTOPS, Length(TabArray),
+    LongInt(@TabArray));
   Editor.Refresh;
 end;
 

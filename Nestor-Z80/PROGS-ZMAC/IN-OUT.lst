@@ -1,0 +1,163 @@
+			;***************************************************
+			;  TRANSFERE ENTRADAS PARA AS SAÍDAS
+			;***************************************************
+			
+			;***********************************************************************
+				include	"defs.inc"
+**** defs.inc ****
+**** IN-OUT.ASM ****
+			;***********************************************************************
+			
+    -	2240          			org	$2240
+			
+				; INICIALIZA AS VARIÁVEIS
+   0+4	2240  AF      	INIT	xor a
+   4+13	2241  328122  			ld (INP), a
+  17+13	2244  328322  			ld (TIMES), a
+  30+13	2247  328022  			ld (OLDIN), a
+  43+11	224A  D304    			out (PPS), a
+				; LOOP PRINCIPAL
+  54+11	224C  DB02    	LOOP	in a, (PPE)		; LÊ A PORTA DE ENTRADA
+  65+4	224E  4F      			ld c, a			; SALVA EM "C"
+  69+13	224F  3A8122  			ld a, (INP)		; CARREGA O VALOR LIDO ANTERIORMENTE
+  82+4	2252  B9      			cp c			; COMPARA COM A LEITURA ATUAL
+  86+7+5	2253  280D    			jr z, SAME		; SE LEITURA ATUAL FOR IGUAL À ANTERIOR, ANALISA QUANTO TEMPO ESTÁ ESTÁVEL
+			
+  93+4	2255  79      			ld a, c			; SE NÃO FOR IGUAL:
+  97+13	2256  328122  			ld (INP), a		; SALVA O VALOR LIDO ATUAL
+ 110+4	2259  AF      			xor a
+ 114+13	225A  328322  			ld (TIMES), a	; LIMPA O CONTADOR DE VEZES DE LEITURAS
+ 127+13	225D  328022  			ld (OLDIN), a	; LIMPA O BUFFER DE VALOR ANTERIORMENTE LIDO
+ 140+12	2260  18EA    			jr LOOP			; RETORNA AO INÍCIO DO LOOP
+			
+ 152+13	2262  3A8322  	SAME	ld a, (TIMES)	; CARREGA O CONTADOR DE LEITURAS IGUAIS
+ 165+4	2265  3C      			inc a			; INCREMENTA
+ 169+13	2266  328322  			ld (TIMES), a	; SALVA O CONTADOR DE LEITURAS IGUAIS
+ 182+7	2269  FE32    			cp 50			; VERIFICA SE CHEGOU A 50 LEITURAS
+ 189+10	226B  FA4C22  			jp m, LOOP		; SE NÃO CHEGOU A 50 LEITURAS, RETORNA AO INÍCIO DO LOOP
+			
+ 199+13	226E  3A8122  			ld a, (INP)		; CARREGA O VALOR LIDO ATUAL
+ 212+4	2271  4F      			ld c, a			; SALVA EM "C"
+ 216+13	2272  3A8022  			ld a, (OLDIN)	; CARREGA O VALOR LIDO ANTERIOR
+ 229+4	2275  B9      			cp c			; VERIFICA SE A LEITURA MUDOU
+ 233+7+5	2276  28D4    			jr z, LOOP		; SE NÃO MUDOU, RETORNA AO INÍCIO DO LOOP
+			
+ 240+4	2278  79      			ld a, c			; RECUPERA O VALOR DE "C"
+ 244+13	2279  328022  			ld (OLDIN), a	; SALVA NO VALOR ANTERIOR
+ 257+11	227C  D304    			out (PPS), a	; ACIONA AS SAÍDAS
+ 268+12	227E  18CC    			jr LOOP			; RETORNA AO INÍCIO DO LOOP
+			
+    -	2280          	VARS:
+    -	2280  00      	OLDIN	db	0
+    -	2281  00      	INP		db	0
+    -	2282  00      	OUTP	db	0
+    -	2283  00      	TIMES	db	0
+			
+    -	2284          	FIM:
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    93	symbols
+    68	bytes
+
+
+
+Symbol Table:
+
+dig_0          =  c0     
+dig_1          =  f9     
+dig_2          =  a4     
+dig_3          =  b0     
+dig_4          =  99     
+dig_5          =  92     
+dig_6          =  82     
+dig_7          =  f8     
+dig_8          =  80     
+dig_9          =  90     
+dig_a          =  88     
+dig_apag       =  ff     
+dig_apo        =  fd     
+dig_asp        =  dd     
+dig_b          =  83     
+dig_c          =  a7     
+dig_chavd      =  8f     
+dig_chave      =  b9     
+dig_colchd     =  f0     
+dig_colche     =  c6     
+dig_crase      =  df     
+dig_d          =  a1     
+dig_dif        =  e4     
+dig_e          =  86     
+dig_excl       =  79     
+dig_f          =  8e     
+dig_g          =  98     
+dig_grau       =  9c     
+dig_h          =  89     
+dig_hm         =  8b     
+dig_i          =  cf     
+dig_igual      =  b7     
+dig_inter      =  ac     
+dig_j          =  e1     
+dig_l          =  c7     
+dig_m          =  c8     
+dig_mai        =  bb     
+dig_men        =  ef     
+dig_menos      =  bf     
+dig_n          =  ab     
+dig_num        =  94     
+dig_o          =  a3     
+dig_p          =  8c     
+dig_ponto      =  7f     
+dig_q          =  98     
+dig_r          =  af     
+dig_s          =  92     
+dig_t          =  87     
+dig_u          =  e3     
+dig_u_inv      =  dc     
+dig_under      =  f7     
+dig_upper      =  fe     
+dig_v          =  c1     
+dig_w          =  81     
+dig_y          =  91     
+fim             2284     
+init            2240     
+inp             2281     
+key_0          =   0     
+key_1          =   1     
+key_1m         =  12     
+key_1p         =  13     
+key_2          =   2     
+key_3          =   3     
+key_4          =   4     
+key_5          =   5     
+key_6          =   6     
+key_7          =   7     
+key_8          =   8     
+key_9          =   9     
+key_a          =   a     
+key_b          =   b     
+key_c          =   c     
+key_d          =   d     
+key_e          =   e     
+key_er         =  15     
+key_f          =   f     
+key_iv         =  16     
+key_load       =  11     
+key_perm       =  10     
+key_quad       =  17     
+key_run        =  14     
+loop            224c     
+oldin           2280     
+outp            2282     
+pdig           =   3     
+ppe            =   2     
+pps            =   4     
+pseg           =   1     
+ptec           =   1     
+same            2262     
+times           2283     
+vars            2280     

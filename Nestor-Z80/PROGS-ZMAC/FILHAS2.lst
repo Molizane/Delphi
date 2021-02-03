@@ -1,0 +1,159 @@
+			;***************************************************
+			;  EXIBE AMANDA E BIANCA
+			;***************************************************
+			
+			;***********************************************************************
+				include	"defs.inc"
+**** defs.inc ****
+**** FILHAS2.ASM ****
+			;***********************************************************************
+			
+    -	002F          	TEMPOC	equ	$2F
+    -	0050          	TEMPOD	equ	$50
+			
+    -	009C          	REST	equ $009C
+			
+    -	09F0          			org	$09F0
+			
+   0+10	09F0  011500  	INIT:	ld bc, FIM - MENS
+  10+11	09F3  C5      			push bc
+  21+10	09F4  211B0A  			ld hl, MENS
+  31+16	09F7  22190A  	L1:		ld (PNT), hl
+  47+7	09FA  162F    			ld d, TEMPOC
+  54+16	09FC  2A190A  	L2:		ld hl, (PNT)
+  70+17	09FF  CD9C00  			call REST
+  87+4	0A02  15      			dec d
+  91+7+5	0A03  20F7    			jr nz, L2
+  98+10	0A05  C1      			pop bc
+ 108+4	0A06  0D      			dec c
+ 112+7+5	0A07  2807    			jr z, AGAIN
+ 119+11	0A09  C5      			push bc
+ 130+16	0A0A  2A190A  			ld hl, (PNT)
+ 146+6	0A0D  23      			inc hl
+ 152+12	0A0E  18E7    			jr L1
+ 164+10	0A10  011400  	AGAIN:	ld bc, FIM - MENS - 1
+ 174+11	0A13  C5      			push bc
+ 185+10	0A14  211C0A  			ld hl, MENS + 1
+ 195+12	0A17  18DE    			jr L1
+			;
+    -	0A19  0000    	PNT:	dw	0000
+			;
+    -	0A1B  FFFFFFFF	MENS:	db	DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG ; seis espaços
+              FFFF
+    -	0A21  88C888AB			db	DIG_A, DIG_M, DIG_A, DIG_N, DIG_D, DIG_A ; Amanda
+              A188
+    -	0A27  FF86FF  			db	DIG_APAG, DIG_E, DIG_APAG                ; e
+    -	0A2A  83CF88AB			db	DIG_B, DIG_I, DIG_A, DIG_N, DIG_C, DIG_A and 7Fh ; Bianca (com ponto final)
+              A708
+			;
+    -	0A30  FFFFFFFF	FIM:	db	DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG ; seis espaços
+              FFFF
+    -	0A36  00      			db	0
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    94	symbols
+    71	bytes
+
+
+
+Symbol Table:
+
+again            a10     
+dig_0          =  c0     
+dig_1          =  f9     
+dig_2          =  a4     
+dig_3          =  b0     
+dig_4          =  99     
+dig_5          =  92     
+dig_6          =  82     
+dig_7          =  f8     
+dig_8          =  80     
+dig_9          =  90     
+dig_a          =  88     
+dig_apag       =  ff     
+dig_apo        =  fd     
+dig_asp        =  dd     
+dig_b          =  83     
+dig_c          =  a7     
+dig_chavd      =  8f     
+dig_chave      =  b9     
+dig_colchd     =  f0     
+dig_colche     =  c6     
+dig_crase      =  df     
+dig_d          =  a1     
+dig_dif        =  e4     
+dig_e          =  86     
+dig_excl       =  79     
+dig_f          =  8e     
+dig_g          =  98     
+dig_grau       =  9c     
+dig_h          =  89     
+dig_hm         =  8b     
+dig_i          =  cf     
+dig_igual      =  b7     
+dig_inter      =  ac     
+dig_j          =  e1     
+dig_l          =  c7     
+dig_m          =  c8     
+dig_mai        =  bb     
+dig_men        =  ef     
+dig_menos      =  bf     
+dig_n          =  ab     
+dig_num        =  94     
+dig_o          =  a3     
+dig_p          =  8c     
+dig_ponto      =  7f     
+dig_q          =  98     
+dig_r          =  af     
+dig_s          =  92     
+dig_t          =  87     
+dig_u          =  e3     
+dig_u_inv      =  dc     
+dig_under      =  f7     
+dig_upper      =  fe     
+dig_v          =  c1     
+dig_w          =  81     
+dig_y          =  91     
+fim              a30     
+init             9f0     
+key_0          =   0     
+key_1          =   1     
+key_1m         =  12     
+key_1p         =  13     
+key_2          =   2     
+key_3          =   3     
+key_4          =   4     
+key_5          =   5     
+key_6          =   6     
+key_7          =   7     
+key_8          =   8     
+key_9          =   9     
+key_a          =   a     
+key_b          =   b     
+key_c          =   c     
+key_d          =   d     
+key_e          =   e     
+key_er         =  15     
+key_f          =   f     
+key_iv         =  16     
+key_load       =  11     
+key_perm       =  10     
+key_quad       =  17     
+key_run        =  14     
+l1               9f7     
+l2               9fc     
+mens             a1b     
+pdig           =   3     
+pnt              a19     
+ppe            =   2     
+pps            =   4     
+pseg           =   1     
+ptec           =   1     
+rest           =  9c     
+tempoc         =  2f     
+tempod         =  50     
