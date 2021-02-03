@@ -1,6 +1,6 @@
 object LstForm: TLstForm
-  Left = 432
-  Top = 376
+  Left = 449
+  Top = 330
   Width = 623
   Height = 423
   Caption = '  Listagem'
@@ -18,7 +18,7 @@ object LstForm: TLstForm
     Left = 0
     Top = 0
     Width = 607
-    Height = 385
+    Height = 384
     Align = alClient
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText

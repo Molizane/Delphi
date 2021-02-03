@@ -1,6 +1,6 @@
 object FrmMain: TFrmMain
-  Left = 131
-  Top = 8
+  Left = 133
+  Top = 6
   BorderIcons = [biSystemMenu, biMinimize, biHelp]
   BorderStyle = bsSingle
   Caption = 'Nestor Z80'

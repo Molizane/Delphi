@@ -1,5 +1,5 @@
 object FrmRegistros: TFrmRegistros
-  Left = 484
+  Left = 466
   Top = 6
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow

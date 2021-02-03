@@ -1,6 +1,6 @@
 object FrmBreakPoints: TFrmBreakPoints
-  Left = 492
-  Top = 296
+  Left = 509
+  Top = 294
   Width = 466
   Height = 436
   BorderIcons = [biSystemMenu, biMaximize]
@@ -17,7 +17,7 @@ object FrmBreakPoints: TFrmBreakPoints
   OnDestroy = FormDestroy
   DesignSize = (
     450
-    398)
+    397)
   PixelsPerInch = 96
   TextHeight = 13
   object ListDebug: TCheckListBox

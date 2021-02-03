@@ -1,6 +1,6 @@
 object FrmFontes: TFrmFontes
-  Left = 7
-  Top = 290
+  Left = 16
+  Top = 281
   Width = 482
   Height = 448
   BorderIcons = [biMinimize, biMaximize]
@@ -21,7 +21,7 @@ object FrmFontes: TFrmFontes
     Left = 0
     Top = 37
     Width = 466
-    Height = 353
+    Height = 350
     Align = alClient
     PopupMenu = PopupMenu
     TabOrder = 0

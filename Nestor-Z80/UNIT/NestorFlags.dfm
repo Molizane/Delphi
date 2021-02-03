@@ -1,11 +1,11 @@
 object FrmFlags: TFrmFlags
-  Left = 3
-  Top = 7
+  Left = 5
+  Top = 6
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow
   Caption = '  Flags'
   ClientHeight = 187
-  ClientWidth = 115
+  ClientWidth = 124
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
