@@ -27,7 +27,7 @@ var
 implementation
 
 uses
-  StrUtils, EngineZ80, DisassemblyZ80, NestorMain, NestorAS80;
+  StrUtils, EngineZ80, DisassemblyZ80, NestorMain, NestorZMac;
 
 {$R *.dfm}
 

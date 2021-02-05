@@ -113,23 +113,24 @@ begin
 
       u := '';
 
-      if ((l[6] = '=') or (l[6] = ':')) then
+      if ((l[6] = '=') or (l[6] = ':')) then // CONST NAME OR LABEL
       begin
+        //VALUE = NAME EQU VALUE
         add := StrToInt('$' + LeftStr(l, 4));
 
         if l[6] = '=' then
         begin
           u := AnsiUpperCase(l);
 
-          if Pos(' ORG ', u) = 0 then
+          if Pos(' ORG ', u) = 0 then // NOT ORG DIRECTIVE
           begin
-            i := 25;
+            i := 25; // NAME, FIRST POSITION
             u := '';
 
             while (i <= Length(l)) and (l[i] > #32) do
             begin
-              if l[i] = #9 then
-                AddTab(u)
+              if l[i] = #9 then // END OF NAME
+                AddTab(u) // SAVE NAME
               else
                 u := u + l[i];
 
@@ -139,9 +140,9 @@ begin
           else
             u := '';
         end
-        else if l[25] >= 'A' then
+        else if l[25] >= 'A' then // LABEL NAME
         begin
-          i := 25;
+          i := 25; // LABEL NAME, FIRST POSITION
           u := '';
 
           while (i <= Length(l)) and (l[i] in ['0'..'9', 'A'..'Z', 'a'..'z', '_']) do
@@ -152,7 +153,7 @@ begin
         end;
 
         if u <> '' then
-          ListSym.AddObject(u, TObject(add));
+          ListSym.AddObject(u, TObject(add)); // SAVE LABEL NAME AND ADDRESS
       end;
     end;
 
@@ -166,31 +167,39 @@ begin
     begin
       Readln(arq, l);
 
+      l := Trim(l);
+
       if (l = '') or ((Length(l) > 1) and ((l[1] < #32) or (l[1] = '-'))) then
         Continue;
 
-      l := Trim(l);
       u := '';
-      i := 1;
 
-      while i <= Length(l) do
+      if Pos(#9, l) <> 0 then
       begin
-        if l[i] = #9 then
-          AddTab(u)
-        else
-          u := u + l[i];
+        // NAME <tab> equ <spc> or <tab> VALUE
+        i := 1;
 
-        Inc(i);
-      end;
+        while i <= Length(l) do
+        begin
+          if l[i] = #9 then
+            AddTab(u)
+          else
+            u := u + l[i];
+
+          Inc(i);
+        end;
+     end;
 
       l := u;
 
       if (Length(l) > 0) and ((l[6] = '=') or (l[6] = ':')) then
       begin
+        //VALUE = NAME <tab> EQU <spc> VALUE
         if l[6] = '=' then
           defs := True
         else
         begin
+          // INSTRUCTION LINE
           defs := False;
           add := StrToInt('$' + LeftStr(l, 4));
           u := Copy(l, 25, Length(l));

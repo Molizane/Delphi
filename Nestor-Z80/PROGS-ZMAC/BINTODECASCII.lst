@@ -1,59 +1,55 @@
-			;Number in hl to decimal ASCII
-			;Thanks to z80 Bits
-			;inputs:	hl = number to ASCII
-			;example: hl=300 outputs '00300'
-			;destroys: af, bc, hl, de used
-			
-			;***********************************************************************
-			;	include	"defs.inc"
-			;***********************************************************************
-			;	include	"nestor.inc"
-			;***********************************************************************
-			
-    -	009C          	REST	equ $009C
-			
-    -	0050          	TEMPOD	equ	$50
-			
-    -	2290          			org	$2290
-			
-   0+10	2290  210000  	INIT:	ld hl, 0
-  10+11	2293  E5      	LOOP:	push hl
-  21+14	2294  DD21DD22			ld ix, FIM
-  35+17	2298  CDA222  			call DispHL
-  52+17	229B  CDCB22  			call Timer
-  69+10	229E  E1      			pop hl
-  79+6	229F  23      			inc hl
-  85+12	22A0  18F1    			jr LOOP
-			
-  97+10	22A2  01F0D8  	DispHL:	ld bc, -10000
- 107+17	22A5  CDBD22  			call Num1
- 124+10	22A8  0118FC  			ld bc, -1000
- 134+17	22AB  CDBD22  			call Num1
- 151+10	22AE  019CFF  			ld bc, -100
- 161+17	22B1  CDBD22  			call Num1
- 178+10	22B4  01F6FF  			ld bc, -10
- 188+17	22B7  CDBD22  			call Num1
- 205+10	22BA  01FFFF  			ld bc, -1
- 215+7	22BD  3E2F    	Num1:	ld a, '0'- 1
- 222+4	22BF  3C      	Num2:	inc a
- 226+11	22C0  09      			add hl, bc
- 237+7+5	22C1  38FC    			jr c, Num2
- 244+15	22C3  ED42    			sbc hl, bc
- 259+19	22C5  DD7700  			ld (ix), a
- 278+10	22C8  DD2B    			dec ix
- 288+10	22CA  C9      			ret
-			
- 298+7	22CB  1650    	Timer:	ld d, TEMPOD
- 305+10	22CD  21D722  	Timer1:	ld hl, BUFFER
- 315+17	22D0  CD9C00  			call REST
- 332+4	22D3  15      			dec d
- 336+7+5	22D4  20F7    			jr nz, Timer1
- 343+10	22D6  C9      			ret
-			;
-    -	22D7  00000000	BUFFER:	db 0, 0, 0, 0, 0, 0
-              0000
-			;
-    -	22DD          	FIM:
+		;Number in hl to decimal ASCII
+		;Thanks to z80 Bits
+		;inputs:	hl = number to ASCII
+		;example: hl=300 outputs '00300'
+		;destroys: af, bc, hl, de used
+		
+009C          	REST	equ $009C
+		
+0050          	TEMPOD	equ	$50
+		
+2290          			org	$2290
+		
+2290  210A00  	INIT:	ld hl, 10
+2293  E5      	LOOP:	push hl
+2294  DD21E022			ld ix, FIM
+2298  CDA622  			call DispHL
+229B  C7      			rst 0
+229C  CDCF22  			call Timer
+229F  E1      			pop hl
+22A0  23      			inc hl
+22A1  C30000  			jp 0
+22A4  18ED    			jr LOOP
+		
+22A6  01F0D8  	DispHL:	ld bc, -10000
+22A9  CDC122  			call Num1
+22AC  0118FC  			ld bc, -1000
+22AF  CDC122  			call Num1
+22B2  019CFF  			ld bc, -100
+22B5  CDC122  			call Num1
+22B8  01F6FF  			ld bc, -10
+22BB  CDC122  			call Num1
+22BE  01FFFF  			ld bc, -1
+22C1  3E2F    	Num1:	ld a, '0'- 1
+22C3  3C      	Num2:	inc a
+22C4  09      			add hl, bc
+22C5  38FC    			jr c, Num2
+22C7  ED42    			sbc hl, bc
+22C9  DD7700  			ld (ix), a
+22CC  DD2B    			dec ix
+22CE  C9      			ret
+		
+22CF  1650    	Timer:	ld d, TEMPOD
+22D1  21DB22  	Timer1:	ld hl, BUFFER
+22D4  CD9C00  			call REST
+22D7  15      			dec d
+22D8  20F7    			jr nz, Timer1
+22DA  C9      			ret
+		;
+22DB  00000000	BUFFER:	db 0, 0, 0, 0, 0
+      00
+		;
+22E0  00      	FIM:	db 0
 
 
 
@@ -62,20 +58,4 @@ Statistics:
      4	passes
      0	jr promotions
     11	symbols
-    77	bytes
-
-
-
-Symbol Table:
-
-buffer          22d7     
-disphl          22a2     
-fim             22dd     
-init            2290     
-loop            2293     
-num1            22bd     
-num2            22bf     
-rest           =  9c     
-tempod         =  50     
-timer           22cb     
-timer1          22cd     
+    81	bytes

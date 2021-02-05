@@ -1,734 +1,734 @@
-			;****************************************
-			;        PROGRAMA MONITOR NESTOR
-			;            NOVA ELETRÔNICA
-			;     SAO PAULO S.P. 01/84 MSCS/JRP
-			;****************************************
-			
-    -	0003          	PDIG	equ $03 ; saída coluna teclado e display
-    -	0001          	PSEG	equ $01 ; saída caracter para o display
-    -	0001          	PTEC	equ $01 ; entrada linha teclado
-			
-    -	0001          	ATRASO	equ $0001
-    -	0BE4          	TOPSP	equ $0be4
-    -	0BE5          	MENCON	equ $0be5
-    -	0BE6          	FLAG	equ $0be6
-    -	0BE7          	BUFDISP	equ $0be7
-    -	0BEB          	BYTES	equ $0beb
-    -	0BED          	ENDISP	equ $0bed
-    -	0BEE          	PBE		equ $0bee
-    -	0BEF          	PAE		equ $0bef
-    -	0BF0          	ROT		equ $0bf0
-    -	0BF2          	ROTNMI	equ $0bf2
-    -	0BF7          	MENI	equ $0bf7
-    -	0BF8          	MENF	equ $0bf8
-    -	0BF9          	MENA	equ $0bf9
-    -	0BFA          	MENL	equ $0bfa
-    -	0BFB          	MENH	equ $0bfb
-    -	0BFC          	MENE	equ $0bfc
-    -	0BFD          	MEND	equ $0bfd
-    -	0BFE          	MENC	equ $0bfe
-    -	0BFF          	MENB	equ $0bff
-    -	0C00          	SPPOS	equ	$0c00
-			
-    -	0000          			org $0000
-   0+10	0000  31000C  			ld sp,SPPOS
-  10+11	0003  C5      			push bc
-  21+11	0004  D5      			push de
-  32+11	0005  E5      			push hl
-  43+11	0006  F5      			push af
-  54+10	0007  21E60B  			ld hl,FLAG
-  64+10	000A  3619    			ld (hl),$19
-  74+10	000C  215C00  			ld hl,MENS
-  84+10	000F  11E70B  			ld de,BUFDISP
-  94+10	0012  010600  			ld bc,$0006
- 104+16+5	0015  EDB0    			ldir
-			
- 120+10	0017  31E40B  	INICIO	ld sp,TOPSP
- 130+10	001A  21E70B  			ld hl,BUFDISP
- 140+7	001D  0600    			ld b,$00
- 147+7	001F  1E06    			ld e,$06
- 154+7	0021  3E01    			ld a,$01
- 161+17	0023  CD9000  	NE1		call VARR
- 178+4	0026  79      			ld a,c
- 182+4	0027  87      			add a,a
- 186+4	0028  1D      			dec e
- 190+10	0029  C22300  			jp nz,NE1
- 200+4	002C  78      			ld a,b
- 204+7	002D  FE00    			cp $00
- 211+10	002F  CA1700  			jp z,INICIO
- 221+10	0032  21E70B  	NE2		ld hl,BUFDISP
- 231+17	0035  CD9C00  			call REST
- 248+4	0038  7A      			ld a,d
- 252+11	0039  D303    			out (PDIG),a
- 263+11	003B  DB01    			in a,(PTEC)
- 274+7	003D  FE00    			cp $00
- 281+10	003F  C23200  			jp nz,NE2
- 291+17	0042  CDBD00  			call AJCOL
- 308+17	0045  CDD800  			call AJTEC
- 325+7	0048  FE13    			cp $13
- 332+10	004A  CA7700  			jp z,NE3
- 342+7	004D  FE10    			cp $10
- 349+10	004F  DA8300  			jp c,NE4
- 359+17	0052  CDF000  	NE5		call ALTCOM
- 376+10	0055  21E60B  	NE6		ld hl,FLAG
- 386+7	0058  7E      			ld a,(hl)
- 393+10	0059  C36900  			jp RECCOM
-			
-			;****************************************
-			;  MENSAGEM INICIAL
-			;****************************************
-			
-    -	005C  C8      	MENS	db $c8	; N
-    -	005D  86      			db $86	; E
-    -	005E  92      			db $92	; S
-    -	005F  87      			db $87	; T
-    -	0060  C0      			db $c0	; O
-    -	0061  CE      			db $ce	; R
-    -	0062  00      			db $00
-    -	0063  00      			db $00
-    -	0064  00      			db $00
-    -	0065  00      			db $00
-			
-			;****************************************
-			;  ponto de entrada de interrupção nmi
-			;****************************************
-			
- 403+10	0066  C3F102  	NMINT	jp RIV
-			
-			;****************************************
-			;  ROTINA DE RECONHECIMENTO DE COMANDOS
-			;****************************************
-			
- 413+10	0069  212003  	RECCOM	ld hl,TABCOM + 1
- 423+4	006C  85      			add a,l
- 427+4	006D  6F      			ld l,a
- 431+7	006E  7E      			ld a,(hl)
- 438+4	006F  4F      			ld c,a
- 442+7	0070  3E0A    			ld a,$0a
- 449+4	0072  85      			add a,l
- 453+4	0073  6F      			ld l,a
- 457+7	0074  6E      			ld l,(hl)
- 464+4	0075  61      			ld h,c
- 468+4	0076  E9      			jp (hl)
-			
- 472+10	0077  21E60B  	NE3		ld hl,FLAG
- 482+7	007A  7E      			ld a,(hl)
- 489+7	007B  FE15    			cp $15
- 496+10	007D  CAF401  			jp z,SELREG
- 506+10	0080  C35200  			jp NE5
-			
- 516+10	0083  21E60B  	NE4		ld hl,FLAG
- 526+7	0086  7E      			ld a,(hl)
- 533+7	0087  FE15    			cp $15
- 540+10	0089  CA0502  			jp z,ALTREG
- 550+4	008C  00      			nop
- 554+10	008D  C35500  			jp NE6
-			
-			;****************************************
-			;  rotina de varredura
-			;****************************************
-			
- 564+4	0090  4F      	VARR	ld c,a
- 568+17	0091  CDA900  			call TEMPO
- 585+11	0094  DB01    			in a,(PTEC)
- 596+7	0096  FE00    			cp $00
- 603+5+6	0098  C8      			ret z
- 608+4	0099  47      			ld b,a
- 612+4	009A  51      			ld d,c
- 616+10	009B  C9      			ret
-			
-			;****************************************
-			;  rotina de restauração
-			;****************************************
-			
- 626+7	009C  0E06    	REST	ld c,$06
- 633+7	009E  3E01    			ld a,$01
- 640+17	00A0  CDA900  	NE7		call TEMPO
- 657+4	00A3  87      			add a,a
- 661+4	00A4  0D      			dec c
- 665+5+6	00A5  C8      			ret z
- 670+10	00A6  C3A000  			jp NE7
-			
-			;****************************************
-			;  rotina de tempo
-			;****************************************
-			
- 680+11	00A9  F5      	TEMPO	push af
- 691+11	00AA  D303    			out (PDIG),a
- 702+7	00AC  7E      			ld a,(hl)
- 709+11	00AD  D301    			out (PSEG),a
- 720+4	00AF  D9      			exx
- 724+10	00B0  110100  			ld de,ATRASO
- 734+6	00B3  1B      	LOOP1	dec de
- 740+4	00B4  7A      			ld a,d
- 744+4	00B5  B3      			or e
- 748+10	00B6  C2B300  			jp nz,LOOP1
- 758+4	00B9  D9      			exx
- 762+6	00BA  23      			inc hl
- 768+10	00BB  F1      			pop af
- 778+10	00BC  C9      			ret
-			
-			;****************************************
-			;  rotina de ajuste de coluna
-			;****************************************
-			
- 788+7	00BD  0E00    	AJCOL	ld c,$00
- 795+7	00BF  3E01    			ld a,$01
- 802+4	00C1  BA      			cp d
- 806+10	00C2  CAD600  			jp z,NE8
- 816+4	00C5  87      			add a,a
- 820+7	00C6  0E08    			ld c,$08
- 827+4	00C8  BA      			cp d
- 831+10	00C9  CAD600  			jp z,NE8
- 841+4	00CC  87      			add a,a
- 845+7	00CD  0E10    			ld c,$10
- 852+4	00CF  BA      			cp d
- 856+10	00D0  CAD600  			jp z,NE8
- 866+10	00D3  C31700  			jp INICIO
-			
- 876+4	00D6  51      	NE8		ld d,c
- 880+10	00D7  C9      			ret
-			
-			;****************************************
-			;  rotina de ajuste de tecla
-			;****************************************
-			
- 890+7	00D8  1E08    	AJTEC	ld e,$08
- 897+7	00DA  0E00    			ld c,$00
- 904+7	00DC  3E01    			ld a,$01
- 911+4	00DE  B8      	NE10	cp b
- 915+10	00DF  CAEB00  			jp z,NE9
- 925+4	00E2  0C      			inc c
- 929+4	00E3  87      			add a,a
- 933+4	00E4  1D      			dec e
- 937+10	00E5  C2DE00  			jp nz,NE10
- 947+10	00E8  C31700  			jp INICIO
-			
- 957+4	00EB  79      	NE9		ld a,c
- 961+4	00EC  82      			add a,d
- 965+4	00ED  47      			ld b,a
- 969+4	00EE  00      			nop
- 973+10	00EF  C9      			ret
-			
-			;****************************************
-			;  rotina de alterar comando
-			;****************************************
-			
- 983+10	00F0  21E60B  	ALTCOM	ld hl,FLAG
- 993+7	00F3  70      			ld (hl),b
-1000+10	00F4  C9      			ret
-			
-			;****************************************
-			;  rotina de permissão
-			;****************************************
-			
-1010+7	00F5  0E06    	ROTPER	ld c,$06
-1017+10	00F7  21E60B  			ld hl,FLAG
-1027+10	00FA  3617    			ld (hl),$17	; executando a rotina "Permissão"
-1037+6	00FC  23      			inc hl
-1043+10	00FD  36FF    	NE11	ld (hl),$FF
-1053+6	00FF  23      			inc hl
-1059+4	0100  0D      			dec c
-1063+10	0101  C2FD00  			jp nz,NE11
-1073+10	0104  3600    			ld (hl),$00
-1083+6	0106  23      			inc hl
-1089+10	0107  3600    			ld (hl),$00
-1099+6	0109  23      			inc hl
-1105+10	010A  3600    			ld (hl),$00
-1115+10	010C  C31700  			jp INICIO
-			
-			;****************************************
-			;  rotina de campo de endereços
-			;****************************************
-			
-1125+10	010F  21EE0B  	ROTCP	ld hl,PBE
-1135+4	0112  78      			ld a,b
-1139+18	0113  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-1157+6	0115  23      			inc hl
-1163+18	0116  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-1181+17	0118  CD5201  			call DECOD
-1198+10	011B  C31700  			jp INICIO
-			
-			;****************************************
-			;  rotina de leitura
-			;****************************************
-			
-1208+17	011E  CD4001  	ROTLT	call ATUAL
-1225+10	0121  21E60B  			ld hl,FLAG
-1235+10	0124  3618    			ld (hl),$18
-1245+10	0126  21EF0B  			ld hl,PAE
-1255+17	0129  CD5201  			call DECOD
-1272+10	012C  C31700  			jp INICIO
-			
-			;****************************************
-			;  rotina de campo de dados
-			;****************************************
-			
-1282+17	012F  CD4001  	ROTCD	call ATUAL
-1299+4	0132  78      			ld a,b
-1303+18	0133  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-1321+7	0135  7E      			ld a,(hl)
-1328+7	0136  12      			ld (de),a
-1335+10	0137  21EF0B  			ld hl,PAE
-1345+17	013A  CD5201  			call DECOD
-1362+10	013D  C31700  			jp INICIO
-			
-			;****************************************
-			;  rotina de atualização
-			;****************************************
-			
-1372+10	0140  21EE0B  	ATUAL	ld hl,PBE
-1382+7	0143  5E      			ld e,(hl)
-1389+6	0144  23      			inc hl
-1395+7	0145  56      			ld d,(hl)
-1402+7	0146  1A      			ld a,(de)
-1409+6	0147  2B      			dec hl
-1415+6	0148  2B      			dec hl
-1421+7	0149  77      			ld (hl),a
-1428+11	014A  E5      			push hl
-1439+10	014B  21E60B  			ld hl,FLAG
-1449+10	014E  3618    			ld (hl),$18
-1459+10	0150  E1      			pop hl
-1469+10	0151  C9      			ret
-			
-			;****************************************
-			;  rotina de decodificação
-			;****************************************
-			
-1479+10	0152  01E70B  	DECOD	ld bc,BUFDISP
-1489+17	0155  CD6E01  			call DISPLAY
-1506+6	0158  2B      			dec hl
-1512+17	0159  CD6E01  			call DISPLAY
-1529+6	015C  2B      			dec hl
-1535+17	015D  CD6E01  			call DISPLAY
-1552+10	0160  C9      			ret
-			
-			;****************************************
-			;  rotina de ajuste memória de endereço
-			;****************************************
-			
-1562+10	0161  21EE0B  	RAME	ld hl,PBE
-1572+7	0164  73      			ld (hl),e
-1579+6	0165  23      			inc hl
-1585+7	0166  72      			ld (hl),d
-1592+6	0167  2B      			dec hl
-1598+6	0168  2B      			dec hl
-1604+7	0169  1A      			ld a,(de)
-1611+7	016A  77      			ld (hl),a
-1618+10	016B  C9      			ret
-    -	016C  FFFF    			dw $ffff
-			
-			;****************************************
-			;  rotina de display
-			;****************************************
-			
-1628+7	016E  7E      	DISPLAY	ld a,(hl)
-1635+11	016F  E5      			push hl
-1646+10	0170  21F00B  			ld hl,ROT
-1656+7	0173  77      			ld (hl),a
-1663+4	0174  AF      			xor a
-1667+18	0175  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-1685+17	0177  CD8601  			call FORMAT
-1702+7	017A  02      			ld (bc),a
-1709+6	017B  03      			inc bc
-1715+4	017C  AF      			xor a
-1719+18	017D  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-1737+17	017F  CD8601  			call FORMAT
-1754+7	0182  02      			ld (bc),a
-1761+6	0183  03      			inc bc
-1767+10	0184  E1      			pop hl
-1777+10	0185  C9      			ret
-			
-			;****************************************
-			;  rotina de formatação
-			;****************************************
-			
-1787+11	0186  D5      	FORMAT	push de
-1798+10	0187  118F01  			ld de,INTD
-1808+4	018A  83      			add a,e
-1812+4	018B  5F      			ld e,a
-1816+7	018C  1A      			ld a,(de)
-1823+10	018D  D1      			pop de
-1833+10	018E  C9      			ret
-			
-			;****************************************
-			;  tabela de formatos alfa (números)
-			;****************************************
-			
-    -	018F  C0      	INTD	db $c0
-    -	0190  F9      			db $f9
-    -	0191  A4      			db $a4
-    -	0192  B0      			db $b0
-    -	0193  99      			db $99
-    -	0194  92      			db $92
-    -	0195  82      			db $82
-    -	0196  F8      			db $f8
-    -	0197  80      			db $80
-    -	0198  90      			db $90
-    -	0199  88      			db $88
-    -	019A  83      			db $83
-    -	019B  C6      			db $c6
-    -	019C  A1      			db $a1
-    -	019D  86      			db $86
-    -	019E  8E      			db $8e
-			
-			;****************************************
-			;  rotina de próximo
-			;****************************************
-			
-1843+17	019F  CD4001  	ROTPR	call ATUAL
-1860+6	01A2  13      			inc de
-1866+17	01A3  CD6101  			call RAME
-1883+10	01A6  21EF0B  			ld hl,PAE
-1893+17	01A9  CD5201  			call DECOD
-1910+10	01AC  C31700  			jp INICIO
-			
-			;****************************************
-			;  rotina de último
-			;****************************************
-			
-1920+17	01AF  CD4001  	ROTUL	call ATUAL
-1937+6	01B2  1B      			dec de
-1943+17	01B3  CD6101  			call RAME
-1960+10	01B6  21EF0B  			ld hl,PAE
-1970+17	01B9  CD5201  			call DECOD
-1987+10	01BC  C31700  			jp INICIO
-			
-			;****************************************
-			;  rotina de rodar
-			;****************************************
-			
-    -	01C8          			org $01c8
-			
-1997+7	01C8  3EFF    	ROTRD	ld a,$FF
-2004+11	01CA  D303    			out (PDIG),a
-2015+7	01CC  3E7F    			ld a,$7f
-2022+11	01CE  D301    			out (PSEG),a
-2033+10	01D0  21ED0B  			ld hl,ENDISP	; antes estava "MEND"
-2043+10	01D3  36C3    			ld (hl),$c3	; $c3 = "jp"
-2053+10	01D5  31F80B  			ld sp,MENF		; antes estava "MENI"
-2063+11	01D8  F5      			push af
-2074+11	01D9  E5      			push hl
-2085+11	01DA  D5      			push de
-2096+11	01DB  C5      			push bc
-2107+10	01DC  31E40B  			ld sp,TOPSP
-2117+10	01DF  C3ED0B  			jp ENDISP
-			
-			;****************************************
-			;  rotina de exame de registradores
-			;****************************************
-			
-2127+10	01E2  21E50B  	ROTER	ld hl,MENCON
-2137+10	01E5  36FE    			ld (hl),$FE
-2147+10	01E7  C3F401  			jp SELREG
-			
-			;****************************************
-			;  rotina de inicialização
-			;****************************************
-			
-2157+10	01EA  21E70B  	INICIAL	ld hl,BUFDISP
-2167+10	01ED  36FF    			ld (hl),$FF
-2177+6	01EF  23      			inc hl
-2183+10	01F0  36FF    			ld (hl),$FF
-2193+6	01F2  23      			inc hl
-2199+10	01F3  C9      			ret
-			
-			;****************************************
-			;  rotina de seleção de registradores
-			;****************************************
-			
-2209+10	01F4  110403  	SELREG	ld de,TABREG
-2219+10	01F7  21E50B  			ld hl,MENCON
-2229+11	01FA  34      			inc (hl)
-2240+11	01FB  34      			inc (hl)
-2251+4	01FC  7B      			ld a,e
-2255+7	01FD  86      			add a,(hl)
-2262+4	01FE  5F      	NE12	ld e,a
-2266+7	01FF  1A      			ld a,(de)
-2273+4	0200  6F      			ld l,a
-2277+6	0201  13      			inc de
-2283+7	0202  1A      			ld a,(de)
-2290+4	0203  67      			ld h,a
-2294+4	0204  E9      			jp (hl)
-			
-			;****************************************
-			;  rotina de alteração de registradores
-			;****************************************
-			
-2298+10	0205  21E50B  	ALTREG	ld hl,MENCON
-2308+10	0208  111B03  			ld de,TABALT
-2318+4	020B  7B      			ld a,e
-2322+7	020C  86      			add a,(hl)
-2329+10	020D  C3FE01  			jp NE12
-			
-			;****************************************
-			;  registrador a
-			;****************************************
-			
-2339+17	0210  CDEA01  	REGA	call INICIAL
-2356+10	0213  3688    			ld (hl),$88
-2366+6	0215  23      			inc hl
-2372+10	0216  36B7    			ld (hl),$b7
-2382+10	0218  21F90B  			ld hl,MENA
-2392+10	021B  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  rotina de saída
-			;****************************************
-			
-2402+10	021E  01EB0B  	ROTSA	ld bc,BYTES
-2412+17	0221  CD6E01  			call DISPLAY
-2429+10	0224  C31700  			jp INICIO
-			
-			;****************************************
-			;  altera registrador a
-			;****************************************
-			
-2439+10	0227  21F90B  	ALTA	ld hl,MENA
-2449+4	022A  78      			ld a,b
-2453+18	022B  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-2471+10	022D  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador b
-			;****************************************
-			
-2481+17	0230  CDEA01  	REGB	call INICIAL
-2498+10	0233  3683    			ld (hl),$83
-2508+6	0235  23      			inc hl
-2514+10	0236  36B7    			ld (hl),$b7
-2524+10	0238  21FF0B  			ld hl,MENB
-2534+10	023B  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador b
-			;****************************************
-			
-2544+10	023E  21FF0B  	ALTB	ld hl,MENB
-2554+4	0241  78      			ld a,b
-2558+18	0242  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-2576+10	0244  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador c
-			;****************************************
-			
-2586+17	0247  CDEA01  	REGC	call INICIAL
-2603+10	024A  36C6    			ld (hl),$c6
-2613+6	024C  23      			inc hl
-2619+10	024D  36B7    			ld (hl),$b7
-2629+10	024F  21FE0B  			ld hl,MENC
-2639+10	0252  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador c
-			;****************************************
-			
-2649+10	0255  21FE0B  	ALTC	ld hl,MENC
-2659+4	0258  78      			ld a,b
-2663+18	0259  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-2681+10	025B  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador d
-			;****************************************
-			
-2691+17	025E  CDEA01  	REGD	call INICIAL
-2708+10	0261  36A1    			ld (hl),$a1
-2718+6	0263  23      			inc hl
-2724+10	0264  36B7    			ld (hl),$b7
-2734+10	0266  21FD0B  			ld hl,MEND
-2744+10	0269  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador d
-			;****************************************
-			
-2754+10	026C  21FD0B  	ALTD	ld hl,MEND
-2764+4	026F  78      			ld a,b
-2768+18	0270  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-2786+10	0272  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador e
-			;****************************************
-			
-2796+17	0275  CDEA01  	REGE	call INICIAL
-2813+10	0278  3686    			ld (hl),$86
-2823+6	027A  23      			inc hl
-2829+10	027B  36B7    			ld (hl),$b7
-2839+10	027D  21FC0B  			ld hl,MENE
-2849+10	0280  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador e
-			;****************************************
-			
-2859+10	0283  21FC0B  	ALTE	ld hl,MENE
-2869+4	0286  78      			ld a,b
-2873+18	0287  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-2891+10	0289  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador h
-			;****************************************
-			
-2901+17	028C  CDEA01  	REGH	call INICIAL
-2918+10	028F  3689    			ld (hl),$89
-2928+6	0291  23      			inc hl
-2934+10	0292  36B7    			ld (hl),$b7
-2944+10	0294  21FB0B  			ld hl,MENH
-2954+10	0297  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador h
-			;****************************************
-			
-2964+10	029A  21FB0B  	ALTH	ld hl,MENH
-2974+4	029D  78      			ld a,b
-2978+18	029E  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-2996+10	02A0  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador l
-			;****************************************
-			
-3006+17	02A3  CDEA01  	REGL	call INICIAL
-3023+10	02A6  36C7    			ld (hl),$c7
-3033+6	02A8  23      			inc hl
-3039+10	02A9  36B7    			ld (hl),$b7
-3049+10	02AB  21FA0B  			ld hl,MENL
-3059+10	02AE  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador l
-			;****************************************
-			
-3069+10	02B1  21FA0B  	ALTL	ld hl,MENL
-3079+4	02B4  78      			ld a,b
-3083+18	02B5  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-3101+10	02B7  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador f
-			;****************************************
-			
-3111+17	02BA  CDEA01  	REGF	call INICIAL
-3128+10	02BD  368E    			ld (hl),$8e
-3138+6	02BF  23      			inc hl
-3144+10	02C0  36B7    			ld (hl),$b7
-3154+10	02C2  21F80B  			ld hl,MENF
-3164+10	02C5  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador f
-			;****************************************
-			
-3174+10	02C8  21F80B  	ALTF	ld hl,MENF
-3184+4	02CB  78      			ld a,b
-3188+18	02CC  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-3206+10	02CE  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  registrador i
-			;****************************************
-			
-3216+9	02D1  ED57    	REGI	ld a,i
-3225+10	02D3  21F70B  			ld hl,MENI
-3235+7	02D6  77      			ld (hl),a
-3242+17	02D7  CDEA01  			call INICIAL
-3259+10	02DA  36F9    			ld (hl),$f9
-3269+6	02DC  23      			inc hl
-3275+10	02DD  36B7    			ld (hl),$b7
-3285+10	02DF  21F70B  			ld hl,MENI
-3295+10	02E2  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  altera registrador i
-			;****************************************
-			
-3305+10	02E5  21F70B  	ALTI	ld hl,MENI
-3315+4	02E8  78      			ld a,b
-3319+18	02E9  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
-3337+7	02EB  7E      			ld a,(hl)
-3344+9	02EC  ED47    			ld i,a
-3353+10	02EE  C31E02  			jp ROTSA
-			
-			;****************************************
-			;  rotina para o vetor de interrupção
-			;****************************************
-			
-3363+10	02F1  01F20B  	RIV		ld bc,ROTNMI
-3373+7	02F4  3EC3    			ld a,$c3		; $c3 = "jp"
-3380+7	02F6  02      			ld (bc),a
-3387+6	02F7  03      			inc bc
-3393+10	02F8  21EE0B  			ld hl,PBE
-3403+7	02FB  7E      			ld a,(hl)
-3410+7	02FC  02      			ld (bc),a
-3417+6	02FD  03      			inc bc
-3423+6	02FE  23      			inc hl
-3429+7	02FF  7E      			ld a,(hl)
-3436+7	0300  02      			ld (bc),a
-3443+10	0301  C31700  			jp INICIO
-			
-			;****************************************
-			;  tabela de seleção de registradores
-			;****************************************
-			
-    -	0304  1002    	TABREG	dw REGA
-    -	0306  3002    			dw REGB
-    -	0308  4702    			dw REGC
-    -	030A  5E02    			dw REGD
-    -	030C  7502    			dw REGE
-    -	030E  8C02    			dw REGH
-    -	0310  A302    			dw REGL
-    -	0312  BA02    			dw REGF
-    -	0314  D102    			dw REGI
-    -	0316  1803    			dw $ + 2
-3453+10	0318  C3E201  			jp ROTER
-			
-			;****************************************
-			;  tabela de alteração de registradores
-			;****************************************
-			
-    -	031B  2702    	TABALT	dw ALTA
-    -	031D  3E02    			dw ALTB
-    -	031F  5502    	TABCOM	dw ALTC
-    -	0321  6C02    			dw ALTD
-    -	0323  8302    			dw ALTE
-    -	0325  9A02    			dw ALTH
-    -	0327  B102    			dw ALTL
-    -	0329  C802    			dw ALTF
-    -	032B  E502    			dw ALTI
-    -	032D  00      			db $00
-    -	032E  00      			db $00
-    -	032F  00      			db $00
-			
-			;****************************************
-			;  tabela de seleção de comandos
-			;****************************************
-			
-    -	0330  00      			db (ROTPER >> 8) & $FF ; ROTPER (MSB)
-    -	0331  01      			db (ROTLT  >> 8) & $FF ; ROTLT  (MSB)
-    -	0332  01      			db (ROTUL  >> 8) & $FF ; ROTUL  (MSB)
-    -	0333  01      			db (ROTPR  >> 8) & $FF ; ROTPR  (MSB)
-    -	0334  01      			db (ROTRD  >> 8) & $FF ; ROTRD  (MSB)
-    -	0335  01      			db (ROTER  >> 8) & $FF ; ROTER  (MSB)
-    -	0336  02      			db (RIV    >> 8) & $FF ; RIV    (MSB)
-    -	0337  01      			db (ROTCP  >> 8) & $FF ; ROTCP  (MSB)
-    -	0338  01      			db (ROTCD  >> 8) & $FF ; ROTCD  (MSB)
-    -	0339  00      			db (INICIO >> 8) & $FF ; INICIO (MSB)
-			
-    -	033A  F5      			db (ROTPER & $FF) 		; ROTPER (LSB)
-    -	033B  1E      			db (ROTLT  & $FF) 		; ROTLT  (LSB)
-    -	033C  AF      			db (ROTUL  & $FF) 		; ROTUL  (LSB)
-    -	033D  9F      			db (ROTPR  & $FF) 		; ROTPR  (LSB)
-    -	033E  C8      			db (ROTRD  & $FF) 		; ROTRD  (LSB)
-    -	033F  E2      			db (ROTER  & $FF) 		; ROTER  (LSB)
-    -	0340  F1      			db (RIV    & $FF) 		; RIV    (LSB)
-    -	0341  0F      			db (ROTCP  & $FF) 		; ROTCP  (LSB)
-    -	0342  2F      			db (ROTCD  & $FF) 		; ROTCD  (LSB)
-    -	0343  17      			db (INICIO & $FF) 		; INICIO (LSB)
+		;****************************************
+		;        PROGRAMA MONITOR NESTOR
+		;            NOVA ELETRÔNICA
+		;     SAO PAULO S.P. 01/84 MSCS/JRP
+		;****************************************
+
+0003          	PDIG	equ $03 ; saída coluna teclado e display
+0001          	PSEG	equ $01 ; saída caracter para o display
+0001          	PTEC	equ $01 ; entrada linha teclado
+
+0001          	ATRASO	equ $0001
+0BE4          	TOPSP	equ $0be4
+0BE5          	MENCON	equ $0be5
+0BE6          	FLAG	equ $0be6
+0BE7          	BUFDISP	equ $0be7
+0BEB          	BYTES	equ $0beb
+0BED          	ENDISP	equ $0bed
+0BEE          	PBE		equ $0bee
+0BEF          	PAE		equ $0bef
+0BF0          	ROT		equ $0bf0
+0BF2          	ROTNMI	equ $0bf2
+0BF7          	MENI	equ $0bf7
+0BF8          	MENF	equ $0bf8
+0BF9          	MENA	equ $0bf9
+0BFA          	MENL	equ $0bfa
+0BFB          	MENH	equ $0bfb
+0BFC          	MENE	equ $0bfc
+0BFD          	MEND	equ $0bfd
+0BFE          	MENC	equ $0bfe
+0BFF          	MENB	equ $0bff
+0C00          	SPPOS	equ	$0c00
+
+0000          			org $0000
+0000  31000C  			ld sp,SPPOS
+0003  C5      			push bc
+0004  D5      			push de
+0005  E5      			push hl
+0006  F5      			push af
+0007  21E60B  			ld hl,FLAG
+000A  3619    			ld (hl),$19
+000C  215C00  			ld hl,MENS
+000F  11E70B  			ld de,BUFDISP
+0012  010600  			ld bc,$0006
+0015  EDB0    			ldir
+
+0017  31E40B  	INICIO	ld sp,TOPSP
+001A  21E70B  			ld hl,BUFDISP
+001D  0600    			ld b,$00
+001F  1E06    			ld e,$06
+0021  3E01    			ld a,$01
+0023  CD9000  	NE1		call VARR
+0026  79      			ld a,c
+0027  87      			add a,a
+0028  1D      			dec e
+0029  C22300  			jp nz,NE1
+002C  78      			ld a,b
+002D  FE00    			cp $00
+002F  CA1700  			jp z,INICIO
+0032  21E70B  	NE2		ld hl,BUFDISP
+0035  CD9C00  			call REST
+0038  7A      			ld a,d
+0039  D303    			out (PDIG),a
+003B  DB01    			in a,(PTEC)
+003D  FE00    			cp $00
+003F  C23200  			jp nz,NE2
+0042  CDBD00  			call AJCOL
+0045  CDD800  			call AJTEC
+0048  FE13    			cp $13
+004A  CA7700  			jp z,NE3
+004D  FE10    			cp $10
+004F  DA8300  			jp c,NE4
+0052  CDF000  	NE5		call ALTCOM
+0055  21E60B  	NE6		ld hl,FLAG
+0058  7E      			ld a,(hl)
+0059  C36900  			jp RECCOM
+
+		;****************************************
+		;  MENSAGEM INICIAL
+		;****************************************
+
+005C  C8      	MENS	db $c8	; N
+005D  86      			db $86	; E
+005E  92      			db $92	; S
+005F  87      			db $87	; T
+0060  C0      			db $c0	; O
+0061  CE      			db $ce	; R
+0062  00      			db $00
+0063  00      			db $00
+0064  00      			db $00
+0065  00      			db $00
+
+		;****************************************
+		;  ponto de entrada de interrupção nmi
+		;****************************************
+
+0066  C3F102  	NMINT	jp RIV
+
+		;****************************************
+		;  ROTINA DE RECONHECIMENTO DE COMANDOS
+		;****************************************
+
+0069  212003  	RECCOM	ld hl,TABCOM + 1
+006C  85      			add a,l
+006D  6F      			ld l,a
+006E  7E      			ld a,(hl)
+006F  4F      			ld c,a
+0070  3E0A    			ld a,$0a
+0072  85      			add a,l
+0073  6F      			ld l,a
+0074  6E      			ld l,(hl)
+0075  61      			ld h,c
+0076  E9      			jp (hl)
+
+0077  21E60B  	NE3		ld hl,FLAG
+007A  7E      			ld a,(hl)
+007B  FE15    			cp $15
+007D  CAF401  			jp z,SELREG
+0080  C35200  			jp NE5
+
+0083  21E60B  	NE4		ld hl,FLAG
+0086  7E      			ld a,(hl)
+0087  FE15    			cp $15
+0089  CA0502  			jp z,ALTREG
+008C  00      			nop
+008D  C35500  			jp NE6
+
+		;****************************************
+		;  rotina de varredura
+		;****************************************
+
+0090  4F      	VARR	ld c,a
+0091  CDA900  			call TEMPO
+0094  DB01    			in a,(PTEC)
+0096  FE00    			cp $00
+0098  C8      			ret z
+0099  47      			ld b,a
+009A  51      			ld d,c
+009B  C9      			ret
+
+		;****************************************
+		;  rotina de restauração
+		;****************************************
+
+009C  0E06    	REST	ld c,$06
+009E  3E01    			ld a,$01
+00A0  CDA900  	NE7		call TEMPO
+00A3  87      			add a,a
+00A4  0D      			dec c
+00A5  C8      			ret z
+00A6  C3A000  			jp NE7
+
+		;****************************************
+		;  rotina de tempo
+		;****************************************
+
+00A9  F5      	TEMPO	push af
+00AA  D303    			out (PDIG),a
+00AC  7E      			ld a,(hl)
+00AD  D301    			out (PSEG),a
+00AF  D9      			exx
+00B0  110100  			ld de,ATRASO
+00B3  1B      	LOOP1	dec de
+00B4  7A      			ld a,d
+00B5  B3      			or e
+00B6  C2B300  			jp nz,LOOP1
+00B9  D9      			exx
+00BA  23      			inc hl
+00BB  F1      			pop af
+00BC  C9      			ret
+
+		;****************************************
+		;  rotina de ajuste de coluna
+		;****************************************
+
+00BD  0E00    	AJCOL	ld c,$00
+00BF  3E01    			ld a,$01
+00C1  BA      			cp d
+00C2  CAD600  			jp z,NE8
+00C5  87      			add a,a
+00C6  0E08    			ld c,$08
+00C8  BA      			cp d
+00C9  CAD600  			jp z,NE8
+00CC  87      			add a,a
+00CD  0E10    			ld c,$10
+00CF  BA      			cp d
+00D0  CAD600  			jp z,NE8
+00D3  C31700  			jp INICIO
+
+00D6  51      	NE8		ld d,c
+00D7  C9      			ret
+
+		;****************************************
+		;  rotina de ajuste de tecla
+		;****************************************
+
+00D8  1E08    	AJTEC	ld e,$08
+00DA  0E00    			ld c,$00
+00DC  3E01    			ld a,$01
+00DE  B8      	NE10	cp b
+00DF  CAEB00  			jp z,NE9
+00E2  0C      			inc c
+00E3  87      			add a,a
+00E4  1D      			dec e
+00E5  C2DE00  			jp nz,NE10
+00E8  C31700  			jp INICIO
+
+00EB  79      	NE9		ld a,c
+00EC  82      			add a,d
+00ED  47      			ld b,a
+00EE  00      			nop
+00EF  C9      			ret
+
+		;****************************************
+		;  rotina de alterar comando
+		;****************************************
+
+00F0  21E60B  	ALTCOM	ld hl,FLAG
+00F3  70      			ld (hl),b
+00F4  C9      			ret
+
+		;****************************************
+		;  rotina de permissão
+		;****************************************
+
+00F5  0E06    	ROTPER	ld c,$06
+00F7  21E60B  			ld hl,FLAG
+00FA  3617    			ld (hl),$17	; executando a rotina "Permissão"
+00FC  23      			inc hl
+00FD  36FF    	NE11	ld (hl),$FF
+00FF  23      			inc hl
+0100  0D      			dec c
+0101  C2FD00  			jp nz,NE11
+0104  3600    			ld (hl),$00
+0106  23      			inc hl
+0107  3600    			ld (hl),$00
+0109  23      			inc hl
+010A  3600    			ld (hl),$00
+010C  C31700  			jp INICIO
+
+		;****************************************
+		;  rotina de campo de endereços
+		;****************************************
+
+010F  21EE0B  	ROTCP	ld hl,PBE
+0112  78      			ld a,b
+0113  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0115  23      			inc hl
+0116  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0118  CD5201  			call DECOD
+011B  C31700  			jp INICIO
+
+		;****************************************
+		;  rotina de leitura
+		;****************************************
+
+011E  CD4001  	ROTLT	call ATUAL
+0121  21E60B  			ld hl,FLAG
+0124  3618    			ld (hl),$18
+0126  21EF0B  			ld hl,PAE
+0129  CD5201  			call DECOD
+012C  C31700  			jp INICIO
+
+		;****************************************
+		;  rotina de campo de dados
+		;****************************************
+
+012F  CD4001  	ROTCD	call ATUAL
+0132  78      			ld a,b
+0133  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0135  7E      			ld a,(hl)
+0136  12      			ld (de),a
+0137  21EF0B  			ld hl,PAE
+013A  CD5201  			call DECOD
+013D  C31700  			jp INICIO
+
+		;****************************************
+		;  rotina de atualização
+		;****************************************
+
+0140  21EE0B  	ATUAL	ld hl,PBE
+0143  5E      			ld e,(hl)
+0144  23      			inc hl
+0145  56      			ld d,(hl)
+0146  1A      			ld a,(de)
+0147  2B      			dec hl
+0148  2B      			dec hl
+0149  77      			ld (hl),a
+014A  E5      			push hl
+014B  21E60B  			ld hl,FLAG
+014E  3618    			ld (hl),$18
+0150  E1      			pop hl
+0151  C9      			ret
+
+		;****************************************
+		;  rotina de decodificação
+		;****************************************
+
+0152  01E70B  	DECOD	ld bc,BUFDISP
+0155  CD6E01  			call DISPLAY
+0158  2B      			dec hl
+0159  CD6E01  			call DISPLAY
+015C  2B      			dec hl
+015D  CD6E01  			call DISPLAY
+0160  C9      			ret
+
+		;****************************************
+		;  rotina de ajuste memória de endereço
+		;****************************************
+
+0161  21EE0B  	RAME	ld hl,PBE
+0164  73      			ld (hl),e
+0165  23      			inc hl
+0166  72      			ld (hl),d
+0167  2B      			dec hl
+0168  2B      			dec hl
+0169  1A      			ld a,(de)
+016A  77      			ld (hl),a
+016B  C9      			ret
+016C  FFFF    			dw $ffff
+
+		;****************************************
+		;  rotina de display
+		;****************************************
+
+016E  7E      	DISPLAY	ld a,(hl)
+016F  E5      			push hl
+0170  21F00B  			ld hl,ROT
+0173  77      			ld (hl),a
+0174  AF      			xor a
+0175  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0177  CD8601  			call FORMAT
+017A  02      			ld (bc),a
+017B  03      			inc bc
+017C  AF      			xor a
+017D  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+017F  CD8601  			call FORMAT
+0182  02      			ld (bc),a
+0183  03      			inc bc
+0184  E1      			pop hl
+0185  C9      			ret
+
+		;****************************************
+		;  rotina de formatação
+		;****************************************
+
+0186  D5      	FORMAT	push de
+0187  118F01  			ld de,INTD
+018A  83      			add a,e
+018B  5F      			ld e,a
+018C  1A      			ld a,(de)
+018D  D1      			pop de
+018E  C9      			ret
+
+		;****************************************
+		;  tabela de formatos alfa (números)
+		;****************************************
+
+018F  C0      	INTD	db $c0
+0190  F9      			db $f9
+0191  A4      			db $a4
+0192  B0      			db $b0
+0193  99      			db $99
+0194  92      			db $92
+0195  82      			db $82
+0196  F8      			db $f8
+0197  80      			db $80
+0198  90      			db $90
+0199  88      			db $88
+019A  83      			db $83
+019B  C6      			db $c6
+019C  A1      			db $a1
+019D  86      			db $86
+019E  8E      			db $8e
+
+		;****************************************
+		;  rotina de próximo
+		;****************************************
+
+019F  CD4001  	ROTPR	call ATUAL
+01A2  13      			inc de
+01A3  CD6101  			call RAME
+01A6  21EF0B  			ld hl,PAE
+01A9  CD5201  			call DECOD
+01AC  C31700  			jp INICIO
+
+		;****************************************
+		;  rotina de último
+		;****************************************
+
+01AF  CD4001  	ROTUL	call ATUAL
+01B2  1B      			dec de
+01B3  CD6101  			call RAME
+01B6  21EF0B  			ld hl,PAE
+01B9  CD5201  			call DECOD
+01BC  C31700  			jp INICIO
+
+		;****************************************
+		;  rotina de rodar
+		;****************************************
+
+01C8          			org $01c8
+
+01C8  3EFF    	ROTRD	ld a,$FF
+01CA  D303    			out (PDIG),a
+01CC  3E7F    			ld a,$7f
+01CE  D301    			out (PSEG),a
+01D0  21ED0B  			ld hl,ENDISP	; antes estava "MEND"
+01D3  36C3    			ld (hl),$c3	; $c3 = "jp"
+01D5  31F80B  			ld sp,MENF		; antes estava "MENI"
+01D8  F5      			push af
+01D9  E5      			push hl
+01DA  D5      			push de
+01DB  C5      			push bc
+01DC  31E40B  			ld sp,TOPSP
+01DF  C3ED0B  			jp ENDISP
+
+		;****************************************
+		;  rotina de exame de registradores
+		;****************************************
+
+01E2  21E50B  	ROTER	ld hl,MENCON
+01E5  36FE    			ld (hl),$FE
+01E7  C3F401  			jp SELREG
+
+		;****************************************
+		;  rotina de inicialização
+		;****************************************
+
+01EA  21E70B  	INICIAL	ld hl,BUFDISP
+01ED  36FF    			ld (hl),$FF
+01EF  23      			inc hl
+01F0  36FF    			ld (hl),$FF
+01F2  23      			inc hl
+01F3  C9      			ret
+
+		;****************************************
+		;  rotina de seleção de registradores
+		;****************************************
+
+01F4  110403  	SELREG	ld de,TABREG
+01F7  21E50B  			ld hl,MENCON
+01FA  34      			inc (hl)
+01FB  34      			inc (hl)
+01FC  7B      			ld a,e
+01FD  86      			add a,(hl)
+01FE  5F      	NE12	ld e,a
+01FF  1A      			ld a,(de)
+0200  6F      			ld l,a
+0201  13      			inc de
+0202  1A      			ld a,(de)
+0203  67      			ld h,a
+0204  E9      			jp (hl)
+
+		;****************************************
+		;  rotina de alteração de registradores
+		;****************************************
+
+0205  21E50B  	ALTREG	ld hl,MENCON
+0208  111B03  			ld de,TABALT
+020B  7B      			ld a,e
+020C  86      			add a,(hl)
+020D  C3FE01  			jp NE12
+
+		;****************************************
+		;  registrador a
+		;****************************************
+
+0210  CDEA01  	REGA	call INICIAL
+0213  3688    			ld (hl),$88
+0215  23      			inc hl
+0216  36B7    			ld (hl),$b7
+0218  21F90B  			ld hl,MENA
+021B  C31E02  			jp ROTSA
+
+		;****************************************
+		;  rotina de saída
+		;****************************************
+
+021E  01EB0B  	ROTSA	ld bc,BYTES
+0221  CD6E01  			call DISPLAY
+0224  C31700  			jp INICIO
+
+		;****************************************
+		;  altera registrador a
+		;****************************************
+
+0227  21F90B  	ALTA	ld hl,MENA
+022A  78      			ld a,b
+022B  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+022D  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador b
+		;****************************************
+
+0230  CDEA01  	REGB	call INICIAL
+0233  3683    			ld (hl),$83
+0235  23      			inc hl
+0236  36B7    			ld (hl),$b7
+0238  21FF0B  			ld hl,MENB
+023B  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador b
+		;****************************************
+
+023E  21FF0B  	ALTB	ld hl,MENB
+0241  78      			ld a,b
+0242  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0244  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador c
+		;****************************************
+
+0247  CDEA01  	REGC	call INICIAL
+024A  36C6    			ld (hl),$c6
+024C  23      			inc hl
+024D  36B7    			ld (hl),$b7
+024F  21FE0B  			ld hl,MENC
+0252  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador c
+		;****************************************
+
+0255  21FE0B  	ALTC	ld hl,MENC
+0258  78      			ld a,b
+0259  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+025B  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador d
+		;****************************************
+
+025E  CDEA01  	REGD	call INICIAL
+0261  36A1    			ld (hl),$a1
+0263  23      			inc hl
+0264  36B7    			ld (hl),$b7
+0266  21FD0B  			ld hl,MEND
+0269  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador d
+		;****************************************
+
+026C  21FD0B  	ALTD	ld hl,MEND
+026F  78      			ld a,b
+0270  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0272  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador e
+		;****************************************
+
+0275  CDEA01  	REGE	call INICIAL
+0278  3686    			ld (hl),$86
+027A  23      			inc hl
+027B  36B7    			ld (hl),$b7
+027D  21FC0B  			ld hl,MENE
+0280  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador e
+		;****************************************
+
+0283  21FC0B  	ALTE	ld hl,MENE
+0286  78      			ld a,b
+0287  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+0289  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador h
+		;****************************************
+
+028C  CDEA01  	REGH	call INICIAL
+028F  3689    			ld (hl),$89
+0291  23      			inc hl
+0292  36B7    			ld (hl),$b7
+0294  21FB0B  			ld hl,MENH
+0297  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador h
+		;****************************************
+
+029A  21FB0B  	ALTH	ld hl,MENH
+029D  78      			ld a,b
+029E  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+02A0  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador l
+		;****************************************
+
+02A3  CDEA01  	REGL	call INICIAL
+02A6  36C7    			ld (hl),$c7
+02A8  23      			inc hl
+02A9  36B7    			ld (hl),$b7
+02AB  21FA0B  			ld hl,MENL
+02AE  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador l
+		;****************************************
+
+02B1  21FA0B  	ALTL	ld hl,MENL
+02B4  78      			ld a,b
+02B5  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+02B7  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador f
+		;****************************************
+
+02BA  CDEA01  	REGF	call INICIAL
+02BD  368E    			ld (hl),$8e
+02BF  23      			inc hl
+02C0  36B7    			ld (hl),$b7
+02C2  21F80B  			ld hl,MENF
+02C5  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador f
+		;****************************************
+
+02C8  21F80B  	ALTF	ld hl,MENF
+02CB  78      			ld a,b
+02CC  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+02CE  C31E02  			jp ROTSA
+
+		;****************************************
+		;  registrador i
+		;****************************************
+
+02D1  ED57    	REGI	ld a,i
+02D3  21F70B  			ld hl,MENI
+02D6  77      			ld (hl),a
+02D7  CDEA01  			call INICIAL
+02DA  36F9    			ld (hl),$f9
+02DC  23      			inc hl
+02DD  36B7    			ld (hl),$b7
+02DF  21F70B  			ld hl,MENI
+02E2  C31E02  			jp ROTSA
+
+		;****************************************
+		;  altera registrador i
+		;****************************************
+
+02E5  21F70B  	ALTI	ld hl,MENI
+02E8  78      			ld a,b
+02E9  ED6F    			rld ; A(LSB)->(HL)(LSB)->(HL)(LSB)->(HL)(MSB)->(HL)(MSB)->A(LSB)
+02EB  7E      			ld a,(hl)
+02EC  ED47    			ld i,a
+02EE  C31E02  			jp ROTSA
+
+		;****************************************
+		;  rotina para o vetor de interrupção
+		;****************************************
+
+02F1  01F20B  	RIV		ld bc,ROTNMI
+02F4  3EC3    			ld a,$c3		; $c3 = "jp"
+02F6  02      			ld (bc),a
+02F7  03      			inc bc
+02F8  21EE0B  			ld hl,PBE
+02FB  7E      			ld a,(hl)
+02FC  02      			ld (bc),a
+02FD  03      			inc bc
+02FE  23      			inc hl
+02FF  7E      			ld a,(hl)
+0300  02      			ld (bc),a
+0301  C31700  			jp INICIO
+
+		;****************************************
+		;  tabela de seleção de registradores
+		;****************************************
+
+0304  1002    	TABREG	dw REGA
+0306  3002    			dw REGB
+0308  4702    			dw REGC
+030A  5E02    			dw REGD
+030C  7502    			dw REGE
+030E  8C02    			dw REGH
+0310  A302    			dw REGL
+0312  BA02    			dw REGF
+0314  D102    			dw REGI
+0316  1803    			dw $ + 2
+0318  C3E201  			jp ROTER
+
+		;****************************************
+		;  tabela de alteração de registradores
+		;****************************************
+
+031B  2702    	TABALT	dw ALTA
+031D  3E02    			dw ALTB
+031F  5502    	TABCOM	dw ALTC
+0321  6C02    			dw ALTD
+0323  8302    			dw ALTE
+0325  9A02    			dw ALTH
+0327  B102    			dw ALTL
+0329  C802    			dw ALTF
+032B  E502    			dw ALTI
+032D  00      			db $00
+032E  00      			db $00
+032F  00      			db $00
+
+		;****************************************
+		;  tabela de seleção de comandos
+		;****************************************
+
+0330  00      			db (ROTPER >> 8) & $FF ; ROTPER (MSB)
+0331  01      			db (ROTLT  >> 8) & $FF ; ROTLT  (MSB)
+0332  01      			db (ROTUL  >> 8) & $FF ; ROTUL  (MSB)
+0333  01      			db (ROTPR  >> 8) & $FF ; ROTPR  (MSB)
+0334  01      			db (ROTRD  >> 8) & $FF ; ROTRD  (MSB)
+0335  01      			db (ROTER  >> 8) & $FF ; ROTER  (MSB)
+0336  02      			db (RIV    >> 8) & $FF ; RIV    (MSB)
+0337  01      			db (ROTCP  >> 8) & $FF ; ROTCP  (MSB)
+0338  01      			db (ROTCD  >> 8) & $FF ; ROTCD  (MSB)
+0339  00      			db (INICIO >> 8) & $FF ; INICIO (MSB)
+
+033A  F5      			db (ROTPER & $FF) 		; ROTPER (LSB)
+033B  1E      			db (ROTLT  & $FF) 		; ROTLT  (LSB)
+033C  AF      			db (ROTUL  & $FF) 		; ROTUL  (LSB)
+033D  9F      			db (ROTPR  & $FF) 		; ROTPR  (LSB)
+033E  C8      			db (ROTRD  & $FF) 		; ROTRD  (LSB)
+033F  E2      			db (ROTER  & $FF) 		; ROTER  (LSB)
+0340  F1      			db (RIV    & $FF) 		; RIV    (LSB)
+0341  0F      			db (ROTCP  & $FF) 		; ROTCP  (LSB)
+0342  2F      			db (ROTCD  & $FF) 		; ROTCD  (LSB)
+0343  17      			db (INICIO & $FF) 		; INICIO (LSB)
 
 
 
@@ -743,90 +743,90 @@ Statistics:
 
 Symbol Table:
 
-ajcol             bd     
-ajtec             d8     
-alta             227     
-altb             23e     
-altc             255     
-altcom            f0     
-altd             26c     
-alte             283     
-altf             2c8     
-alth             29a     
-alti             2e5     
-altl             2b1     
-altreg           205     
-atraso         =   1     
-atual            140     
-bufdisp        = be7     
-bytes          = beb     
-decod            152     
-display          16e     
-endisp         = bed     
-flag           = be6     
-format           186     
-inicial          1ea     
-inicio            17     
-intd             18f     
-loop1             b3     
-mena           = bf9     
-menb           = bff     
-menc           = bfe     
-mencon         = be5     
-mend           = bfd     
-mene           = bfc     
-menf           = bf8     
-menh           = bfb     
-meni           = bf7     
-menl           = bfa     
-mens              5c     
-ne1               23     
-ne10              de     
-ne11              fd     
-ne12             1fe     
-ne2               32     
-ne3               77     
-ne4               83     
-ne5               52     
-ne6               55     
-ne7               a0     
-ne8               d6     
-ne9               eb     
-nmint             66     
-pae            = bef     
-pbe            = bee     
-pdig           =   3     
-pseg           =   1     
-ptec           =   1     
-rame             161     
-reccom            69     
-rega             210     
-regb             230     
-regc             247     
-regd             25e     
-rege             275     
-regf             2ba     
-regh             28c     
-regi             2d1     
-regl             2a3     
-rest              9c     
-riv              2f1     
-rot            = bf0     
-rotcd            12f     
-rotcp            10f     
-roter            1e2     
-rotlt            11e     
-rotnmi         = bf2     
-rotper            f5     
-rotpr            19f     
-rotrd            1c8     
-rotsa            21e     
-rotul            1af     
-selreg           1f4     
-sppos          = c00     
-tabalt           31b     
-tabcom           31f     
-tabreg           304     
-tempo             a9     
-topsp          = be4     
-varr              90     
+ajcol             bd
+ajtec             d8
+alta             227
+altb             23e
+altc             255
+altcom            f0
+altd             26c
+alte             283
+altf             2c8
+alth             29a
+alti             2e5
+altl             2b1
+altreg           205
+atraso         =   1
+atual            140
+bufdisp        = be7
+bytes          = beb
+decod            152
+display          16e
+endisp         = bed
+flag           = be6
+format           186
+inicial          1ea
+inicio            17
+intd             18f
+loop1             b3
+mena           = bf9
+menb           = bff
+menc           = bfe
+mencon         = be5
+mend           = bfd
+mene           = bfc
+menf           = bf8
+menh           = bfb
+meni           = bf7
+menl           = bfa
+mens              5c
+ne1               23
+ne10              de
+ne11              fd
+ne12             1fe
+ne2               32
+ne3               77
+ne4               83
+ne5               52
+ne6               55
+ne7               a0
+ne8               d6
+ne9               eb
+nmint             66
+pae            = bef
+pbe            = bee
+pdig           =   3
+pseg           =   1
+ptec           =   1
+rame             161
+reccom            69
+rega             210
+regb             230
+regc             247
+regd             25e
+rege             275
+regf             2ba
+regh             28c
+regi             2d1
+regl             2a3
+rest              9c
+riv              2f1
+rot            = bf0
+rotcd            12f
+rotcp            10f
+roter            1e2
+rotlt            11e
+rotnmi         = bf2
+rotper            f5
+rotpr            19f
+rotrd            1c8
+rotsa            21e
+rotul            1af
+selreg           1f4
+sppos          = c00
+tabalt           31b
+tabcom           31f
+tabreg           304
+tempo             a9
+topsp          = be4
+varr              90

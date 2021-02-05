@@ -224,7 +224,7 @@ begin
     if FileExists(CompPath + srcname + 'HEX') then
       LoadHex(CompPath, srcname + 'HEX', FrmMain.Memory);
 
-    //CopyFile(PChar(CompPath + srcname + 'HEX'), PChar(ChangeFileExt(FileName, '.HEX')), False);
+    CopyFile(PChar(CompPath + srcname + 'HEX'), PChar(ChangeFileExt(FileName, '.HEX')), False);
     CopyFile(PChar(CompPath + srcname + 'LST'), PChar(ChangeFileExt(FileName, '.LST')), False);
 
     if not (FileExists(CompPath + srcname + 'LST') and FileExists(CompPath + srcname + 'HEX')) then

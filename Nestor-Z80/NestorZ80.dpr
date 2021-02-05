@@ -8,6 +8,7 @@ uses
   MemoryZ80 in '..\Engines\Z80\MemoryZ80.pas',
   MI in '..\Engines\Z80\MI.pas' {FMI},
   Memory in '..\Engines\Memory.pas' {FrmMemory},
+  NestorZMac in 'UNIT\NestorZMac.pas',
   NestorListagem in 'UNIT\NestorListagem.pas' {LstForm},
   HelpUnit in 'UNIT\HelpUnit.pas' {HelpForm},
   NestorMain in 'UNIT\NestorMain.pas' {FrmMain},
@@ -16,7 +17,7 @@ uses
   NestorFlags in 'UNIT\NestorFlags.pas' {FrmFlags},
   NestorBP in 'UNIT\NestorBP.pas' {FrmBreakPoints},
   NestorTerminal in 'UNIT\NestorTerminal.pas' {FrmTerminal},
-  NestorAS80 in 'UNIT\NestorAS80.pas';
+  NestorShell in 'UNIT\NestorShell.pas' {FrmShell};
 
 {$R *.res}
 
@@ -29,6 +30,7 @@ begin
   Application.Title := 'Nestor Z80 Nova Eletrônica 1984';
   Application.CreateForm(TFrmMain, FrmMain);
   Application.CreateForm(TLstForm, LstForm);
+  Application.CreateForm(TFrmShell, FrmShell);
   Application.Run;
 end.
 

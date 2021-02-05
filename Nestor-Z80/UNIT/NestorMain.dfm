@@ -876,7 +876,7 @@ object FrmMain: TFrmMain
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    Left = 15
+    Left = 16
     Top = 75
     object File1: TMenuItem
       Caption = '&Arquivo'
@@ -909,7 +909,7 @@ object FrmMain: TFrmMain
         OnClick = opcMemoriaClick
       end
       object opcFontes: TMenuItem
-        Caption = 'F&ontes'
+        Caption = '&Fontes'
         OnClick = opcFontesClick
       end
       object opcBreakpoints: TMenuItem
@@ -919,6 +919,10 @@ object FrmMain: TFrmMain
       object opcTerminal: TMenuItem
         Caption = '&Terminal'
         OnClick = opcTerminalClick
+      end
+      object opcShell: TMenuItem
+        Caption = '&Shell'
+        OnClick = opcShellClick
       end
     end
     object Help1: TMenuItem

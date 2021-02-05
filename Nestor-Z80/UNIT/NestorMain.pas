@@ -110,6 +110,7 @@ type
     PE5: TCheckBox;
     PE6: TCheckBox;
     PE7: TCheckBox;
+    opcShell: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure StepExecute(Sender: TObject);
     procedure ResetExecute(Sender: TObject);
@@ -152,6 +153,7 @@ type
     procedure opcBreakpointsClick(Sender: TObject);
     procedure DisplayHexaClick(Sender: TObject);
     procedure opcTerminalClick(Sender: TObject);
+    procedure opcShellClick(Sender: TObject);
   private
     Flags: TFlagsView;
     IO: TIOView;
@@ -197,7 +199,8 @@ implementation
 
 uses
   Math, StdConvs, XMLIni, StrUtils, HelpUnit, MI, NestorFlags, NestorBP,
-  NestorRegistros, NestorTerminal, NestorFonte, Memory, NestorAS80;
+  NestorRegistros, NestorTerminal, NestorFonte, Memory, NestorZMac,
+  NestorShell;
 
 {$R *.dfm}
 
@@ -764,17 +767,14 @@ begin
       WinExec(PChar(asmpath + 'compnst.bat'), SW_HIDE);
       elapsed := GetTickCount() + 60000;
 
-      while not FileExists(asmpath + 'ok.out') and (GetTickCount() <= elapsed)
-        do
+      while not FileExists(asmpath + 'ok.out') and (GetTickCount() <= elapsed) do
         Application.ProcessMessages;
 
       if not FileExists(asmpath + 'ok.out') then
-        raise
-          Exception.Create('Erro de compilação. Tempo de execução ultrapassou limite.');
+        raise Exception.Create('Erro de compilação. Tempo de execução ultrapassou limite.');
 
       if not (FileExists(lstfile) and FileExists(hexfile)) then
-        raise
-          Exception.Create('Erro de compilação. Programa monitor não foi gerado.');
+        raise Exception.Create('Erro de compilação. Programa monitor não foi gerado.');
     finally
       DeleteFile(asmpath + 'ok.out');
       DeleteFile(asmpath + 'compnst.bat');
@@ -982,5 +982,10 @@ begin
     Result := Result or 128;
 end;
 
-end.
+procedure TFrmMain.opcShellClick(Sender: TObject);
+begin
+  FrmShell.Memory := Memory;
+  FrmShell.Show;
+end;
 
+end.

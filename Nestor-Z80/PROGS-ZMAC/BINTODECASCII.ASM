@@ -4,25 +4,21 @@
 ;example: hl=300 outputs '00300'
 ;destroys: af, bc, hl, de used
 
-;***********************************************************************
-;	include	"defs.inc"
-;***********************************************************************
-;	include	"nestor.inc"
-;***********************************************************************
-
 REST	equ $009C
 
 TEMPOD	equ	$50
 
 		org	$2290
 
-INIT:	ld hl, 0
+INIT:	ld hl, 10
 LOOP:	push hl
 		ld ix, FIM
 		call DispHL
+		rst 0
 		call Timer
 		pop hl
 		inc hl
+		jp 0
 		jr LOOP
 
 DispHL:	ld bc, -10000
@@ -50,6 +46,6 @@ Timer1:	ld hl, BUFFER
 		jr nz, Timer1
 		ret
 ;
-BUFFER:	db 0, 0, 0, 0, 0, 0
+BUFFER:	db 0, 0, 0, 0, 0
 ;
-FIM:
+FIM:	db 0
