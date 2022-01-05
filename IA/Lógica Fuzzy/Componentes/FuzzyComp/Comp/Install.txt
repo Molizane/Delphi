@@ -1,0 +1,30 @@
+Remember : This component has been made with Delphi 3 and not improved 
+with another Delphi version. 
+
+To install the components :
+
+- First Method
+Run Delphi
+Menu Component -> Install Package...
+Click on "Delphi User's Component" in the Design Packages List
+Click on the "Edit..." button
+A Question Dialog Box appears, Click on the "Yes" button
+Click on the "Add" button
+Choose the "FuzzyComp.dcu" file in the File Dialog Box
+Click on the "Compile" button
+
+
+- Second Method
+Run Delphi
+Copy the FuzzyComp.dcu file into <Your Delphi 3 Directory>/Lib
+Menu Component -> Install Component...
+Choose the Package (Clicking on Browse..) in wich you want to put the Component (for example C:\Program Files\Borland\Delphi 3\Lib\dclusr30.dpk)
+Click on Browse in front of "Unit File Name" and choose the *.dcu File Extension to see the FuzzyComp.dcu and choose it
+Click on the Ok button
+A Question Dialog Box appears, Click on the "Yes" button
+
+A problem ? Enjoy ?
+
+Send me a mail ;) abeauvoi@caramail.com 
+
+ 

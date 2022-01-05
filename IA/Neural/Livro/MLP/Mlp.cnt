@@ -1,0 +1,10 @@
+:Base Mlp.hlp>main
+:Title Put your contents file title here!!!
+1 MLP
+2 Introdução=Topic1
+2 Exemplos
+3 Construção e Preparação=Topic23
+3 Construção, Preparação e Carga=Topic44
+3 Treinamento=Topic21
+3 Treinamento e Eliminação de Pesos=Topic15
+3 Teste=Topic19

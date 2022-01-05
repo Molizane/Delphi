@@ -1,0 +1,72 @@
+
+Bidirectional Associative Memory simulation program
+
+
+Copyright 1988 by Wesley R. Elsberry
+
+
+The accompanying program was originally written as an assignment for
+Dr. Farhad Kamangar's "Neural Networks" class at the University of
+Texas at Arlington.  Part of Kamangar's criteria for simulations 
+suitable for class was that all parameters of the architecture should
+be determined at run time rather than compile time.  Thus, this
+program uses linked lists extensively to avoid problems in the 
+allocation of memory under Turbo Pascal Version 3.
+
+The program was minimally updated to compile and run under Turbo Pascal
+Version 5.5.
+
+Bidirectional Associative Memory, or BAM, is an architecture extensively
+studied by Bart Kosko (UCSD).  Usually, bipolar vector strings are used
+as inputs.  For convenience, I have termed the vectors 'X' and 'Y'.
+When X is "associated" with Y, a set of weights between nodes in the 
+network is changed to record the association.  Upon presentations of either
+the X or the Y vector, the network is generally capable of recalling the
+missing vector.  BAM becomes very interesting in when the recall fails.
+This happens when substrings of the vectors are identical to other,
+previously learned vectors.  A BAM network can stably learn only a fraction
+of the potential capacity of the system, when looking at the
+representational capability of the weight array.  Another interesting side
+effect of the underlying equations is that for each vector pair learned, 
+another stable state is introduced into the weights at the same time --
+namely, the complementary vector pair representation.
+
+The program allows for interactive setup of the BAM network.  First,
+the program prompts for bit-string length of each of the X and Y vectors.
+A network structure is generated, and a menu is presented for setting
+vectors and learning associations.  I have chosen the characters "-" and
+"+" to represent elements of the vectors.  Once an X-Y pair of vectors is
+entered, the user may "set weights".  In other words, learn an association
+between the current X and Y vectors and store that in the weights.  
+Alternatively, the user can specify that the program pick up vector pairs
+from a text data file.  Thus, if the user had specified vector lengths
+for X and Y of 3 and 4, respectively, a sample data file might look like:
+
+--- ++++
++++ -+-+
+-++ ++--
+
+The program would read in the vector strings and set weights automatically,
+then.  Picking up data from a file will cause the program to also store
+its outputs to file, as well.
+
+Once the network setup is done, the user can quit to the recall menu.
+Here, values for the X or Y vector can be entered, and recall performed to
+retrieve the other vector.  Note that the entered vector can change during
+recall, as intermediate associations cause the network to search for a 
+stable association.
+
+When the user quits the program, the current set of weights is dumped, and
+the network is examined to find all stable states.
+
+The program is not a polished product, it is a fairly pedestrian exercise
+done for learning.  That is, it is likely to contain bugs of varying
+severity.  I would appreciate hearing of discoveries of further bugs in
+the code, and I hope that the program helps the user despite its 
+shortcomings.
+
+Wesley R. Elsberry
+
+
+
+

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="FannTool" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\FannTool" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\FannTool" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-s" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-mms-bitfields" />
+			<Add option="-DWIN32" />
+			<Add directory="C:\Program Files\CodeBlocks\include" />
+			<Add directory="C:\fann-2.1.0\src\include" />
+		</Compiler>
+		<Linker>
+			<Add library="fltk" />
+			<Add library="ole32" />
+			<Add library="uuid" />
+			<Add library="comctl32" />
+			<Add library="wsock32" />
+			<Add library="m" />
+			<Add library="gdi32" />
+			<Add library="user32" />
+			<Add library="kernel32" />
+			<Add library="C:\fann-2.1.0\CodeBlocks\Release\libfann.a" />
+			<Add directory="C:\Program Files\CodeBlocks\lib" />
+			<Add directory="C:\fann-2.1.0\src\.libs" />
+		</Linker>
+		<Unit filename="DataProcess.cpp" />
+		<Unit filename="DataProcess.h" />
+		<Unit filename="Fl_PlotXY.cxx" />
+		<Unit filename="fanntool.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="fanntoolrc.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="main.fld" />
+		<Unit filename="main.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

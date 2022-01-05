@@ -1,0 +1,10 @@
+ PERMSSN  UID GID  PACKED    SIZE  RATIO        CRC        STAMP       NAME
+----------------- ------- ------- ------ ---------- ------------ -------------
+[MS-DOS]             4284   19536  21.9% -lh5- 5ec1 May 13  1990 bam.pas
+[MS-DOS]            22641   37269  60.7% -lh5- 8c9e May 13  1990 bam.exe
+[MS-DOS]               26      31  83.8% -lh5- 80ee May 13  1990 bam.dat
+[MS-DOS]             1553    3378  45.9% -lh5- b89e May 13  1990 bam.doc
+rw-r--r--10187/15     1374    2591  53.0% -lh5- 6a43 May 14  1992 cnsannc.txt
+rw-r--r--10187/15     1467    3134  46.8% -lh5- 5da6 May 14  1992 cnsspon1.txt
+----------------- ------- ------- ------ ---------- ------------ -------------
+ Total    6 files   31345   65939  47.5%            Jul  8 08:01

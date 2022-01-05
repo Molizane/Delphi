@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="DataProcess.cpp" open="1" top="1" tabpos="2">
+		<Cursor position="1728" topLine="519" />
+	</File>
+	<File name="DataProcess.h" open="1" top="0" tabpos="3">
+		<Cursor position="1940" topLine="70" />
+	</File>
+	<File name="Fl_PlotXY.cxx" open="0" top="0" tabpos="3">
+		<Cursor position="34954" topLine="1357" />
+	</File>
+	<File name="main.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="112722" topLine="1889" />
+	</File>
+	<File name="main.fld" open="0" top="0" tabpos="9">
+		<Cursor position="8356" topLine="288" />
+	</File>
+	<File name="main.h" open="1" top="0" tabpos="1">
+		<Cursor position="3138" topLine="57" />
+	</File>
+</CodeBlocks_layout_file>
