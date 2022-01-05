@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, CPortCtl, ComCtrls, EngineZ80;
+  Dialogs, CPortCtl, ComCtrls, EngineZ80Ext;
 
 type
   TComTerminal = class(CPortCtl.TComTerminal)
@@ -92,7 +92,7 @@ begin
   if (Key < #32) or (Key = #127) then
     Exit;
 
-  if Length(KeyBuffer) = 79 then
+  if Length(KeyBuffer) = 78 then
   begin
     Beep;
     Exit;
@@ -107,31 +107,77 @@ var
   Add1, Add2: Integer;
   Addr, Lines: Word;
   Brk: Char;
-begin
-  ComTerminal.WriteStr(#13#10);
 
+  procedure Help;
+  begin
+    ComTerminal.WriteStr(#13#10'Commands:'#13#10);
+    ComTerminal.WriteStr(#9'L <start> / <$> <finish> - disassembly listing'#13#10);
+    ComTerminal.WriteStr(#9'  <start> : initial address. When ''$'' or not supplied,'#13#10);
+    ComTerminal.WriteStr(#9'            the address is the next in the sequence'#13#10);
+    ComTerminal.WriteStr(#9'  <finish>: final address. When not supplied, 32 lines will be listed'#13#10#13#10);
+    ComTerminal.WriteStr(#9'B address 0/1/? - breakpoint definition'#13#10);
+    ComTerminal.WriteStr(#9'  address: breakpoint position'#13#10);
+    ComTerminal.WriteStr(#9'      0/1: turn breakpoint off/on'#13#10);
+    ComTerminal.WriteStr(#9'        ?: show breakpoint'#13#10#13#10);
+    ComTerminal.WriteStr(#9'CLS - Clear the screen'#13#10);
+    ComTerminal.WriteStr(#9'H/? - This help'#13#10#13#10);
+  end;
+begin
   try
     Tokenize;
 
     if Length(Tokens) = 0 then
       Exit;
 
-    if SameText(Tokens[0], 'cls') then
+    if Length(Tokens) = 1 then
+      if SameText(Tokens[0], 'cls') then
+      begin
+        ComTerminal.ClearScreen;
+        Exit;
+      end
+      else if SameText(Tokens[0], 'h') or (Tokens[0] = '?') then
+      begin
+        Help;
+        Exit;
+      end;
+
+    ComTerminal.WriteStr(#13#10);
+
+    if SameText(Tokens[0], 'B') then
     begin
-      ComTerminal.ClearScreen;
+      if Length(Tokens) < 3 then
+      begin
+        ComTerminal.WriteStr('Error');
+        Exit;
+      end;
+
+      Add1 := StrToIntDef('$' + Tokens[1], -1);
+
+      if Tokens[2] = '?' then
+      begin
+        if Memory.HasBreak(Add1) then
+          ComTerminal.WriteStr('On')
+        else
+          ComTerminal.WriteStr('Off');
+
+        ComTerminal.WriteStr(#13#10);
+        Exit;
+      end;
+
+      Add2 := StrToIntDef('$' + Tokens[2], -1);
+
+      if not (Add2 in [0, 1]) then
+      begin
+        ComTerminal.WriteStr('Error'#13#10);
+        Exit;
+      end;
+
+      Addr := Add1;
+      Memory.BreakPoint(Addr, Add2 = 1);
       Exit;
     end;
 
-    if Tokens[0] = '?' then
-    begin
-      ComTerminal.WriteStr('Commands:'#13#10);
-      ComTerminal.WriteStr(#9'L <start> / <$> <finish>'#13#10);
-      ComTerminal.WriteStr(#9'B <start> / <$> <finish>'#13#10);
-      ComTerminal.WriteStr(#9'H - Help'#13#10);
-      Exit;
-    end;
-
-    if SameText(Tokens[0], 'L') or SameText(Tokens[0], 'B') then
+    if SameText(Tokens[0], 'L') then
     begin
       if (Length(Tokens) = 1) or (Tokens[1] = '$') then
         Add1 := Address
@@ -155,7 +201,7 @@ begin
 
       if (Add1 = -1) or (Add2 = -1) then
       begin
-        ComTerminal.WriteStr('Address error' + #13#10);
+        ComTerminal.WriteStr('Address error'#13#10);
         Exit;
       end;
 
@@ -202,7 +248,10 @@ begin
       end;
 
       Address := Addr;
+      Exit
     end;
+
+    ComTerminal.WriteStr('Command error'#13#10);
   finally
     KeyBuffer := '';
     ComTerminal.WriteStr('>');

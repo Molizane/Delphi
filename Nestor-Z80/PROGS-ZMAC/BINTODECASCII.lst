@@ -59,3 +59,19 @@ Statistics:
      0	jr promotions
     11	symbols
     81	bytes
+
+
+
+Symbol Table:
+
+buffer          22db     
+disphl          22a6     
+fim             22e0     
+init            2290     
+loop            2293     
+num1            22c1     
+num2            22c3     
+rest           =  9c     
+tempod         =  50     
+timer           22cf     
+timer1          22d1     

@@ -1,0 +1,113 @@
+      // area de inicio de programa
+      ORG 254
+
+CSINI_:   DA  PROGR_
+CSEND_:   DA  LOOP1_
+DSINI_:   DA  NEG_
+DSEND_:   DA  END_
+
+      REL END_
+
+// CODE SEGMENT
+PROGR_:  subleq  BUF_                    // Limpa BUF_
+         subleq  rgCS_Start  BUF_        // BUF_ = -[INI_] = -rgCS_Start
+         subleq  BUF_  INI_              // INI_ = INI_ - [BUF_] = INI_ + rgCS_Start
+         subleq  BUF_  FIM_              // FIM_ = FIM_ - [BUF_] = FIM_ + rgCS_Start
+         subleq  BUF_  LOOP1_            // LOOP1_ = LOOP1_ - [BUF_] = LOOP1_ + rgCS_Start
+         subleq  BUF_  CHR__             // CHR__ = CHR__ - [BUF_] = CHR__ + rgCS_Start
+
+         subleq  PNT_                    // Limpa PNT_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  INI_  BUF_              // BUF_ = -[INI_] = -INITXT_
+         subleq  BUF_  PNT_              // PNT_ = -[BUF_] = INITXT_
+
+LOOP_:   subleq  TMP_                    // Limpa TMP_
+         subleq  CHR_                    // Limpa CHR_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  PNT_  BUF_              // BUF_ = -PNT_
+
+         subleq  rgNum_IRQ               // Limpa rgNum_IRQ
+         subleq  MTWO_ rgNum_IRQ         // rgNum_IRQ = 2 (OutChar)
+
+         subleq  rgPar0_IRQ              // Limpa rgPar0_IRQ
+         subleq  BUF_  rgPar0_IRQ        // rgPar0_IRQ = -BUF_ = PNT_
+
+         subleq  TMP_  TMP_  Exec_IRQ    // Chama Interrupção
+
+RETPRT_: subleq  NEG_  PNT_              // Incrementa PNT_
+         subleq  TMP_                    // Limpa TMP_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  FIM_  TMP_              // TMP_ = -FIM_
+         subleq  TMP_  BUF_              // BUF_ = -TMP_ = FIM_
+         //subleq  PNT_  BUF_  Exec_Halt   // if {BUF_ = BUF_ - PNT_) <= 0 HALT
+         subleq  PNT_  BUF_  RDKEY_      // if {BUF_ = BUF_ - PNT_) <= 0 HALT
+         subleq  CHR_  CHR_  LOOP_       // Goto LOOP_
+RDKEY_:
+         subleq  rgNum_IRQ  rgNum_IRQ  Exec_IRQ     // Limpa rgNum_IRQ (IsKey) e chama Interrupção
+         subleq  BUF_                    // if (BUF_ = BUF_ - BUF_) <= 0 goto NEXT --> BUF_ = 0
+         subleq  TMP_                    // Limpa TMP_
+         subleq  rgPar0_IRQ  TMP_        // TMP_ = TMP_ - rgPar0_IRQ
+         subleq  TMP_  BUF_  RDKEY_      // if (BUF_ = BUF_ - TMP_)  <= 0 goto RDKEY_ --> BUF_ = STATUS TECLADO
+
+         subleq  rgNum_IRQ               // Limpa rgNum_IRQ
+         subleq  NEG_ rgNum_IRQ          // rgNum_IRQ = 1 (InKey)
+         subleq  TMP_  TMP_  Exec_IRQ    // Chama Interrupção
+PRNKEY_:
+         subleq  TMP_                    // Limpa TMP_
+         subleq  CHR_                    // Limpa CHR_
+         subleq  rgPar0_IRQ  TMP_        // TMP_ = TMP_ - rgPar0_IRQ = -CHAR
+         subleq  TMP_  CHR_              // CHR_ = -TMP_ = CHAR
+         subleq  TMP_                    // Limpa TMP_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  CHR__  TMP_             // TMP_ = -CHR__
+         subleq  rgPar0_IRQ              // Limpa rgPar0_IRQ
+         subleq  TMP_  rgPar0_IRQ        // Limpa -TMP_ = CHR__
+
+         subleq  rgNum_IRQ               // Limpa rgNum_IRQ
+         subleq  MTWO_ rgNum_IRQ         // rgNum_IRQ = 2 (OutChar)
+         subleq  TMP_  TMP_  Exec_IRQ    // Chama Interrupção
+
+         subleq  TMP_  TMP_  RDKEY_      // if (BUF_ = BUF_ - TMP_)  <= 0 goto RDKEY_ --> BUF_ = STATUS TECLADO
+
+         subleq  PNT_  BUF_  Exec_Halt   // if {BUF_ = BUF_ - PNT_) <= 0 HALT
+
+// DATA SEGMENT
+NEG_:   DA  -1
+MTWO_:  DA  -2
+ESC_:   DA  -27 // ESC_
+
+INI_:   DD  INITXT_
+FIM_:   DD  FIMTXT_
+LOOP1_: dd  RETPRT_
+CHR__:  DD  CHR_
+
+CHR_:   DD  0
+tmp_:   dd  0
+BUF_:   DD  0
+PNT_:   DD  0
+
+
+INITXT_:
+        DA  12     // CLS
+        DA  79     // O
+        DA  73     // I
+        DA  83     // S
+        DA  67     // C
+        DA  32     // SPC
+        DA  69     // E
+        DA  109     // m
+        DA  117     // u
+        DA  108     // l
+        DA  97     // a
+        DA  116     // t
+        DA  111     // o
+        DA  114     // r
+        DA  13     // CR
+        DA  10     // LF
+        DA  13     // CR
+        DA  10     // LF
+        DA  62     // >
+        DA  32     // SPC
+FIMTXT_:
+        DA  0
+END_:

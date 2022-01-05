@@ -1,0 +1,401 @@
+//-------------------------------------------------------\\
+//                                                       \\
+//-------------------------------------------------------\\
+//                                                       \\
+
+      DC   MemBottom $00000000
+      DC   MemTop    <MEMTOP>
+      DC   EXCPRC    3
+      DC   Process   5
+      DC   PRNCHR    6
+      DC   PRNCHRF   11
+      DC   TEMP      12
+
+      ORG  0
+
+      // area de inicio de programa
+      ORG  124
+
+      // Cabeçalho do programa
+CSINI_:   DA  PROGR_ // Início da área de código
+CSEND_:   DA  PRETPRT_ // Fim da área de código
+DSINI_:   DA  NEG_   // Início da área de dados
+DSEND_:   DA  END_   // Fim da área de dados
+REEND_:   DA  PCHR_  // Fim da área de dados a serem recalculados para bater com os endereços reais
+
+      // Inicia bloco de realocável (relativo) até o fim do programa (END_)
+      REL END_
+
+// CODE SEGMENT
+PROGR_:  subleq  BUF_                    // Limpa BUF_
+         subleq  rgCS_Start  BUF_        // BUF_ = -[PINITXT_] = -rgCS_Start
+         subleq  BUF_  PINITXT_          // PINITXT_ = PINITXT_ - [BUF_] = PINITXT_ + rgCS_Start
+         subleq  BUF_  PFIMTXT_          // PFIMTXT_ = PFIMTXT_ - [BUF_] = PFIMTXT_ + rgCS_Start
+         subleq  BUF_  PRETPRT_          // PRETPRT_ = PRETPRT_ - [BUF_] = PRETPRT_ + rgCS_Start
+         subleq  BUF_  PCHR_             // PCHR_ = PCHR_ - [BUF_] = PCHR_ + rgCS_Start
+
+         subleq  PNT_                    // Limpa PNT_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  PINITXT_  BUF_              // BUF_ = -[PINITXT_] = -INITXT_
+         subleq  BUF_  PNT_              // PNT_ = -[BUF_] = INITXT_
+
+LOOP_:   subleq  TMP_                    // Limpa TMP_
+         subleq  CHR_                    // Limpa CHR_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  PNT_  BUF_              // BUF_ = -PNT_
+
+         subleq  rgNum_IRQ               // Limpa rgNum_IRQ
+         subleq  MTWO_ rgNum_IRQ         // rgNum_IRQ = 2 (OutChar)
+
+         subleq  rgPar0_IRQ              // Limpa rgPar0_IRQ
+         subleq  BUF_  rgPar0_IRQ        // rgPar0_IRQ = -BUF_ = PNT_
+
+         subleq  TMP_  TMP_  Exec_IRQ    // Chama Interrupção
+
+RETPRT_: subleq  NEG_  PNT_              // Incrementa PNT_
+         subleq  TMP_                    // Limpa TMP_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  PFIMTXT_  TMP_              // TMP_ = -PFIMTXT_
+         subleq  TMP_  BUF_              // BUF_ = -TMP_ = PFIMTXT_
+         subleq  PNT_  BUF_  RDKEY_      // if {BUF_ = BUF_ - PNT_) <= 0 HALT
+         subleq  CHR_  CHR_  LOOP_       // Goto LOOP_
+RDKEY_:
+         subleq  rgNum_IRQ  rgNum_IRQ  Exec_IRQ     // Limpa rgNum_IRQ (IsKey) e chama Interrupção
+         subleq  BUF_                    // if (BUF_ = BUF_ - BUF_) <= 0 goto NEXT --> BUF_ = 0
+         subleq  TMP_                    // Limpa TMP_
+         subleq  rgPar0_IRQ  TMP_        // TMP_ = TMP_ - rgPar0_IRQ
+         subleq  TMP_  BUF_  RDKEY_      // if (BUF_ = BUF_ - TMP_)  <= 0 goto RDKEY_ --> BUF_ = STATUS TECLADO
+
+         subleq  rgNum_IRQ               // Limpa rgNum_IRQ
+         subleq  NEG_ rgNum_IRQ          // rgNum_IRQ = 1 (InKey)
+         subleq  TMP_  TMP_  Exec_IRQ    // Chama Interrupção
+PRNKEY_:
+         subleq  TMP_                    // Limpa TMP_
+         subleq  CHR_                    // Limpa CHR_
+         subleq  rgPar0_IRQ  TMP_        // TMP_ = TMP_ - rgPar0_IRQ = -CHAR
+         subleq  TMP_  CHR_              // CHR_ = -TMP_ = CHAR
+         subleq  TMP_                    // Limpa TMP_
+         subleq  BUF_                    // Limpa BUF_
+         subleq  PCHR_  TMP_             // TMP_ = -PCHR_
+         subleq  rgPar0_IRQ              // Limpa rgPar0_IRQ
+         subleq  TMP_  rgPar0_IRQ        // Limpa -TMP_ = PCHR_
+
+         subleq  rgNum_IRQ               // Limpa rgNum_IRQ
+         subleq  MTWO_ rgNum_IRQ         // rgNum_IRQ = 2 (OutChar)
+         subleq  TMP_  TMP_  Exec_IRQ    // Chama Interrupção
+
+         subleq  TMP_  TMP_  RDKEY_      // if (BUF_ = BUF_ - TMP_)  <= 0 goto RDKEY_ --> BUF_ = STATUS TECLADO
+
+         subleq  PNT_  BUF_  Exec_Halt   // if {BUF_ = BUF_ - PNT_) <= 0 HALT
+
+// DATA SEGMENT
+PINITXT_:   DD  INITXT_
+PFIMTXT_:   DD  FIMTXT_
+PRETPRT_:   dd  RETPRT_
+PCHR_:      DD  CHR_
+
+NEG_:   DA  -1
+MTWO_:  DA  -2
+ESC_:   DA  -27 // ESC_
+
+CHR_:   DD  0
+tmp_:   dd  0
+BUF_:   DD  0
+PNT_:   DD  0
+
+
+INITXT_:
+        DA  12     // CLS
+        DA  79     // O
+        DA  73     // I
+        DA  83     // S
+        DA  67     // C
+        DA  32     // SPC
+        DA  69     // E
+        DA  109     // m
+        DA  117     // u
+        DA  108     // l
+        DA  97     // a
+        DA  116     // t
+        DA  111     // o
+        DA  114     // r
+        DA  13     // CR
+        DA  10     // LF
+        DA  13     // CR
+        DA  10     // LF
+        DA  62     // >
+        DA  32     // SPC
+FIMTXT_:
+        DA  0
+END_:
+
+//*******************************************
+// Kernel
+//*******************************************
+
+        ORG  $FFFF000
+
+COLD:   subleq  Sig_HALT                // Limpa sinal de HALT
+        subleq  rgIRQ_En                // Limpa flag Interrupções
+
+        // Ajusta Ponteiro de rotina da HALT
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgAddHalt               // Limpa Ponteiro de rotina de HALT
+        subleq  HALT_ADD  TEMP          // TEMP = -HALT_ADD
+        subleq  TEMP    rgAddHalt       // Ponteiro de rotina de Halt = -TEMP = HALT_ADD
+
+        subleq  rgAdd_Hard_IRQ_0      // Limpa endereço de manipulação da Hard IRQ 0
+        subleq  rgAdd_Hard_IRQ_1      // Limpa endereço de manipulação da Hard IRQ 1
+        subleq  rgAdd_Hard_IRQ_2      // Limpa endereço de manipulação da Hard IRQ 2
+        subleq  rgAdd_Hard_IRQ_3      // Limpa endereço de manipulação da Hard IRQ 3
+        subleq  rgAdd_Hard_IRQ_4      // Limpa endereço de manipulação da Hard IRQ 4
+        subleq  rgAdd_Hard_IRQ_5      // Limpa endereço de manipulação da Hard IRQ 5
+        subleq  rgAdd_Hard_IRQ_6      // Limpa endereço de manipulação da Hard IRQ 6
+        subleq  rgAdd_Hard_IRQ_7      // Limpa endereço de manipulação da Hard IRQ 7
+        subleq  rgRet_Hard_IRQ_0      // Retorno da Hard IRQ 0
+        subleq  rgRet_Hard_IRQ_1      // Retorno da Hard IRQ 1
+        subleq  rgRet_Hard_IRQ_2      // Retorno da Hard IRQ 2
+        subleq  rgRet_Hard_IRQ_3      // Retorno da Hard IRQ 3
+        subleq  rgRet_Hard_IRQ_4      // Retorno da Hard IRQ 4
+        subleq  rgRet_Hard_IRQ_5      // Retorno da Hard IRQ 5
+        subleq  rgRet_Hard_IRQ_6      // Retorno da Hard IRQ 6
+        subleq  rgRet_Hard_IRQ_7      // Retorno da Hard IRQ 7
+
+        subleq  rgAdd_Soft_IRQ_3      // Limpa endereço de manipulação da Soft IRQ 3
+        subleq  rgAdd_Soft_IRQ_4      // Limpa endereço de manipulação da Soft IRQ 4
+        subleq  rgAdd_Soft_IRQ_5      // Limpa endereço de manipulação da Soft IRQ 5
+        subleq  rgAdd_Soft_IRQ_6      // Limpa endereço de manipulação da Soft IRQ 6
+        subleq  rgAdd_Soft_IRQ_7      // Limpa endereço de manipulação da Soft IRQ 7
+        subleq  rgRet_Soft_IRQ_0      // Retorno da Soft IRQ 0
+        subleq  rgRet_Soft_IRQ_1      // Retorno da Soft IRQ 1
+        subleq  rgRet_Soft_IRQ_2      // Retorno da Soft IRQ 2
+        subleq  rgRet_Soft_IRQ_3      // Retorno da Soft IRQ 3
+        subleq  rgRet_Soft_IRQ_4      // Retorno da Soft IRQ 4
+        subleq  rgRet_Soft_IRQ_5      // Retorno da Soft IRQ 5
+        subleq  rgRet_Soft_IRQ_6      // Retorno da Soft IRQ 6
+        subleq  rgRet_Soft_IRQ_7      // Retorno da Soft IRQ 7
+
+        // Transfere as rotinas auxiliares para o início da memória RAM
+
+        // Seta o flag de início de ROM
+
+        // Busca o fim da RAM
+
+        // Seta o flag de fim de RAM
+
+
+        //
+        // Configura Soft IRQ 0 (IsKey)
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgAdd_Soft_IRQ_0        // Limpa rgAdd_Soft_IRQ_0
+        subleq  ISKEY_ADD  TEMP         // TEMP = -ISKEY
+        subleq  TEMP  rgAdd_Soft_IRQ_0  // rgAdd_Soft_IRQ_0 = ISKEY
+
+        // Configura Soft IRQ 1 (InKey)
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgAdd_Soft_IRQ_1        // Limpa rgAdd_Soft_IRQ_1
+        subleq  INKEY_ADD  TEMP         // TEMP = -INKEY
+        subleq  TEMP  rgAdd_Soft_IRQ_1  // rgAdd_Soft_IRQ_1 = INKEY
+
+        // Configura Soft IRQ 2 (OutChar)
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgAdd_Soft_IRQ_2        // Limpa rgAdd_Soft_IRQ_2
+        subleq  OUTCHR_ADD  TEMP        // TEMP = -OUTCHR
+        subleq  TEMP  rgAdd_Soft_IRQ_2  // rgAdd_Soft_IRQ_2 = OUTCHR
+
+        subleq  rgIRQ_En                // Limpa flag Interrupções
+        subleq  ONE   rgIRQ_En          // Habilita Interrupções (Hard e Soft)
+
+        // EXECUTA O PROGRAMA ATUAL
+        // Salva o espaco de codigo
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgCS_Start              // Limpa CS Start
+        subleq  Process                 // Endereço de execucao
+        subleq  CSINI_  TEMP            // TEMP = -CSINI_
+        subleq  TEMP    rgCS_Start      // CS Start = -TEMP = CSINI_
+        subleq  TEMP    Process         // Ajusta end processo a executar
+
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgCS_End                // Limpa CS End
+        subleq  CSEND_  TEMP            // TEMP = -CSEND_
+        subleq  TEMP    rgCS_End        // CS End = -TEMP = CSEND_
+
+        // Salva o espaco de dados
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgDS_Start              // Limpa DS Start
+        subleq  DSINI_  TEMP            // TEMP = -DSINI_
+        subleq  TEMP    rgDS_Start      // DS Star = -TEMP = DSINI_
+
+        subleq  TEMP                    // Limpa TEMP
+        subleq  rgDS_End                // Limpa DS End
+        subleq  DSEND_  TEMP            // TEMP = -DSEND_
+        subleq  TEMP  rgDS_End          // Ds End = -TEMP = DSEND_
+
+        // Executa o programa
+        subleq  TEMP TEMP  EXCPRC       // Chama o processo
+
+HALT:   subleq  ONE   Sig_HALT          // Seta sinal de HALT (16777215)
+HLT1:   subleq  TEMP  TEMP  HLT1        // Loop eterno ate RESET
+
+ISKEY:  subleq  TEMP                    // Limpa TEMP
+        subleq  rgPar0_IRQ              // Limpa a primeira posição da região de dados do program atual
+        subleq  Port_0  TEMP            // TEMP = -(Status do teclado)
+        subleq  TEMP  rgPar0_IRQ        // rgDS_Start = -(-TEMP)
+        subleq  TEMP  TEMP  Ret_IRQ     // Volta à rotina que chamou a Interrupção
+
+INKEY:  subleq  TEMP                    // Limpa TEMP
+        subleq  rgPar0_IRQ              // Limpa a primeira posição da região de dados do program atual
+        subleq  Port_1  TEMP            // TEMP = -(Tecla)
+        subleq  TEMP  rgPar0_IRQ        // rgDS_Start = Tecla
+        subleq  TEMP  TEMP  Ret_IRQ     // Volta à rotina que chamou a Interrupção
+
+OUTCHR: subleq  TEMP                     // Limpa TEMP
+        subleq  PRNCHR                   // Limpa PRNCHR
+        subleq  rgPar0_IRQ  TEMP         // Recupera o endereço caracter a ser impresso (-TEMP)
+        subleq  TEMP  PRNCHR             // PRNCHR = -TEMP = rgPar0_IRQ. Coloca em PRNCHR o endereço do caracter
+
+        subleq  TEMP                     // Limpa TEMP
+        subleq  PRNCHRF                  // Limpa PRNCHRF
+        subleq  OUTCHR1_ADD  TEMP        // TEMP = -OUTCHR1_ADD
+        subleq  TEMP  PRNCHRF            // PRNCHRF = -TEMP = OUTCHR1_ADD // Coloca em PRNCHRF o endereço de retorno
+
+        subleq  TEMP  TEMP  PRNCHR       // Vai para PRNCHR
+
+OUTCHR1:
+        subleq  TEMP  TEMP  Ret_IRQ      // Volta à rotina que chamou a Interrupção
+
+BOOT:   subleq  TEMP  TEMP  COLD         // Cold Boot
+
+CALLIRQ:
+        subleq  ONE  rgProtected  0      // Gancho para chamar um novo processo
+
+// Imprimir um caracter. A posição com zero será substituida pelo endereço do caracter
+PRINT:  subleq  0  Port_2
+        subleq  TEMP  TEMP  0          // Aqui vai a chamada de retorno (subleq  TEMP  TEMP <ret>)
+
+HALT_ADD:    DA  HALT
+ISKEY_ADD:   DA  ISKEY
+INKEY_ADD:   DA  INKEY
+OUTCHR_ADD:  DA  OUTCHR
+OUTCHR1_ADD: da  OUTCHR1
+
+MONE:   DA  -1
+ZERO:   DA  0
+ONE:    DA  1
+
+        // Rotina chamda após um RESET
+        ORG  $FFFFFF9C
+RESET:  subleq  TEMP  TEMP  COLD
+
+        STOP // Deixa de gerar código. Só usa as referências dos labels
+
+        //
+        // Definições dos registros internos da CPU
+        //
+        rgError_Line:      DA   0   // Linha onde ocorreu o erro
+        rgError_Code:      DA   0   // Código do erro
+        rgError_Hndr:      DA   0   // Endereço da rotina de manipulação de erro
+
+        rgAddHALT:         DA   0   // Endereço rotina de HALT (a b)
+
+        rgPar0_IRQ:        DA   0   // --+
+        rgPar1_IRQ:        DA   0   //   +----> Parâmetros (caso necessários) para a IRQ
+        rgPar2_IRQ:        DA   0   // --+
+        rgNum_IRQ:         DA   0   // Número da IRQ a ser chamada (subleq a Add_IRQ).
+
+        rgMemTop:          DA   0    // Ponteiro de topo de memória (RAM+ROM)
+        rgRAMTop:          DA   0
+
+        rgIRQ_En:          DA   0   // Habilita Interrupções (menos NMI) (a b)
+
+        rgProtected:       DA   0   // Flag de Modo Protegido
+        rgCS_Start:        DA   0   // Ponteiro Início da área de código -+
+        rgCS_End:          DA   0   // Ponteiro Fim da área de código ----+---> leitura e execução (a b)
+        rgDS_Start:        DA   0   // Ponteiro Início da área de dados --+
+        rgDS_End:          DA   0   // Ponteiro Fim da área de dados -----+----> leitura e escrita (a b)
+        rgRA_End:          DA   0   // Ponteiro do Fim da área de dados onde estão os ponteiros realocáveis
+
+        rgAdd_Hard_IRQ_0:  DA   0   // Endereço de manipulação DC Hard IRQ 0
+        rgAdd_Hard_IRQ_1:  DA   0   // Endereço de manipulação DC Hard IRQ 1
+        rgAdd_Hard_IRQ_2:  DA   0   // Endereço de manipulação DC Hard IRQ 2
+        rgAdd_Hard_IRQ_3:  DA   0   // Endereço de manipulação DC Hard IRQ 3
+        rgAdd_Hard_IRQ_4:  DA   0   // Endereço de manipulação DC Hard IRQ 4
+        rgAdd_Hard_IRQ_5:  DA   0   // Endereço de manipulação DC Hard IRQ 5
+        rgAdd_Hard_IRQ_6:  DA   0   // Endereço de manipulação DC Hard IRQ 6
+        rgAdd_Hard_IRQ_7:  DA   0   // Endereço de manipulação DC Hard IRQ 7
+        rgRet_Hard_IRQ_0:  DA   0   // Retorno DC Hard IRQ 0
+        rgRet_Hard_IRQ_1:  DA   0   // Retorno DC Hard IRQ 1
+        rgRet_Hard_IRQ_2:  DA   0   // Retorno DC Hard IRQ 2
+        rgRet_Hard_IRQ_3:  DA   0   // Retorno DC Hard IRQ 3
+        rgRet_Hard_IRQ_4:  DA   0   // Retorno DC Hard IRQ 4
+        rgRet_Hard_IRQ_5:  DA   0   // Retorno DC Hard IRQ 5
+        rgRet_Hard_IRQ_6:  DA   0   // Retorno DC Hard IRQ 6
+        rgRet_Hard_IRQ_7:  DA   0   // Retorno DC Hard IRQ 7
+        rgAdd_Soft_IRQ_0:  DA   0   // Endereço de manipulação DC Soft IRQ 0
+        rgAdd_Soft_IRQ_1:  DA   0   // Endereço de manipulação DC Soft IRQ 1
+        rgAdd_Soft_IRQ_2:  DA   0   // Endereço de manipulação DC Soft IRQ 2
+        rgAdd_Soft_IRQ_3:  DA   0   // Endereço de manipulação DC Soft IRQ 3
+        rgAdd_Soft_IRQ_4:  DA   0   // Endereço de manipulação DC Soft IRQ 4
+        rgAdd_Soft_IRQ_5:  DA   0   // Endereço de manipulação DC Soft IRQ 5
+        rgAdd_Soft_IRQ_6:  DA   0   // Endereço de manipulação DC Soft IRQ 6
+        rgAdd_Soft_IRQ_7:  DA   0   // Endereço de manipulação DC Soft IRQ 7
+        rgRet_Soft_IRQ_0:  DA   0   // Retorno DC Soft IRQ 0
+        rgRet_Soft_IRQ_1:  DA   0   // Retorno DC Soft IRQ 1
+        rgRet_Soft_IRQ_2:  DA   0   // Retorno DC Soft IRQ 2
+        rgRet_Soft_IRQ_3:  DA   0   // Retorno DC Soft IRQ 3
+        rgRet_Soft_IRQ_4:  DA   0   // Retorno DC Soft IRQ 4
+        rgRet_Soft_IRQ_5:  DA   0   // Retorno DC Soft IRQ 5
+        rgRet_Soft_IRQ_6:  DA   0   // Retorno DC Soft IRQ 6
+        rgRet_Soft_IRQ_7:  DA   0   // Retorno DC Soft IRQ 7
+
+        Exec_Halt:         DS   1   // Chamadas a este endereço acionam o HALT (subleq a b Exec_Halt) (mem[a] <= mem[b])
+        Exec_IRQ:          DS   1   // Executa IRQ. Gancho para chamada de IRQ (subleq a b Exec_IRQ) (mem[a] <= mem[b])
+        Ret_IRQ:           DS   1   // Quando uma IRQ é chamada, o retorno é feito por aqui  (subleq a b Ret_IRQ) (mem[a] <= mem[b])
+
+        Sig_NMI_IRQ:       DA   0   // Executando NMI
+        Sig_Hard_IRQ:      DA   0   // Executando Hard IRQ
+        Sig_Soft_IRQ:      DA   0   // Executando Soft IRQ
+
+        Sig_HALT:          DA   0   // Sinal HALT (subleq a Sig_HALT)
+        Sig_Reset:         DA   0   // Sinal RESET
+        Sig_ParA:          DA   0   // Sinal Lendo parâmetro A
+        Sig_ParB:          DA   0   // Sinal Lendo parâmetro B
+        Sig_ParC:          DA   0   // Sinal Lendo parâmetro C
+        Sig_ReadA:         DA   0   // Sinal lendo Mem[A]
+        Sig_ReadB:         DA   0   // Sinal lendo Mem[B]
+        Sig_WriteB:        DA   0   // Sinal escrevendo em Mem[B]
+        Sig_GotoNext:      DA   0   // Sinal indo próxima instrução
+        Sig_GotoC:         DA   0   // Sinal indo para instrução posição C
+
+        Port_0:            DA   0   // Status teclado (subleq Port_0 b)
+        Port_1:            DA   0   // Inkey          (subleq Port_1 b)
+        Port_2:            DA   0   // OUTCHR        (subleq a Port_2)
+        Port_3:            DA   0
+        Port_4:            DA   0
+        Port_5:            DA   0
+        Port_6:            DA   0
+        Port_7:            DA   0
+        Port_8:            DA   0
+        Port_9:            DA   0
+        Port_10:           DA   0
+        Port_11:           DA   0
+        Port_12:           DA   0
+        Port_13:           DA   0
+        Port_14:           DA   0
+        Port_15:           DA   0
+        Port_16:           DA   0
+        Port_17:           DA   0
+        Port_18:           DA   0
+        Port_19:           DA   0
+        Port_20:           DA   0
+        Port_21:           DA   0
+        Port_22:           DA   0
+        Port_23:           DA   0
+        Port_24:           DA   0
+        Port_25:           DA   0
+        Port_26:           DA   0
+        Port_27:           DA   0
+        Port_28:           DA   0
+        Port_29:           DA   0
+        Port_30:           DA   0
+        Port_31:           DA   0

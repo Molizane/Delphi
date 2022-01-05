@@ -3,8 +3,8 @@ unit uMCEditConexaoSerial;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Mask, DBCtrls, Buttons, ExtCtrls, CPort, CPortCtl, DB,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, DB,
+  Dialogs, StdCtrls, Mask, DBCtrls, Buttons, ExtCtrls, CPort, CPortCtl,
   CPortTypes, uFormPadrao;
 
 type
@@ -28,6 +28,7 @@ type
     cmbPorta: TComComboBox;
     chkLocalEcho: TCheckBox;
     chkCRLF: TDBCheckBox;
+    ChkCursor: TCheckBox;
     procedure btnCancelarClick(Sender: TObject);
     procedure btnGravarClick(Sender: TObject);
     procedure btnConfigSerialClick(Sender: TObject);
@@ -51,7 +52,7 @@ uses
 
 procedure TFMCEditConexaoSerial.btnCancelarClick(Sender: TObject);
 begin
-  if MessageBox(Handle, 'Confirme o cancelamento..', 'Confirmação', MB_YESNO +
+  if MessageBox(Handle, 'Confirme o cancelamento...', 'Confirmação', MB_YESNO +
     MB_ICONINFORMATION + MB_DEFBUTTON2) = IDYES then
   begin
     FMCConexoes.kbmMemTable.Cancel;
@@ -63,6 +64,8 @@ procedure TFMCEditConexaoSerial.btnGravarClick(Sender: TObject);
 var
   Str: string;
 begin
+  SelectNext(ActiveControl, True, True);
+  
   if Trim(FMCConexoes.kbmMemTableDescricao.AsString) = EmptyStr then
   begin
     Descricao.SetFocus;
@@ -75,7 +78,7 @@ begin
     else
       Str := 'alteraç';
 
-    if MessageBox(Handle, PChar('Confirme a ' + Str + 'ão..'), 'Confirmação',
+    if MessageBox(Handle, PChar('Confirme a ' + Str + 'ão...'), 'Confirmação',
       MB_YESNO + MB_ICONINFORMATION + MB_DEFBUTTON2) = IDYES then
     begin
       ConfComPort.BeginUpdate;
@@ -94,6 +97,7 @@ begin
       Grava(FMCConexoes.kbmMemTable, 'ParityBits', Integer(ConfComPort.Parity.Bits));
       Grava(FMCConexoes.kbmMemTable, 'FlowControl', Integer(ConfComPort.FlowControl.FlowControl));
       Grava(FMCConexoes.kbmMemTable, 'LocalEcho', chkLocalEcho.Checked);
+      Grava(FMCConexoes.kbmMemTable, 'Cursor', ChkCursor.Checked);
       FMCConexoes.kbmMemTable.Post;
       Close;
     end;
@@ -112,8 +116,8 @@ begin
   ConfComPort.BaudRate := TBaudRate(FMCConexoes.kbmMemTableBaudRate.AsInteger);
   ConfComPort.DataBits := TDataBits(FMCConexoes.kbmMemTableDataBits.AsInteger);
   ConfComPort.StopBits := TStopBits(FMCConexoes.kbmMemTableStopBits.AsInteger);
-  ConfComPort.Parity.Bits :=    TParityBits(FMCConexoes.kbmMemTableParityBits.AsInteger);
-  ConfComPort.FlowControl.FlowControl :=    TFlowControl(FMCConexoes.kbmMemTableFlowControl.AsInteger);
+  ConfComPort.Parity.Bits := TParityBits(FMCConexoes.kbmMemTableParityBits.AsInteger);
+  ConfComPort.FlowControl.FlowControl := TFlowControl(FMCConexoes.kbmMemTableFlowControl.AsInteger);
   ConfComPort.EndUpdate;
 
   cmbPorta.UpdateSettings;
@@ -124,6 +128,7 @@ begin
   cmbFlowControl.UpdateSettings;
 
   chkLocalEcho.Checked := FMCConexoes.kbmMemTableLocalEcho.AsBoolean;
+  ChkCursor.Checked := FMCConexoes.kbmMemTableCursor.AsBoolean;
 end;
 
 procedure TFMCEditConexaoSerial.Grava(DataSet: TDataSet; Campo: string; Valor:
@@ -141,8 +146,7 @@ begin
   end;
 end;
 
-procedure TFMCEditConexaoSerial.Grava(DataSet: TDataSet; Campo: string;
-  Valor: Boolean);
+procedure TFMCEditConexaoSerial.Grava(DataSet: TDataSet; Campo: string; Valor: Boolean);
 begin
   if not DataSet.Active then
     DataSet.Open;

@@ -1,0 +1,6 @@
+//----------------------------------------------------------------------------
+// Borland Delphi
+// Copyright (c) 1997 by Borland International, All Rights Reserved
+//----------------------------------------------------------------------------
+Kernel		RCDATA  RES\Kernel.oas
+Prog1 		RCDATA  RES\Prog1.oas

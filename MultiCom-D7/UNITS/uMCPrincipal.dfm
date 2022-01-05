@@ -1,10 +1,10 @@
 inherited FMCPrincipal: TFMCPrincipal
-  Left = 258
-  Top = 150
+  Left = 924
+  Top = 188
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'MultiCom'
-  ClientHeight = 420
+  ClientHeight = 436
   ClientWidth = 653
   Menu = MainMenu
   OldCreateOrder = True
@@ -14,12 +14,12 @@ inherited FMCPrincipal: TFMCPrincipal
   OnDestroy = FormDestroy
   DesignSize = (
     653
-    420)
+    436)
   PixelsPerInch = 96
   TextHeight = 13
-  object ComLabel7: TLabel
+  object ComLabelTX: TLabel
     Left = 509
-    Top = 369
+    Top = 385
     Width = 25
     Height = 13
     Alignment = taRightJustify
@@ -37,9 +37,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLabel6: TLabel
+  object ComLabelRX: TLabel
     Left = 463
-    Top = 369
+    Top = 385
     Width = 26
     Height = 13
     Alignment = taRightJustify
@@ -57,9 +57,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLabel5: TLabel
+  object ComLabelRLSD: TLabel
     Left = 398
-    Top = 369
+    Top = 385
     Width = 42
     Height = 13
     Alignment = taRightJustify
@@ -77,9 +77,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLabel4: TLabel
+  object ComLabelRing: TLabel
     Left = 342
-    Top = 369
+    Top = 385
     Width = 35
     Height = 13
     Alignment = taRightJustify
@@ -97,9 +97,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLabel3: TLabel
+  object ComLabelDSR: TLabel
     Left = 290
-    Top = 369
+    Top = 385
     Width = 35
     Height = 13
     Alignment = taRightJustify
@@ -117,9 +117,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLabel2: TLabel
+  object ComLabelCTS: TLabel
     Left = 237
-    Top = 369
+    Top = 385
     Width = 33
     Height = 13
     Alignment = taRightJustify
@@ -137,9 +137,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLabel1: TLabel
+  object ComLabelConn: TLabel
     Left = 181
-    Top = 369
+    Top = 385
     Width = 38
     Height = 13
     Alignment = taRightJustify
@@ -159,7 +159,7 @@ inherited FMCPrincipal: TFMCPrincipal
   end
   object btnConectar: TSpeedButton
     Left = 4
-    Top = 391
+    Top = 407
     Width = 75
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -168,7 +168,7 @@ inherited FMCPrincipal: TFMCPrincipal
   end
   object btnDesconectar: TSpeedButton
     Left = 90
-    Top = 391
+    Top = 407
     Width = 75
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -178,7 +178,7 @@ inherited FMCPrincipal: TFMCPrincipal
   end
   object lblHost: TLabel
     Left = 178
-    Top = 398
+    Top = 414
     Width = 25
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -187,7 +187,7 @@ inherited FMCPrincipal: TFMCPrincipal
   end
   object lblLocalEcho: TLabel
     Left = 4
-    Top = 368
+    Top = 384
     Width = 73
     Height = 16
     Anchors = [akLeft, akBottom]
@@ -204,20 +204,22 @@ inherited FMCPrincipal: TFMCPrincipal
     Layout = tlCenter
     Visible = False
   end
-  object ComLed1: TComLed
+  object ComLedConn: TComLed
     Left = 167
-    Top = 368
+    Top = 384
     Width = 15
     Height = 15
+    ComPort = ComPort
     LedSignal = lsConn
     Kind = lkRedLight
     RingDuration = 0
     Visible = False
     Anchors = [akLeft, akBottom]
+    OnChange = ComLedConnChange
   end
-  object ComLed2: TComLed
+  object ComLedCTS: TComLed
     Left = 222
-    Top = 368
+    Top = 384
     Width = 15
     Height = 15
     ComPort = ComPort
@@ -226,10 +228,11 @@ inherited FMCPrincipal: TFMCPrincipal
     RingDuration = 0
     Visible = False
     Anchors = [akLeft, akBottom]
+    OnChange = ComLedCTSChange
   end
-  object ComLed3: TComLed
+  object ComLedDSR: TComLed
     Left = 275
-    Top = 368
+    Top = 384
     Width = 15
     Height = 15
     ComPort = ComPort
@@ -239,9 +242,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Visible = False
     Anchors = [akLeft, akBottom]
   end
-  object ComLed4: TComLed
+  object ComLedRing: TComLed
     Left = 327
-    Top = 368
+    Top = 384
     Width = 15
     Height = 15
     ComPort = ComPort
@@ -251,9 +254,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Visible = False
     Anchors = [akLeft, akBottom]
   end
-  object ComLed5: TComLed
+  object ComLedRLSD: TComLed
     Left = 382
-    Top = 368
+    Top = 384
     Width = 15
     Height = 15
     ComPort = ComPort
@@ -263,9 +266,9 @@ inherited FMCPrincipal: TFMCPrincipal
     Visible = False
     Anchors = [akLeft, akBottom]
   end
-  object ComLed6: TComLed
+  object ComLedRX: TComLed
     Left = 447
-    Top = 368
+    Top = 384
     Width = 15
     Height = 15
     ComPort = ComPort
@@ -274,10 +277,11 @@ inherited FMCPrincipal: TFMCPrincipal
     RingDuration = 0
     Visible = False
     Anchors = [akLeft, akBottom]
+    OnChange = ComLedRXChange
   end
-  object ComLed7: TComLed
-    Left = 493
-    Top = 368
+  object ComLedTX: TComLed
+    Left = 494
+    Top = 384
     Width = 15
     Height = 15
     ComPort = ComPort
@@ -286,10 +290,11 @@ inherited FMCPrincipal: TFMCPrincipal
     RingDuration = 0
     Visible = False
     Anchors = [akLeft, akBottom]
+    OnChange = ComLedTXChange
   end
   object lblCR_LF: TLabel
     Left = 80
-    Top = 368
+    Top = 384
     Width = 49
     Height = 16
     Anchors = [akLeft, akBottom]
@@ -328,6 +333,7 @@ inherited FMCPrincipal: TFMCPrincipal
     LocalEcho = True
     ScrollBars = ssBoth
     TabOrder = 0
+    Caret = tcNone
     Anchors = [akLeft, akTop, akRight, akBottom]
     AutoSize = True
     OnKeyPress = ComTerminalKeyPress
@@ -335,7 +341,7 @@ inherited FMCPrincipal: TFMCPrincipal
   end
   object edtHost: TComboBox
     Left = 206
-    Top = 395
+    Top = 411
     Width = 329
     Height = 21
     Anchors = [akLeft, akBottom]
@@ -345,7 +351,7 @@ inherited FMCPrincipal: TFMCPrincipal
   end
   object chkLogar: TCheckBox
     Left = 540
-    Top = 397
+    Top = 413
     Width = 97
     Height = 17
     Anchors = [akLeft, akBottom]
@@ -407,7 +413,7 @@ inherited FMCPrincipal: TFMCPrincipal
     OnAfterOpen = ComPortAfterOpen
     OnAfterClose = ComPortAfterClose
     OnRxBuf = ComPortRxBuf
-    Left = 236
-    Top = 31
+    Left = 237
+    Top = 100
   end
 end

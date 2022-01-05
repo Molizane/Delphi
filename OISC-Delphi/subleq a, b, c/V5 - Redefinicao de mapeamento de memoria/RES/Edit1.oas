@@ -1,0 +1,33 @@
+// Cold Boot
+BOOT: subleq  TEMP  TEMP  COLD
+
+// Gancho para chamar um novo processo
+      subleq  ONE  rgProtected 0
+
+// Imprimir um caracter. A posição com zero será substituida pelo endereço do caracter
+      subleq  0  Port_2  PRNCHR1
+      subleq  TEMP  TEMP  0            // subleq  TEMP  TEMP <ret>
+
+// Rotina para imprimir um texto até o caracter 0
+
+      subleq  TEMP                  // Limpa TEMP
+      subleq  rgPar0_IRQ  TEMP      // Obtém endereço de buffer
+      subleq  TEMP  PrintLoop       // Seta o ponteiro de buffer
+      subleq  TEMP
+      subleq  Print1_ADD  TEMP      // Obtém o endereço de retorno para a rotina PRNCHR
+      subleq  TEMP  PRNCHRF         // Ajusta o retorno na rotina PRNCHR
+      subleq  TEMP
+      subleq  0  TEMP               // TEMP = -caracter
+      subleq  PRNCHR                // Limpa PRNCHR
+      subleq  PRNCHR  TEMP  Ret_IRQ // Retorna se igual ao caracter 0
+      subleq  TEMP  TEMP  PRNCHR    // Senão, já posicionou o caracter na rotina, executa
+      subleq  MONE  PrintLoop       // Avança o ponteiro de buffer
+      subleq  TEMP  TEMP  PrintLoop // Imprime próximo caracter
+
+// Rotina para MOVER dados de uma região para outra
+// MOVE UM DADO
+      subleq  TEMP          // Limpa TEMP
+      subleq  0  TEMP       // Move origem para TEMP (-origem)
+      subleq  0  0  MvDt_9  // Limpa destino
+      subleq  TEMP  0       // Move origem para destino
+      subleq  TEMP  TEMP  0 // Retorna

@@ -18,6 +18,7 @@ type
     edtPorta: TDBEdit;
     chkLocalEcho: TDBCheckBox;
     chkCRLF: TDBCheckBox;
+    ChkCursor: TDBCheckBox;
     procedure btnCancelarClick(Sender: TObject);
     procedure btnGravarClick(Sender: TObject);
     procedure edtPortaEnter(Sender: TObject);
@@ -41,7 +42,7 @@ uses
 
 procedure TFMCEditConexaoTelnet.btnCancelarClick(Sender: TObject);
 begin
-  if MessageBox(Handle, 'Confirme o cancelamento..', 'Confirmação', MB_YESNO +
+  if MessageBox(Handle, 'Confirme o cancelamento...', 'Confirmação', MB_YESNO +
     MB_ICONINFORMATION + MB_DEFBUTTON2) = IDYES then
   begin
     FMCConexoes.kbmMemTable.Cancel;
@@ -53,6 +54,8 @@ procedure TFMCEditConexaoTelnet.btnGravarClick(Sender: TObject);
 var
   Str: string;
 begin
+  SelectNext(ActiveControl, True, True);
+  
   if Trim(FMCConexoes.kbmMemTableDescricao.AsString) = EmptyStr then
   begin
     Descricao.SetFocus;
@@ -61,7 +64,7 @@ begin
   else if Trim(FMCConexoes.kbmMemTableEndereco.AsString) = EmptyStr then
   begin
     Endereco.SetFocus;
-    raise Exception.Create('Informar o endereco');
+    raise Exception.Create('Informar o endereço');
   end
   else
   begin
@@ -69,9 +72,9 @@ begin
       Str := 'inclus'
     else
       Str := 'alteraç';
-    if MessageBox(Handle, PChar('Confirme a ' + Str + 'ão..'), 'Confirmação',
-      MB_YESNO +
-      MB_ICONINFORMATION + MB_DEFBUTTON2) = IDYES then
+
+    if MessageBox(Handle, PChar('Confirme a ' + Str + 'ão...'), 'Confirmação',
+      MB_YESNO + MB_ICONINFORMATION + MB_DEFBUTTON2) = IDYES then
     begin
       FMCConexoes.kbmMemTable.Post;
       Close;
@@ -91,6 +94,7 @@ begin
   if PortaAnt <> edtPorta.Text then
   begin
     Porta := StrToIntDef(edtPorta.Text, -1);
+
     if (Porta < 0) or (Porta > 65535) then
     begin
       ShowMessage('Porta inválida');

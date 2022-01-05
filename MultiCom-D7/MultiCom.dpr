@@ -14,6 +14,7 @@ uses
 
 begin
   Application.Initialize;
+  Application.Title := 'MultiCom';
   Application.CreateForm(TFMCPrincipal, FMCPrincipal);
   Application.CreateForm(TFMCConexoes, FMCConexoes);
   Application.CreateForm(TFMCEditConexaoTelnet, FMCEditConexaoTelnet);

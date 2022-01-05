@@ -1,38 +1,38 @@
-			;******************************************************************************
-			; ACIONA AS PORTAS DE SAÍDA, ALTERNANDO O VALOR ENTRE 0 E 255 E EXIBINDO TEXTO
-			;******************************************************************************
-			
-			;***********************************************************************
-				include	"defs.inc"
+		;******************************************************************************
+		; ACIONA AS PORTAS DE SAÍDA, ALTERNANDO O VALOR ENTRE 0 E 255 E EXIBINDO TEXTO
+		;******************************************************************************
+		
+		;***********************************************************************
+			include	"defs.inc"
 **** defs.inc ****
 **** BLINKLED4.ASM ****
-			;***********************************************************************
-			
-    -	002F          	TEMPOC	equ $2F
-			
-    -	009C          	REST	equ	$009C
-			
-    -	20A0          			org	$20A0
-			
-   0+4	20A0  AF      	INIT:	xor a
-   4+11	20A1  D304    	LOOP:	out (PPS), a
-  15+4	20A3  3C      			inc a
-  19+11	20A4  F5      			push af
-  30+7	20A5  162F    			ld d, TEMPOC
-  37+16	20A7  2AB620  	L2		ld hl, (FRASE)
-  53+17	20AA  CD9C00  			call REST
-  70+4	20AD  15      			dec d
-  74+7+5	20AE  20F7    			jr nz, L2
-  81+10	20B0  F1      	LOOP2:	pop af
-  91+12	20B1  18EE    			jr LOOP
-			
-    -	20B3  00      	DIGIT:	db	0
-    -	20B4  18FF    	DELAY:	dw	$FF18
-			
-    -	20B6  F9A4B099	FRASE:	db	DIG_1, DIG_2, DIG_3, DIG_4, DIG_5, DIG_6, 0
-              928200
-			
-    -	20BD          	FIM:
+		;***********************************************************************
+		
+002F          	TEMPOC	equ $2F
+		
+009C          	REST	equ	$009C
+		
+20A0          			org	$20A0
+		
+20A0  AF      	INIT:	xor a
+20A1  D304    	LOOP:	out (PPS), a
+20A3  3C      			inc a
+20A4  F5      			push af
+20A5  162F    			ld d, TEMPOC
+20A7  2AB620  	L2		ld hl, (FRASE)
+20AA  CD9C00  			call REST
+20AD  15      			dec d
+20AE  20F7    			jr nz, L2
+20B0  F1      	LOOP2:	pop af
+20B1  18EE    			jr LOOP
+		
+20B3  00      	DIGIT:	db	0
+20B4  18FF    	DELAY:	dw	$FF18
+		
+20B6  F9A4B099	FRASE:	db	DIG_1, DIG_2, DIG_3, DIG_4, DIG_5, DIG_6, 0
+      928200
+		
+20BD          	FIM:
 
 
 

@@ -4,7 +4,7 @@ object FrmMain: TFrmMain
   BorderIcons = [biSystemMenu, biMinimize, biHelp]
   BorderStyle = bsSingle
   Caption = 'Nestor Z80'
-  ClientHeight = 225
+  ClientHeight = 205
   ClientWidth = 321
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
@@ -23,7 +23,7 @@ object FrmMain: TFrmMain
     Left = 0
     Top = 37
     Width = 321
-    Height = 188
+    Height = 168
     Align = alClient
     TabOrder = 1
     object GroupBox2: TGroupBox
@@ -32,7 +32,7 @@ object FrmMain: TFrmMain
       Width = 78
       Height = 86
       Caption = ' Eventos '
-      TabOrder = 5
+      TabOrder = 4
       object btnNMI: TSpeedButton
         Left = 8
         Top = 18
@@ -498,7 +498,7 @@ object FrmMain: TFrmMain
         Align = alLeft
         DigitWidth = 26
         BackgroundColor = clBlack
-        LightOnColor = clYellow
+        LightOnColor = 61440
         LightOffColor = 25700
       end
       object Display2: TLEDDisplay
@@ -510,7 +510,7 @@ object FrmMain: TFrmMain
         Align = alLeft
         DigitWidth = 26
         BackgroundColor = clBlack
-        LightOnColor = clYellow
+        LightOnColor = 61440
         LightOffColor = 25700
       end
       object Display3: TLEDDisplay
@@ -522,7 +522,7 @@ object FrmMain: TFrmMain
         Align = alLeft
         DigitWidth = 26
         BackgroundColor = clBlack
-        LightOnColor = clYellow
+        LightOnColor = 61440
         LightOffColor = 25700
       end
       object Display4: TLEDDisplay
@@ -534,7 +534,7 @@ object FrmMain: TFrmMain
         Align = alLeft
         DigitWidth = 26
         BackgroundColor = clBlack
-        LightOnColor = clYellow
+        LightOnColor = 61440
         LightOffColor = 25700
       end
       object Display5: TLEDDisplay
@@ -546,7 +546,7 @@ object FrmMain: TFrmMain
         Align = alRight
         DigitWidth = 26
         BackgroundColor = clBlack
-        LightOnColor = clYellow
+        LightOnColor = 61440
         LightOffColor = 25700
       end
       object Display6: TLEDDisplay
@@ -558,7 +558,7 @@ object FrmMain: TFrmMain
         Align = alRight
         DigitWidth = 26
         BackgroundColor = clBlack
-        LightOnColor = clYellow
+        LightOnColor = 61440
         LightOffColor = 25700
       end
       object Panel4: TPanel
@@ -652,16 +652,6 @@ object FrmMain: TFrmMain
         BorderWidth = 0
       end
     end
-    object Disassembler: TEdit
-      Left = 6
-      Top = 162
-      Width = 309
-      Height = 21
-      TabStop = False
-      ReadOnly = True
-      TabOrder = 3
-      Text = 'Disassembler'
-    end
     object pnlStatus: TPanel
       Left = 237
       Top = 9
@@ -669,7 +659,7 @@ object FrmMain: TFrmMain
       Height = 50
       BevelInner = bvLowered
       Caption = ' '
-      TabOrder = 4
+      TabOrder = 3
       object LEDHalt: TBSLed
         Left = 8
         Top = 10
@@ -719,7 +709,7 @@ object FrmMain: TFrmMain
       Caption = 'Hexa'
       Checked = True
       State = cbChecked
-      TabOrder = 6
+      TabOrder = 5
       OnClick = DisplayHexaClick
     end
     object Panel6: TPanel
@@ -728,7 +718,7 @@ object FrmMain: TFrmMain
       Width = 23
       Height = 151
       Caption = ' '
-      TabOrder = 7
+      TabOrder = 6
       object PE0: TCheckBox
         Left = 4
         Top = 3
@@ -830,12 +820,12 @@ object FrmMain: TFrmMain
     ParentFont = False
     ShowCaptions = True
     TabOrder = 0
-    object ToolButton2: TToolButton
+    object BtnOpen: TToolButton
       Left = 0
       Top = 0
       Action = Open
     end
-    object ToolButton1: TToolButton
+    object BtnNew: TToolButton
       Left = 44
       Top = 0
       Action = New
@@ -848,27 +838,27 @@ object FrmMain: TFrmMain
       ImageIndex = 18
       Style = tbsSeparator
     end
-    object ToolButton21: TToolButton
+    object BtnStep: TToolButton
       Left = 96
       Top = 0
       Action = Step
     end
-    object ToolButton22: TToolButton
+    object BtnRun: TToolButton
       Left = 140
       Top = 0
       Action = Run
     end
-    object ToolButton23: TToolButton
+    object BtnPause: TToolButton
       Left = 184
       Top = 0
       Action = Pause
     end
-    object ToolButton24: TToolButton
+    object BtnReset: TToolButton
       Left = 228
       Top = 0
       Action = Reset
     end
-    object ToolButton25: TToolButton
+    object BtnHalt: TToolButton
       Left = 272
       Top = 0
       Action = Halt
@@ -877,7 +867,7 @@ object FrmMain: TFrmMain
   object MainMenu1: TMainMenu
     Images = ImageList1
     Left = 16
-    Top = 75
+    Top = 76
     object File1: TMenuItem
       Caption = '&Arquivo'
       object Open1: TMenuItem
@@ -914,7 +904,7 @@ object FrmMain: TFrmMain
       end
       object opcBreakpoints: TMenuItem
         Caption = '&Breakpoints'
-        OnClick = opcBreakpointsClick
+        Visible = False
       end
       object opcTerminal: TMenuItem
         Caption = '&Terminal'
@@ -1607,8 +1597,8 @@ object FrmMain: TFrmMain
   end
   object ActionList1: TActionList
     Images = ImageList1
-    Left = 110
-    Top = 129
+    Left = 125
+    Top = 106
     object Open: TAction
       Caption = '&Abrir ...'
       ImageIndex = 0
@@ -1632,6 +1622,13 @@ object FrmMain: TFrmMain
       ImageIndex = 8
       OnExecute = RunExecute
     end
+    object Pause: TAction
+      Caption = '&Pausa'
+      Enabled = False
+      Hint = 'Stop'
+      ImageIndex = 11
+      OnExecute = PauseExecute
+    end
     object Reset: TAction
       Caption = 'Re&set'
       Hint = 'Reset'
@@ -1644,13 +1641,6 @@ object FrmMain: TFrmMain
       Hint = 'Halt'
       ImageIndex = 15
       OnExecute = HaltExecute
-    end
-    object Pause: TAction
-      Caption = '&Pausa'
-      Enabled = False
-      Hint = 'Stop'
-      ImageIndex = 11
-      OnExecute = PauseExecute
     end
     object Settings: TAction
       Caption = 'Settin&gs'

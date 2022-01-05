@@ -1,49 +1,49 @@
-			;***************************************************
-			;  EXIBE AMANDA E BIANCA
-			;***************************************************
-			
-			;***********************************************************************
-				include	"defs.inc"
+		;***************************************************
+		;  EXIBE AMANDA E BIANCA
+		;***************************************************
+		
+		;***********************************************************************
+			include	"defs.inc"
 **** defs.inc ****
 **** FILHAS.ASM ****
-			;***********************************************************************
-			
-    -	002F          	TEMPOC	equ	$2F
-			
-    -	009C          	REST	equ $009C
-			
-    -	09B0          			org	$09B0
-			
-   0+10	09B0  011B00  	INIT:	ld bc, FIM - MENS
-  10+11	09B3  C5      			push bc
-  21+10	09B4  21D209  			ld hl, MENS
-  31+16	09B7  22D009  	L1:		ld (PNT), hl
-  47+7	09BA  162F    			ld d, TEMPOC
-  54+16	09BC  2AD009  	L2:		ld hl, (PNT)
-  70+17	09BF  CD9C00  			call REST
-  87+4	09C2  15      			dec d
-  91+7+5	09C3  20F7    			jr nz, L2
-  98+10	09C5  C1      			pop bc
- 108+4	09C6  0D      			dec c
- 112+7+5	09C7  28E7    			jr z, INIT
- 119+11	09C9  C5      			push bc
- 130+16	09CA  2AD009  			ld hl, (PNT)
- 146+6	09CD  23      			inc hl
- 152+12	09CE  18E7    			jr L1
-			;
-    -	09D0  0000    	PNT:	dw	0000
-			
-    -	09D2  FFFFFFFF	MENS:	db	DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG	; seis espaços
-              FFFF
-    -	09D8  88C888AB			db	DIG_A, DIG_M, DIG_A, DIG_N, DIG_D, DIG_A					; Amanda
-              A188
-    -	09DE  FF86FF  			db	DIG_APAG, DIG_E, DIG_APAG									; e
-    -	09E1  83CF88AB			db	DIG_B, DIG_I, DIG_A, DIG_N, DIG_C, DIG_A and 7Fh			; Bianca (com ponto final)
-              A708
-    -	09E7  FFFFFFFF			db	DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG	; seis espaços
-              FFFF
-			
-    -	09ED  00      	FIM:	db	0
+		;***********************************************************************
+		
+002F          	TEMPOC	equ	$2F
+		
+009C          	REST	equ $009C
+		
+09B0          			org	$09B0
+		
+09B0  011B00  	INIT:	ld bc, FIM - MENS
+09B3  C5      			push bc
+09B4  21D209  			ld hl, MENS
+09B7  22D009  	L1:		ld (PNT), hl
+09BA  162F    			ld d, TEMPOC
+09BC  2AD009  	L2:		ld hl, (PNT)
+09BF  CD9C00  			call REST
+09C2  15      			dec d
+09C3  20F7    			jr nz, L2
+09C5  C1      			pop bc
+09C6  0D      			dec c
+09C7  28E7    			jr z, INIT
+09C9  C5      			push bc
+09CA  2AD009  			ld hl, (PNT)
+09CD  23      			inc hl
+09CE  18E7    			jr L1
+		;
+09D0  0000    	PNT:	dw	0000
+		
+09D2  FFFFFFFF	MENS:	db	DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG	; seis espaços
+      FFFF
+09D8  88C888AB			db	DIG_A, DIG_M, DIG_A, DIG_N, DIG_D, DIG_A					; Amanda
+      A188
+09DE  FF86FF  			db	DIG_APAG, DIG_E, DIG_APAG									; e
+09E1  83CF88AB			db	DIG_B, DIG_I, DIG_A, DIG_N, DIG_C, DIG_A and 7Fh			; Bianca (com ponto final)
+      A708
+09E7  FFFFFFFF			db	DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG, DIG_APAG	; seis espaços
+      FFFF
+		
+09ED  00      	FIM:	db	0
 
 
 

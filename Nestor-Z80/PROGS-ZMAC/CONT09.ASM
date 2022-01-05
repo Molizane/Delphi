@@ -7,7 +7,7 @@ REST	equ $009C
 
 TEMPOC	equ $30	;$10	;$20
 
-		org $0800
+		org $8000
 
 INIC	ld hl,MBD
 		ld b,6

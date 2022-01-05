@@ -1,58 +1,58 @@
-			;*************************************************************
-			; ACIONA AS PORTAS DE SAÍDA, ALTERNANDO O VALOR ENTRE 0 E 255
-			;*************************************************************
-			
-			;***********************************************************************
-				include	"defs.inc"
+		;*************************************************************
+		; ACIONA AS PORTAS DE SAÍDA, ALTERNANDO O VALOR ENTRE 0 E 255
+		;*************************************************************
+		
+		;***********************************************************************
+			include	"defs.inc"
 **** defs.inc ****
 **** BLINKLED3.ASM ****
-			;***********************************************************************
-			
-    -	2050          			org	$2050
-			
-   0+7	2050  3E01    	INIT:	ld a, 1
-   7+13	2052  328B20  			ld (DIGIT), a
-  20+4	2055  AF      			xor a
-  24+10	2056  218E20  	FRS:	ld hl, FRASE
-  34+11	2059  D304    	LOOP1:	out (PPS), a
-  45+4	205B  3C      			inc a
-  49+11	205C  F5      			push af
-  60+13	205D  3A8B20  			ld a, (DIGIT)
-  73+17	2060  CD7820  			call TIMER
-  90+4	2063  17      			rla ; add a, a
-  94+7	2064  FE40    			cp 64
- 101+7+5	2066  2002    			jr nz, LOOP2
- 108+7	2068  3E01    			ld a, 1
- 115+13	206A  328B20  	LOOP2:	ld (DIGIT), a
- 128+7	206D  7E      			ld a, (hl)
- 135+7	206E  FE00    			cp 0 ;and a
- 142+7+5	2070  2003    			jr nz, LOOP3
- 149+10	2072  F1      			pop af
- 159+12	2073  18E1    			jr FRS
- 171+10	2075  F1      	LOOP3:	pop af
- 181+12	2076  18E1    			jr LOOP1
-			
- 193+11	2078  F5      	TIMER:	push af
- 204+11	2079  D303    			out (PDIG), a
- 215+7	207B  7E      			ld a, (hl)
- 222+11	207C  D301    			out (PTEC), a
- 233+4	207E  D9      			exx
- 237+10	207F  118C20  			ld de, DELAY
- 247+6	2082  1B      	TIMER1:	dec de
- 253+4	2083  7A      			ld a, d
- 257+4	2084  B3      			or e
- 261+7+5	2085  20FB    			jr nz, TIMER1
- 268+4	2087  D9      			exx
- 272+6	2088  23      			inc hl
- 278+10	2089  F1      			pop af
- 288+10	208A  C9      			ret
-			
-    -	208B  00      	DIGIT:	db	0
-    -	208C  18FF    	DELAY:	dw	$FF18
-    -	208E  F9A4B099	FRASE:	db	DIG_1, DIG_2, DIG_3, DIG_4, DIG_5, DIG_6, 0
-              928200
-			
-    -	2095          	FIM:
+		;***********************************************************************
+		
+2050          			org	$2050
+		
+2050  3E01    	INIT:	ld a, 1
+2052  328B20  			ld (DIGIT), a
+2055  AF      			xor a
+2056  218E20  	FRS:	ld hl, FRASE
+2059  D304    	LOOP1:	out (PPS), a
+205B  3C      			inc a
+205C  F5      			push af
+205D  3A8B20  			ld a, (DIGIT)
+2060  CD7820  			call TIMER
+2063  17      			rla ; add a, a
+2064  FE40    			cp 64
+2066  2002    			jr nz, LOOP2
+2068  3E01    			ld a, 1
+206A  328B20  	LOOP2:	ld (DIGIT), a
+206D  7E      			ld a, (hl)
+206E  FE00    			cp 0 ;and a
+2070  2003    			jr nz, LOOP3
+2072  F1      			pop af
+2073  18E1    			jr FRS
+2075  F1      	LOOP3:	pop af
+2076  18E1    			jr LOOP1
+		
+2078  F5      	TIMER:	push af
+2079  D303    			out (PDIG), a
+207B  7E      			ld a, (hl)
+207C  D301    			out (PTEC), a
+207E  D9      			exx
+207F  118C20  			ld de, DELAY
+2082  1B      	TIMER1:	dec de
+2083  7A      			ld a, d
+2084  B3      			or e
+2085  20FB    			jr nz, TIMER1
+2087  D9      			exx
+2088  23      			inc hl
+2089  F1      			pop af
+208A  C9      			ret
+		
+208B  00      	DIGIT:	db	0
+208C  18FF    	DELAY:	dw	$FF18
+208E  F9A4B099	FRASE:	db	DIG_1, DIG_2, DIG_3, DIG_4, DIG_5, DIG_6, 0
+      928200
+		
+2095          	FIM:
 
 
 

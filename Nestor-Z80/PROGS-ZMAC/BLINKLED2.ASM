@@ -20,7 +20,7 @@ LOOP:	out (PPS), a
 		inc a
 		jr LOOP
 ;
-TIMER:	ld de, $0AFF
+TIMER:	ld de, $0FFF
 TIMER1:	dec de
 		ld a, d
 		or e

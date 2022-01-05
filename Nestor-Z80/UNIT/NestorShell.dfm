@@ -1,6 +1,6 @@
 object FrmShell: TFrmShell
-  Left = 331
-  Top = 264
+  Left = 728
+  Top = 260
   AutoSize = True
   BorderIcons = [biSystemMenu]
   BorderStyle = bsToolWindow

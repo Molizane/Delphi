@@ -83,7 +83,7 @@ var
 implementation
 
 uses
-  NestorMain, NestorBP, NestorListagem, MemoryZ80;
+  NestorMain, NestorListagem, MemoryZ80;
 
 {$R *.dfm}
 
@@ -217,7 +217,6 @@ begin
     if FileExists(CompPath + srcname + 'LST') then
     begin
       LstForm.Listagem.Lines.LoadFromFile(CompPath + srcname + 'LST');
-      FrmBreakPoints.Debug(FrmMain.Memory, CompPath + srcname + 'LST', False);
       btnListagem.Visible := True;
     end;
 
@@ -230,7 +229,7 @@ begin
     if not (FileExists(CompPath + srcname + 'LST') and FileExists(CompPath + srcname + 'HEX')) then
       MessageDlg('Compilation failed', mtError, [mbOK], 0);
 
-    LstForm.ShowModal;
+    LstForm.Show; //Modal;
 
     if not (FileExists(CompPath + srcname + 'LST') and FileExists(CompPath + srcname + 'HEX')) then
       Exit;
@@ -417,7 +416,7 @@ end;
 
 procedure TFrmFontes.btnListagemClick(Sender: TObject);
 begin
-  LstForm.ShowModal;
+  LstForm.Show; //Modal;
 end;
 
 procedure TFrmFontes.SetMemoTabStop(Editor: TMemo);

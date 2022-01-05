@@ -1,0 +1,35 @@
+        ORG  0
+        DC  NR -1
+        DC  ZR 0
+        DC  STK 0
+        DC  RDK 1
+        DC  OUT 0
+        DC  HALT $FFFF03
+START:
+        subleq  KEY  KEY       // if (KEY = KEY - KEY) <= 0 goto NEXT --> KEY = 0
+        subleq  CLS  KEY       // if (KEY = KEY - CLS) <= 0 goto NEXT --> KEY = 0 - (-12) = 12
+        subleq  KEY  OUT       // Print Chr(12) = CLS
+LOOP:
+        subleq  TMP_            // if (TMP_ = TMP_ - TMP_) <= 0 goto NEXT --> TMP_ = 0
+        subleq  STK  TMP_       // if (TMP_ = TMP_ - STK) <= 0 goto NEXT --> TMP_ = 0
+        subleq  BUF            // if (BUF = BUF - BUF) <= 0 goto NEXT --> BUF = 0
+        subleq  BUF  TMP_  LOOP // if (BUF = BUF - ZRP) <= 0 goto LOOP --> BUF = STATUS TECLADO
+        subleq  KEY            // if (KEY = KEY - KEY) <= 0 goto NEXT --> KEY = 0
+        subleq  RDK  KEY       // KEY = InKey
+        subleq  TMP_            // if (TMP_ = TMP_ - TMP_) <= 0 goto NEXT --> TMP_ = 0
+        subleq  ESC  TMP_       // if (TMP_ = TMP_ - ESC) <= 0 goto NEXT --> TMP_ = 0 - (-27) = 27
+        subleq  KEY  TMP_       // if (TMP_ = TMP_ - KEY) <= 0 goto NEXT --> TMP_ = 27 - Key
+        subleq  TMP_  BUF  END  // if (BUF = BUF - TMP_) <= 0 goto END  --> BUF = 0 - (27 - Key) ==> Se tecla < 27 BUF <= 0; pula para END
+        subleq  BUF  BUF  PRN  // if (BUF = BUF - BUF) <= 0 goto PRN --> BUF = 0
+        subleq  BUF  BUF  END  // if (BUF = BUF - BUF) <= 0 goto END --> BUF = 0
+END:
+        subleq  BUF  TMP_  HALT  // if (TMP_ = TMP_ - BUF) <= 0 HALT
+PRN:
+        subleq  KEY  OUT       // Print KEY
+        subleq  BUF  BUF  LOOP // if (BUF = BUF - BUF) <= 0 goto LOOP --> BUF = 0
+
+BUF:    DD  ZR  // Buffer
+KEY:    DD  ZR  // InKey
+TMP_:    DD  ZR  // Zero Flag
+ESC:    DD  -27 // ESC
+CLS:    DD  -12 // CLS

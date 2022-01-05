@@ -43,13 +43,15 @@ var
   FComStopBits: TStopBits;
   FComParity: TParityBits;
   FComFlowControl: TFlowControl;
-  F1: TextFile;
+  FStream: TextFile;
+  FLog: TextFile;
   FNumConnections: Integer;
   FNames: array of string;
   FTypes: array of Integer;
   FHosts: array of string;
   FPorts: array of Integer;
   FCR_LF: array of Boolean;
+  FCursor: array of Boolean;
   FComsPort: array of Integer;
   FComsBaudRate: array of TBaudRate;
   FComsDataBits: array of TDataBits;

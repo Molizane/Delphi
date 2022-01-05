@@ -118,7 +118,7 @@ inherited FMCEditConexaoTelnet: TFMCEditConexaoTelnet
     OnKeyPress = edtPortaKeyPress
   end
   object chkLocalEcho: TDBCheckBox
-    Left = 97
+    Left = 79
     Top = 97
     Width = 72
     Height = 17
@@ -131,8 +131,8 @@ inherited FMCEditConexaoTelnet: TFMCEditConexaoTelnet
     ValueUnchecked = 'False'
   end
   object chkCRLF: TDBCheckBox
-    Left = 211
-    Top = 96
+    Left = 173
+    Top = 97
     Width = 55
     Height = 17
     Caption = 'CR/LF'
@@ -142,5 +142,17 @@ inherited FMCEditConexaoTelnet: TFMCEditConexaoTelnet
     ValueChecked = 'True'
     ValueUnchecked = 'False'
     OnClick = chkCRLFClick
+  end
+  object ChkCursor: TDBCheckBox
+    Left = 247
+    Top = 97
+    Width = 56
+    Height = 17
+    Caption = 'Cursor'
+    DataField = 'Cursor'
+    DataSource = FMCConexoes.DataSource
+    TabOrder = 5
+    ValueChecked = 'True'
+    ValueUnchecked = 'False'
   end
 end

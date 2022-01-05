@@ -1,59 +1,59 @@
-			;****************************************
-			;    LEDS
-			;****************************************
-			
-			;***********************************************************************
-				include	"defs.inc"
+		;****************************************
+		;    LEDS
+		;****************************************
+		
+		;***********************************************************************
+			include	"defs.inc"
 **** defs.inc ****
 **** SEGS.ASM ****
-			;***********************************************************************
-			
-    -	00FF          	TEMPOC	equ	$FF
-			
-    -	0AE0          			org $0AE0
-			
-   0+7	0AE0  3EFE    	LOOP	ld a, $FE
-   7+17	0AE2  CD000B  			call LIGHT
-  24+7	0AE5  3EFD    			ld a, $FD
-  31+17	0AE7  CD000B  			call LIGHT
-  48+7	0AEA  3EFB    			ld a, $FB
-  55+17	0AEC  CD000B  			call LIGHT
-  72+7	0AEF  3EF7    			ld a, $F7
-  79+17	0AF1  CD000B  			call LIGHT
-  96+7	0AF4  3EEF    			ld a, $EF
- 103+17	0AF6  CD000B  			call LIGHT
- 120+7	0AF9  3EDF    			ld a, $DF
- 127+17	0AFB  CD000B  			call LIGHT
- 144+12	0AFE  18E0    			jr LOOP
-			
- 156+11	0B00  D304    	LIGHT	out (PPS), a
- 167+11	0B02  D305    			out (PPS + 1), a
- 178+12	0B04  1800    			jr DELAY
-			
-			
- 190+11	0B06  C5      	DELAY	push bc			; save BC
- 201+7	0B07  06FF    			ld b, TEMPOC	; start of delay
- 208+17	0B09  CD0E0B  			call DLAY1
- 225+10	0B0C  C1      			pop bc			; restore BC
- 235+10	0B0D  C9      			ret
-			
- 245+7	0B0E  0EFF    	DLAY1 	ld c, $ff		; fill c too with max delay
- 252+4	0B10  0D      	DLAY2 	dec c			; decrement c
- 256+7+5	0B11  20FD    			jr nz, DLAY2
- 263+4	0B13  05      			dec b			; c is empty...
- 267+7+5	0B14  20F8    			jr nz, DLAY1	; do c again
- 274+10	0B16  C9      			ret				; retorna
-			
- 284+11	0B17  E5      	DELAY2	push hl
- 295+7	0B18  2E05    			ld l, 5
- 302+7	0B1A  06FF    	DLY2	ld b, $ff		; start of delay
- 309+17	0B1C  CD0E0B  			call DLAY1
- 326+4	0B1F  2D      			dec l
- 330+7+5	0B20  20F8    			jr nz, DLY2
- 337+10	0B22  E1      			pop hl
- 347+10	0B23  C9      			ret
-			
-    -	0B24          	FIM:
+		;***********************************************************************
+		
+00FF          	TEMPOC	equ	$FF
+		
+0AE0          			org $0AE0
+		
+0AE0  3EFE    	LOOP	ld a, $FE
+0AE2  CD000B  			call LIGHT
+0AE5  3EFD    			ld a, $FD
+0AE7  CD000B  			call LIGHT
+0AEA  3EFB    			ld a, $FB
+0AEC  CD000B  			call LIGHT
+0AEF  3EF7    			ld a, $F7
+0AF1  CD000B  			call LIGHT
+0AF4  3EEF    			ld a, $EF
+0AF6  CD000B  			call LIGHT
+0AF9  3EDF    			ld a, $DF
+0AFB  CD000B  			call LIGHT
+0AFE  18E0    			jr LOOP
+		
+0B00  D304    	LIGHT	out (PPS), a
+0B02  D305    			out (PPS + 1), a
+0B04  1800    			jr DELAY
+		
+		
+0B06  C5      	DELAY	push bc			; save BC
+0B07  06FF    			ld b, TEMPOC	; start of delay
+0B09  CD0E0B  			call DLAY1
+0B0C  C1      			pop bc			; restore BC
+0B0D  C9      			ret
+		
+0B0E  0EFF    	DLAY1 	ld c, $ff		; fill c too with max delay
+0B10  0D      	DLAY2 	dec c			; decrement c
+0B11  20FD    			jr nz, DLAY2
+0B13  05      			dec b			; c is empty...
+0B14  20F8    			jr nz, DLAY1	; do c again
+0B16  C9      			ret				; retorna
+		
+0B17  E5      	DELAY2	push hl
+0B18  2E05    			ld l, 5
+0B1A  06FF    	DLY2	ld b, $ff		; start of delay
+0B1C  CD0E0B  			call DLAY1
+0B1F  2D      			dec l
+0B20  20F8    			jr nz, DLY2
+0B22  E1      			pop hl
+0B23  C9      			ret
+		
+0B24          	FIM:
 
 
 

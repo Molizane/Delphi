@@ -4,9 +4,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, Buttons, Menus, IniFiles, uFormPadrao, CPort, CPortTypes,
-  CPortCtl, IdIntercept, IdBaseComponent, IdComponent, IdTCPConnection,
-  IdTCPClient, IdTelnet;
+  Dialogs, StdCtrls, Buttons, Menus, IniFiles, uFormPadrao, CPort, CPortCtl,
+  CPortTypes, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient,
+  IdTelnet;
 
 type
   TFMCPrincipal = class(TFormPadrao)
@@ -25,20 +25,20 @@ type
     smnFonte: TMenuItem;
     smnParametros: TMenuItem;
     lblLocalEcho: TLabel;
-    ComLed1: TComLed;
-    ComLed2: TComLed;
-    ComLed3: TComLed;
-    ComLed4: TComLed;
-    ComLed5: TComLed;
-    ComLed6: TComLed;
-    ComLed7: TComLed;
-    ComLabel1: TLabel;
-    ComLabel2: TLabel;
-    ComLabel3: TLabel;
-    ComLabel4: TLabel;
-    ComLabel5: TLabel;
-    ComLabel6: TLabel;
-    ComLabel7: TLabel;
+    ComLedConn: TComLed;
+    ComLedCTS: TComLed;
+    ComLedDSR: TComLed;
+    ComLedRing: TComLed;
+    ComLedRLSD: TComLed;
+    ComLedRX: TComLed;
+    ComLedTX: TComLed;
+    ComLabelConn: TLabel;
+    ComLabelCTS: TLabel;
+    ComLabelDSR: TLabel;
+    ComLabelRing: TLabel;
+    ComLabelRLSD: TLabel;
+    ComLabelRX: TLabel;
+    ComLabelTX: TLabel;
     lblCR_LF: TLabel;
     lblTec: TLabel;
     chkLogar: TCheckBox;
@@ -61,7 +61,12 @@ type
     procedure smnParametrosClick(Sender: TObject);
     procedure ComPortRxBuf(Sender: TObject; const Buffer: PAnsiChar; Count: Integer);
     procedure chkLogarClick(Sender: TObject);
+    procedure ComLedConnChange(Sender: TObject; AState: TLedState);
+    procedure ComLedCTSChange(Sender: TObject; AState: TLedState);
+    procedure ComLedRXChange(Sender: TObject; AState: TLedState);
+    procedure ComLedTXChange(Sender: TObject; AState: TLedState);
   private
+    FInit: TDateTime;
     FCanLog: Boolean;
     procedure LeParametros;
     procedure HabilitaTCPIP;
@@ -88,9 +93,14 @@ begin
 
   if chkLogar.Checked then
   begin
-    AssignFile(F1, IdTelnet.Host);
-    Rewrite(F1);
+    FInit := Now();
+    AssignFile(FStream, FormatDateTime('yyyy-mm-dd_hh"h"n"m"ss"s"', FInit) + '-' + IdTelnet.Host + '.txt');
+    Rewrite(FStream);
+
+    AssignFile(FLog, FormatDateTime('yyyy-mm-dd_hh"h"n"m"ss"s"', FInit) + '-' + IdTelnet.Host + '.time');
+    Rewrite(FLog);
     FCanLog := True;
+    FInit := -1;
   end;
 
   Inicializa;
@@ -101,7 +111,14 @@ begin
   ComTerminal.WriteStr(Buffer);
 
   if FCanLog then
-    Write(F1, Buffer);
+  begin
+    Write(FStream, Buffer);
+
+    if FInit = -1 then
+      FInit := Now();
+
+    WriteLn(FLog, FormatDateTime('hh:nn:ss.zzz', Now() - FInit));
+  end;
 end;
 
 procedure TFMCPrincipal.IdTelnetDisconnected(Sender: TObject);
@@ -111,7 +128,8 @@ begin
 
   if chkLogar.Checked then
   begin
-    CloseFile(F1);
+    CloseFile(FStream);
+    CloseFile(FLog);
     FCanLog := False;
   end;
 end;
@@ -122,9 +140,14 @@ begin
 
   if chkLogar.Checked then
   begin
-    AssignFile(F1, IdTelnet.Host);
-    Rewrite(F1);
+    FInit := Now();
+    AssignFile(FStream, FormatDateTime('yyyy-mm-dd_hh"h"n"m"ss"s"', FInit) + '-' + IdTelnet.Host + '.txt');
+    Rewrite(FStream);
+
+    AssignFile(FLog, FormatDateTime('yyyy-mm-dd_hh"h"n"m"ss"s"', FInit) + '-' + IdTelnet.Host + '.time');
+    Rewrite(FLog);
     FCanLog := True;
+    FInit := -1;
   end;
 
   Inicializa;
@@ -133,7 +156,14 @@ end;
 procedure TFMCPrincipal.ComPortRxBuf(Sender: TObject; const Buffer: PAnsiChar; Count: Integer);
 begin
   if FCanLog then
-    Write(F1, Buffer);
+  begin
+    Write(FStream, Buffer);
+
+    if FInit = -1 then
+      FInit := Now();
+
+    WriteLn(FLog, FormatDateTime('hh:nn:ss.z', Now() - FInit));
+  end;
 end;
 
 procedure TFMCPrincipal.ComPortAfterClose(Sender: TObject);
@@ -143,7 +173,8 @@ begin
 
   if chkLogar.Checked then
   begin
-    CloseFile(F1);
+    CloseFile(FStream);
+    CloseFile(FLog);
     FCanLog := False;
   end;
 end;
@@ -153,6 +184,10 @@ var
   i: Integer;
 begin
   i := edtHost.ItemIndex;
+
+  if i < 0 then
+    Exit;
+
   ComTerminal.LocalEcho := FComsLocalEcho[i];
 
   ComTerminal.Font.Name := FFontsName[i];
@@ -161,7 +196,7 @@ begin
   ComTerminal.Font.Style := [];
 
   if FFontsStyleBold[i] then
-    ComTerminal.Font.Style := ComTerminal.Font.Style + [fsBold];
+    ComTerminal.Font.Style := ComTerminal.Font.Style + [fsItalic];
 
   if FFontsStyleItalic[i] then
     ComTerminal.Font.Style := ComTerminal.Font.Style + [fsItalic];
@@ -225,22 +260,21 @@ begin
   if btnConectar.Enabled then
     Caption := Caption + 'desconectado'
   else
-    Caption := Caption + 'conectado em ' + Trim(edtHost.Text) + ' : ' +
-      IntToStr(FPorts[edtHost.ItemIndex]);
+    Caption := Caption + 'conectado em ' + Trim(edtHost.Text) + ' : ' + IntToStr(FPorts[edtHost.ItemIndex]);
 
   if IdTelnet.Connected then
   begin
-    ComLed1.ComPort := nil;
-    ComLed1.State := lsOn;
+    ComLedConn.ComPort := nil;
+    ComLedConn.State := lsOn;
   end
   else
   begin
-    ComLed1.State := lsOff;
-    ComLed1.ComPort := ComPort;
+    //ComLedConn.State := lsOff;
+    ComLedConn.ComPort := ComPort;
   end;
 
-  ComLed1.Visible := IdTelnet.Connected;
-  ComLabel1.Visible := ComLed1.Visible;
+  ComLedConn.Visible := IdTelnet.Connected;
+  ComLabelConn.Visible := ComLedConn.Visible;
 
   Invalidate;
 end;
@@ -249,60 +283,60 @@ procedure TFMCPrincipal.FormCreate(Sender: TObject);
 begin
   lblTec.Caption := '';
 
-  ComLabel1.SendToBack;
-  ComLabel1.AutoSize := True;
-  ComLabel1.AutoSize := False;
-  ComLabel1.Width := ComLed1.Width + ComLabel1.Width;
-  ComLabel1.Height := ComLed1.Height;
-  ComLabel1.Left := ComLed1.Left;
+  ComLabelConn.SendToBack;
+  ComLabelConn.AutoSize := True;
+  ComLabelConn.AutoSize := False;
+  ComLabelConn.Width := ComLedConn.Width + ComLabelConn.Width;
+  ComLabelConn.Height := ComLedConn.Height;
+  ComLabelConn.Left := ComLedConn.Left;
 
-  ComLed2.Left := ComLabel1.Left + ComLabel1.Width + 3;
-  ComLabel2.SendToBack;
-  ComLabel2.AutoSize := True;
-  ComLabel2.AutoSize := False;
-  ComLabel2.Width := ComLed2.Width + ComLabel2.Width;
-  ComLabel2.Height := ComLed2.Height;
-  ComLabel2.Left := ComLed2.Left;
+  ComLedCTS.Left := ComLabelConn.Left + ComLabelConn.Width + 3;
+  ComLabelCTS.SendToBack;
+  ComLabelCTS.AutoSize := True;
+  ComLabelCTS.AutoSize := False;
+  ComLabelCTS.Width := ComLedCTS.Width + ComLabelCTS.Width;
+  ComLabelCTS.Height := ComLedCTS.Height;
+  ComLabelCTS.Left := ComLedCTS.Left;
 
-  ComLed3.Left := ComLabel2.Left + ComLabel2.Width + 3;
-  ComLabel3.SendToBack;
-  ComLabel3.AutoSize := True;
-  ComLabel3.AutoSize := False;
-  ComLabel3.Width := ComLed3.Width + ComLabel3.Width;
-  ComLabel3.Height := ComLed3.Height;
-  ComLabel3.Left := ComLed3.Left;
+  ComLedDSR.Left := ComLabelCTS.Left + ComLabelCTS.Width + 3;
+  ComLabelDSR.SendToBack;
+  ComLabelDSR.AutoSize := True;
+  ComLabelDSR.AutoSize := False;
+  ComLabelDSR.Width := ComLedDSR.Width + ComLabelDSR.Width;
+  ComLabelDSR.Height := ComLedDSR.Height;
+  ComLabelDSR.Left := ComLedDSR.Left;
 
-  ComLed4.Left := ComLabel3.Left + ComLabel3.Width + 3;
-  ComLabel4.SendToBack;
-  ComLabel4.AutoSize := True;
-  ComLabel4.AutoSize := False;
-  ComLabel4.Width := ComLed4.Width + ComLabel4.Width;
-  ComLabel4.Height := ComLed4.Height;
-  ComLabel4.Left := ComLed4.Left;
+  ComLedRing.Left := ComLabelDSR.Left + ComLabelDSR.Width + 3;
+  ComLabelRing.SendToBack;
+  ComLabelRing.AutoSize := True;
+  ComLabelRing.AutoSize := False;
+  ComLabelRing.Width := ComLedRing.Width + ComLabelRing.Width;
+  ComLabelRing.Height := ComLedRing.Height;
+  ComLabelRing.Left := ComLedRing.Left;
 
-  ComLed5.Left := ComLabel4.Left + ComLabel4.Width + 3;
-  ComLabel5.SendToBack;
-  ComLabel5.AutoSize := True;
-  ComLabel5.AutoSize := False;
-  ComLabel5.Width := ComLed5.Width + ComLabel5.Width;
-  ComLabel5.Height := ComLed5.Height;
-  ComLabel5.Left := ComLed5.Left;
+  ComLedRLSD.Left := ComLabelRing.Left + ComLabelRing.Width + 3;
+  ComLabelRLSD.SendToBack;
+  ComLabelRLSD.AutoSize := True;
+  ComLabelRLSD.AutoSize := False;
+  ComLabelRLSD.Width := ComLedRLSD.Width + ComLabelRLSD.Width;
+  ComLabelRLSD.Height := ComLedRLSD.Height;
+  ComLabelRLSD.Left := ComLedRLSD.Left;
 
-  ComLed6.Left := ComLabel5.Left + ComLabel5.Width + 3;
-  ComLabel6.SendToBack;
-  ComLabel6.AutoSize := True;
-  ComLabel6.AutoSize := False;
-  ComLabel6.Width := ComLed6.Width + ComLabel6.Width;
-  ComLabel6.Height := ComLed6.Height;
-  ComLabel6.Left := ComLed6.Left;
+  ComLedRX.Left := ComLabelRLSD.Left + ComLabelRLSD.Width + 3;
+  ComLabelRX.SendToBack;
+  ComLabelRX.AutoSize := True;
+  ComLabelRX.AutoSize := False;
+  ComLabelRX.Width := ComLedRX.Width + ComLabelRX.Width;
+  ComLabelRX.Height := ComLedRX.Height;
+  ComLabelRX.Left := ComLedRX.Left;
 
-  ComLed7.Left := ComLabel6.Left + ComLabel6.Width + 3;
-  ComLabel7.SendToBack;
-  ComLabel7.AutoSize := True;
-  ComLabel7.AutoSize := False;
-  ComLabel7.Width := ComLed7.Width + ComLabel7.Width;
-  ComLabel7.Height := ComLed7.Height;
-  ComLabel7.Left := ComLed7.Left;
+  ComLedTX.Left := ComLabelRX.Left + ComLabelRX.Width + 3;
+  ComLabelTX.SendToBack;
+  ComLabelTX.AutoSize := True;
+  ComLabelTX.AutoSize := False;
+  ComLabelTX.Width := ComLedTX.Width + ComLabelTX.Width;
+  ComLabelTX.Height := ComLedTX.Height;
+  ComLabelTX.Left := ComLedTX.Left;
 
   FCaret := Integer(tcBlock);
   FLocalEcho := False;
@@ -372,20 +406,20 @@ begin
   else
     Caption := Caption + 'conectado em ' + Trim(edtHost.Text);
 
-  ComLed1.Visible := ComPort.Connected;
-  ComLabel1.Visible := ComLed1.Visible;
-  ComLed2.Visible := ComLed1.Visible;
-  ComLabel2.Visible := ComLed1.Visible;
-  ComLed3.Visible := ComLed1.Visible;
-  ComLabel3.Visible := ComLed1.Visible;
-  ComLed4.Visible := ComLed1.Visible;
-  ComLabel4.Visible := ComLed1.Visible;
-  ComLed5.Visible := ComLed1.Visible;
-  ComLabel5.Visible := ComLed1.Visible;
-  ComLed6.Visible := ComLed1.Visible;
-  ComLabel6.Visible := ComLed1.Visible;
-  ComLed7.Visible := ComLed1.Visible;
-  ComLabel7.Visible := ComLed1.Visible;
+  ComLedConn.Visible := ComPort.Connected;
+  ComLabelConn.Visible := ComLedConn.Visible;
+  ComLedCTS.Visible := ComLedConn.Visible;
+  ComLabelCTS.Visible := ComLedCTS.Visible;
+  ComLedDSR.Visible := ComLedConn.Visible;
+  ComLabelDSR.Visible := ComLedDSR.Visible;
+  ComLedRing.Visible := ComLedConn.Visible;
+  ComLabelRing.Visible := ComLedRing.Visible;
+  ComLedRLSD.Visible := ComLedConn.Visible;
+  ComLabelRLSD.Visible := ComLedRLSD.Visible;
+  ComLedRX.Visible := ComLedConn.Visible;
+  ComLabelRX.Visible := ComLedRX.Visible;
+  ComLedTX.Visible := ComLedConn.Visible;
+  ComLabelTX.Visible := ComLedTX.Visible;
 
   Invalidate;
 end;
@@ -393,7 +427,12 @@ end;
 procedure TFMCPrincipal.Inicializa;
 begin
   ComTerminal.ClearScreen;
-  ComTerminal.Caret := TTermCaret(FCaret);
+  
+  if FCursor[edtHost.ItemIndex] then
+    ComTerminal.Caret := TTermCaret(FCaret)
+  else
+    ComTerminal.Caret := tcNone;
+
   ComTerminal.SetFocus;
 
   lblLocalEcho.Visible := True;
@@ -445,6 +484,7 @@ begin
     SetLength(FHosts, FNumConnections);
     SetLength(FPorts, FNumConnections);
     SetLength(FCR_LF, FNumConnections);
+    SetLength(FCursor, FNumConnections);
     SetLength(FComsPort, FNumConnections);
     SetLength(FComsBaudRate, FNumConnections);
     SetLength(FComsDataBits, FNumConnections);
@@ -468,6 +508,7 @@ begin
         FTypes[i] := ReadInteger(FNames[i], 'Type', 1);
         FPorts[i] := ReadInteger(FNames[i], 'Port', 0);
         FCR_LF[i] := ReadBool(FNames[i], 'CR', True);
+        FCursor[i] := ReadBool(FNames[i], 'Cursor', True);
 
         if FTypes[i] = 0 then
           FHosts[i] := ReadString(FNames[i], 'Host', '')
@@ -490,14 +531,18 @@ begin
         FFontsStyleUnderline[i] := ReadBool(FNames[i], 'FontStyleUnderline', FFontStyleUnderline);
         FFontsStyleStrikeOut[i] := ReadBool(FNames[i], 'FontStyleStrikeOut', FFontStyleStrikeOut);
 
-        s := FNames[i] + ' (' + FHosts[i];
+        s := FNames[i];
+
+        if FHosts[i] <> '' then
+          s := s + ' (' + FHosts[i];
 
         if FTypes[i] = 0 then
           s := s + ':' + IntToStr(FPorts[i])
         else if FTypes[i] = 0 then
           s := s + ToPort(FPorts[i]);
 
-        s := s + ')';
+        if FHosts[i] <> '' then
+          s := s + ')';
 
         edtHost.Items.Add(s);
       end;
@@ -550,7 +595,7 @@ begin
     ComTerminal.Font.Style := [];
 
     if FFontStyleBold then
-      ComTerminal.Font.Style := ComTerminal.Font.Style + [fsBold];
+      ComTerminal.Font.Style := ComTerminal.Font.Style + [fsItalic];
     if FFontStyleItalic then
       ComTerminal.Font.Style := ComTerminal.Font.Style + [fsItalic];
     if FFontStyleUnderline then
@@ -586,6 +631,46 @@ begin
     UpdateFile;
     Free;
   end;
+end;
+
+procedure TFMCPrincipal.ComLedConnChange(Sender: TObject; AState: TLedState);
+begin
+  inherited;
+
+  if AState = lsOn then
+    ComLabelConn.Font.Style := ComLabelConn.Font.Style + [fsItalic]
+  else
+    ComLabelConn.Font.Style := ComLabelConn.Font.Style - [fsItalic];
+end;
+
+procedure TFMCPrincipal.ComLedCTSChange(Sender: TObject; AState: TLedState);
+begin
+  inherited;
+
+  if AState = lsOn then
+    ComLabelCTS.Font.Style := ComLabelCTS.Font.Style + [fsItalic]
+  else
+    ComLabelCTS.Font.Style := ComLabelCTS.Font.Style - [fsItalic];
+end;
+
+procedure TFMCPrincipal.ComLedRXChange(Sender: TObject; AState: TLedState);
+begin
+  inherited;
+
+  if AState = lsOn then
+    ComLabelRX.Font.Style := ComLabelRX.Font.Style + [fsItalic]
+  else
+    ComLabelRX.Font.Style := ComLabelRX.Font.Style - [fsItalic];
+end;
+
+procedure TFMCPrincipal.ComLedTXChange(Sender: TObject; AState: TLedState);
+begin
+  inherited;
+
+  if AState = lsOn then
+    ComLabelTX.Font.Style := ComLabelTX.Font.Style + [fsItalic]
+  else
+    ComLabelTX.Font.Style := ComLabelTX.Font.Style - [fsItalic];
 end;
 
 end.

@@ -84,7 +84,7 @@ procedure DoDebug(Mem: TMemoryView; ListDebug: TCheckListBox; ListSym: TStrings;
 var
   arq: TextFile;
   L, U, Lbl: string;
-  add, i, v: Integer;
+  add, i: Integer;
 begin
   if Limpa then
   begin

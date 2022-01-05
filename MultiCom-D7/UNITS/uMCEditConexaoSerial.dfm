@@ -210,7 +210,7 @@ inherited FMCEditConexaoSerial: TFMCEditConexaoSerial
     TabOrder = 7
   end
   object chkCRLF: TDBCheckBox
-    Left = 155
+    Left = 125
     Top = 190
     Width = 55
     Height = 17
@@ -221,6 +221,14 @@ inherited FMCEditConexaoSerial: TFMCEditConexaoSerial
     ValueChecked = 'True'
     ValueUnchecked = 'False'
     OnClick = chkCRLFClick
+  end
+  object ChkCursor: TCheckBox
+    Left = 198
+    Top = 190
+    Width = 97
+    Height = 17
+    Caption = 'Cursor'
+    TabOrder = 9
   end
   object ConfComPort: TComPort
     BaudRate = br9600

@@ -1,0 +1,128 @@
+		
+8000          		org $8000
+		
+8000  AF      		xor a
+8001  327B80  		ld (message), a
+		
+			; Initialize value to be the number to convert
+8004  3A7580  		ld a, (number)
+8007  327780  		ld (value), a
+800A  3A7680  		ld a, (number + 1)
+800D  327880  		ld (value + 1), a
+		
+8010          	divide:
+			; Initialize the reminder to zero
+8010  AF      		xor a
+8011  327980  		ld (mod10), a
+8014  327A80  		ld (mod10 + 1), a
+		
+8017  0610    		ld b, 16
+8019          	divloop:
+			; Rotate quotient and remaind
+8019  217780  		ld hl, value
+801C  CB06    		rlc (hl)
+801E  23      		inc hl	; value + 1
+801F  CB06    		rlc (hl)
+		
+8021  23      		inc hl ; ld hl, mod10
+8022  CB06    		rlc (hl)
+8024  23      		inc hl	; mod10 + 1
+8025  CB06    		rlc (hl)
+		
+			; a, c = dividend - divisor
+8027  2A7980  		ld hl, (mod10)
+802A  110A00  		ld de, 10
+802D  3F      		ccf
+802E  ED52    		sbc hl, de
+8030  FA3680  		jp m, ignore_result ; branch if dividend < divisor
+8033  227980  		ld (mod10), hl
+		
+8036          	ignore_result:
+8036  05      		dec b
+8037  78      		ld a, b
+8038  A7      		and a
+8039  20DE    		jr nz, divloop
+		
+803B  37      	    scf
+803C  217780  		ld hl, value
+803F  CB06    		rlc (hl) ; shift in the last bit of the quotient
+8041  23      		inc hl	; value +  1
+8042  CB06    		rlc (hl)
+		
+8044  3A7980  		ld a, (mod10)
+8047  C630    		add a, "0"
+8049  CD6480  		call push_char
+		
+			; if value != 0, then continue dividing
+804C  3A7780  		ld a, (value)
+804F  217880  		ld hl, value + 1
+8052  B6      		or (hl)
+8053  20BB    		jr nz, divide ; branch if value not zero
+		
+8055  217B80  		ld hl, message
+8058          	print:
+8058  7E      		ld a, (hl)
+8059  A7      		and a
+805A  2806    		jr z, loop
+805C  CD7480  		call print_char
+805F  23      		inc hl
+8060  18F6    		jr print
+		
+8062          		loop:
+8062  18FE    		jr loop
+		
+			; Add the character in the A register to the beginning of the
+			; null-terminated string 'message'
+8064          	push_char:
+8064  F5      		push af ; Push the new char onto stack
+8065  217B80  		ld hl, message
+		
+8068          	char_loop:
+8068  7E      		ld a, (hl) ; Get char on string and put into b
+8069  47      		ld b, a
+806A  F1      		pop af
+806B  77      		ld (hl), a  ; Pull char off stack and add it to the string
+806C  23      		inc hl
+806D  78      		ld a, b
+806E  F5      		push af            ; Push char from string onto stack
+806F  20F7    		jr nz, char_loop
+		
+8071  F1      		pop af
+8072  77      		ld (hl), a  ; Pull teh null off the stack and add to the end of the string
+8073  C9      		ret
+		
+8074          		print_char:
+8074  C9      		ret
+		
+8075  C106    	number: dw 1729
+8077  0000    	value: dw 0 ; 2 bytes
+8079  0000    	mod10: dw 0 ; 2 bytes
+807B  00000000	message: dw 0, 0, 0 ; 6 bytes
+      0000
+		
+
+
+
+Statistics:
+
+     4	passes
+     0	jr promotions
+    12	symbols
+   129	bytes
+
+
+
+Symbol Table:
+
+char_loop       8068     
+divide          8010     
+divloop         8019     
+ignore_result   8036     
+loop            8062     
+message         807b     
+mod10           8079     
+number          8075     
+print           8058     
+print_char      8074     
+push_char       8064     
+value           8077     

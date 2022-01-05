@@ -37,6 +37,7 @@ type
     kbmMemTableFontStyleUnderline: TBooleanField;
     kbmMemTableFontStyleStrikeOut: TBooleanField;
     kbmMemTableCR: TBooleanField;
+    kbmMemTableCursor: TBooleanField;
     procedure kbmMemTableTipoGetText(Sender: TField; var Text: string; DisplayText: Boolean);
     procedure FormShow(Sender: TObject);
     procedure kbmMemTableAfterScroll(DataSet: TDataSet);
@@ -96,6 +97,7 @@ begin
           kbmMemTableDescricao.AsString := FNames[i];
           kbmMemTablePorta.AsInteger := FPorts[i];
           kbmMemTableCR.AsBoolean := FCR_LF[i];
+          kbmMemTableCursor.AsBoolean := FCursor[i];
 
           if FTypes[i] = 0 then
             kbmMemTableEndereco.AsString := FHosts[i]
@@ -183,8 +185,8 @@ begin
     ((Sender.Value = NULL) or (Sender.Value < 0) or (Sender.Value > 65535)) then
     raise Exception.Create('Valor deve estar entre 0 e 65535')
   else if (kbmMemTableTipo.AsInteger = 2) and ((Sender.Value = NULL) or
-    (Sender.Value < 1) or (Sender.Value > 5)) then
-    raise Exception.Create('Valor deve estar entre 1 e 5');
+    (Sender.Value < 1) or (Sender.Value > 255)) then
+    raise Exception.Create('Valor deve estar entre 1 e 255');
 end;
 
 procedure TFMCConexoes.btnGravarClick(Sender: TObject);
@@ -237,22 +239,17 @@ begin
           WriteInteger(kbmMemTableDescricao.AsString, 'Type', kbmMemTableTipo.AsInteger);
           WriteInteger(kbmMemTableDescricao.AsString, 'Port', kbmMemTablePorta.AsInteger);
           WriteBool(kbmMemTableDescricao.AsString, 'CR', kbmMemTableCR.AsBoolean);
+          WriteBool(kbmMemTableDescricao.AsString, 'Cursor', kbmMemTableCursor.AsBoolean);
 
           if kbmMemTableTipo.AsInteger = 0 then
-            WriteString(kbmMemTableDescricao.AsString, 'Host',
-              kbmMemTableEndereco.AsString)
+            WriteString(kbmMemTableDescricao.AsString, 'Host', kbmMemTableEndereco.AsString)
           else if kbmMemTableTipo.AsInteger = 2 then
           begin
-            WriteInteger(kbmMemTableDescricao.AsString, 'BaudRate',
-              kbmMemTableBaudRate.AsInteger);
-            WriteInteger(kbmMemTableDescricao.AsString, 'DataBits',
-              kbmMemTableDataBits.AsInteger);
-            WriteInteger(kbmMemTableDescricao.AsString, 'StopBits',
-              kbmMemTableStopBits.AsInteger);
-            WriteInteger(kbmMemTableDescricao.AsString, 'ParityBits',
-              kbmMemTableParityBits.AsInteger);
-            WriteInteger(kbmMemTableDescricao.AsString, 'FlowControl',
-              kbmMemTableFlowControl.AsInteger);
+            WriteInteger(kbmMemTableDescricao.AsString, 'BaudRate', kbmMemTableBaudRate.AsInteger);
+            WriteInteger(kbmMemTableDescricao.AsString, 'DataBits', kbmMemTableDataBits.AsInteger);
+            WriteInteger(kbmMemTableDescricao.AsString, 'StopBits', kbmMemTableStopBits.AsInteger);
+            WriteInteger(kbmMemTableDescricao.AsString, 'ParityBits', kbmMemTableParityBits.AsInteger);
+            WriteInteger(kbmMemTableDescricao.AsString, 'FlowControl', kbmMemTableFlowControl.AsInteger);
           end;
 
           if SameText(Str, kbmMemTableDescricao.AsString) then
@@ -307,6 +304,8 @@ begin
   kbmMemTableStopBits.AsInteger := Integer(sbOneStopBit);
   kbmMemTableParityBits.AsInteger := Integer(prNone);
   kbmMemTableFlowControl.AsInteger := Integer(fcNone);
+  kbmMemTableCR.AsBoolean := True;
+  kbmMemTableCursor.AsBoolean := True;
   FMCEditConexaoSerial.ShowModal;
 end;
 

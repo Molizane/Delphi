@@ -1,6 +1,6 @@
 inherited FMCConexoes: TFMCConexoes
-  Left = 121
-  Top = 211
+  Left = 431
+  Top = 272
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSingle
   Caption = 'Conex'#245'es'
@@ -154,7 +154,7 @@ inherited FMCConexoes: TFMCConexoes
   end
   object DBGrid1: TDBGrid
     Left = 6
-    Top = 2
+    Top = 1
     Width = 675
     Height = 292
     DataSource = DataSource
@@ -188,6 +188,9 @@ inherited FMCConexoes: TFMCConexoes
       end>
   end
   object kbmMemTable: TkbmMemTable
+    DesignActivation = True
+    AttachedAutoRefresh = True
+    AttachMaxCount = 1
     FieldDefs = <
       item
         Name = 'Codigo'
@@ -234,6 +237,43 @@ inherited FMCConexoes: TFMCConexoes
       item
         Name = 'LocalEcho'
         DataType = ftBoolean
+      end
+      item
+        Name = 'FontName'
+        DataType = ftString
+        Size = 64
+      end
+      item
+        Name = 'FontSize'
+        DataType = ftInteger
+      end
+      item
+        Name = 'FontColor'
+        DataType = ftInteger
+      end
+      item
+        Name = 'FontStyleBold'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FontStyleItalic'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FontStyleUnderline'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'FontStyleStrikeOut'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'CR'
+        DataType = ftBoolean
+      end
+      item
+        Name = 'Cursor'
+        DataType = ftBoolean
       end>
     IndexFieldNames = 'Codigo'
     IndexName = 'kbmMemTableIndex1'
@@ -242,10 +282,22 @@ inherited FMCConexoes: TFMCConexoes
         Name = 'kbmMemTableIndex1'
         Fields = 'Codigo'
       end>
+    SortOptions = []
+    PersistentBackup = False
+    ProgressFlags = [mtpcLoad, mtpcSave, mtpcCopy]
+    LoadedCompletely = False
+    SavedCompletely = False
+    FilterOptions = []
+    Version = '5.51'
+    LanguageID = 0
+    SortID = 0
+    SubLanguageID = 1
+    LocaleID = 1024
     BeforeInsert = kbmMemTableBeforeInsert
     AfterInsert = kbmMemTableAfterInsert
     BeforePost = kbmMemTableBeforePost
     AfterScroll = kbmMemTableAfterScroll
+    RangeFieldCount = 0
     Left = 226
     Top = 79
     object kbmMemTableCodigo: TIntegerField
@@ -313,6 +365,9 @@ inherited FMCConexoes: TFMCConexoes
     end
     object kbmMemTableCR: TBooleanField
       FieldName = 'CR'
+    end
+    object kbmMemTableCursor: TBooleanField
+      FieldName = 'Cursor'
     end
   end
   object DataSource: TDataSource

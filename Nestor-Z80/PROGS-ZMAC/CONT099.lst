@@ -1,55 +1,55 @@
-			;************************************************
-			;    CONTADOR 0 A 99 NOS QUINTO E SEXTO D͐GITOS
-			;************************************************
-			
-    -	0186          	FORMAT	equ $0186
-    -	009C          	REST	equ $009C
-			
-    -	0030          	TEMPOC	equ $30	;$10	;$20
-			
-    -	08D0          			org $08D0
-			
-   0+10	08D0  211A09  	INIC	ld hl,MBD
-  10+7	08D3  0606    			ld b,6
-  17+10	08D5  36FF    	A1		ld (hl),$FF
-  27+6	08D7  23      			inc	hl
-  33+8+5	08D8  10FB    			djnz A1
-  41+10	08DA  212009  	A2		ld hl,CNTD
-  51+10	08DD  3600    			ld (hl),$00
-  61+10	08DF  212109  			ld hl,CNTU
-  71+10	08E2  36FF    			ld (hl),$FF
-  81+10	08E4  212109  	A3		ld hl,CNTU
-  91+11	08E7  34      			inc (hl)
- 102+7	08E8  7E      			ld a,(hl)
- 109+7	08E9  FE0A    			cp $0A
- 116+10	08EB  C20409  			jp nz,A4
- 126+7	08EE  3E00    			ld a, $00
- 133+7	08F0  77      			ld (hl), a
- 140+11	08F1  F5      			push af
- 151+10	08F2  212009  			ld hl,CNTD
- 161+11	08F5  34      			inc (hl)
- 172+7	08F6  7E      			ld a,(hl)
- 179+7	08F7  FE0A    			cp $0A
- 186+10	08F9  CAD008  			jp z,INIC
- 196+17	08FC  CD8601  			call FORMAT
- 213+10	08FF  211E09  			ld hl,DIG5
- 223+7	0902  77      			ld (hl),a
- 230+10	0903  F1      			pop af
- 240+17	0904  CD8601  	A4		call FORMAT
- 257+10	0907  211F09  			ld hl,DIG6
- 267+7	090A  77      			ld (hl),a
- 274+7	090B  1630    			ld d,TEMPOC
- 281+10	090D  211A09  	A5		ld hl,MBD
- 291+17	0910  CD9C00  			call REST
- 308+4	0913  15      			dec	d
- 312+10	0914  C20D09  			jp nz,A5
- 322+10	0917  C3E408  			jp A3
-			
-    -	091A  00000000	MBD		db 0, 0, 0, 0
-    -	091E  00      	DIG5	db 0
-    -	091F  00      	DIG6	db 0
-    -	0920  00      	CNTD	db 0
-    -	0921  00      	CNTU	db 0
+		;************************************************
+		;    CONTADOR 0 A 99 NOS QUINTO E SEXTO D͐GITOS
+		;************************************************
+		
+0186          	FORMAT	equ $0186
+009C          	REST	equ $009C
+		
+0030          	TEMPOC	equ $30	;$10	;$20
+		
+08D0          			org $08D0
+		
+08D0  211A09  	INIC	ld hl,MBD
+08D3  0606    			ld b,6
+08D5  36FF    	A1		ld (hl),$FF
+08D7  23      			inc	hl
+08D8  10FB    			djnz A1
+08DA  212009  	A2		ld hl,CNTD
+08DD  3600    			ld (hl),$00
+08DF  212109  			ld hl,CNTU
+08E2  36FF    			ld (hl),$FF
+08E4  212109  	A3		ld hl,CNTU
+08E7  34      			inc (hl)
+08E8  7E      			ld a,(hl)
+08E9  FE0A    			cp $0A
+08EB  C20409  			jp nz,A4
+08EE  3E00    			ld a, $00
+08F0  77      			ld (hl), a
+08F1  F5      			push af
+08F2  212009  			ld hl,CNTD
+08F5  34      			inc (hl)
+08F6  7E      			ld a,(hl)
+08F7  FE0A    			cp $0A
+08F9  CAD008  			jp z,INIC
+08FC  CD8601  			call FORMAT
+08FF  211E09  			ld hl,DIG5
+0902  77      			ld (hl),a
+0903  F1      			pop af
+0904  CD8601  	A4		call FORMAT
+0907  211F09  			ld hl,DIG6
+090A  77      			ld (hl),a
+090B  1630    			ld d,TEMPOC
+090D  211A09  	A5		ld hl,MBD
+0910  CD9C00  			call REST
+0913  15      			dec	d
+0914  C20D09  			jp nz,A5
+0917  C3E408  			jp A3
+		
+091A  00000000	MBD		db 0, 0, 0, 0
+091E  00      	DIG5	db 0
+091F  00      	DIG6	db 0
+0920  00      	CNTD	db 0
+0921  00      	CNTU	db 0
 
 
 

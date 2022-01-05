@@ -1,59 +1,59 @@
-			;***************************************************
-			;  TRANSFERE ENTRADAS PARA AS SAÍDAS
-			;***************************************************
-			
-			;***********************************************************************
-				include	"defs.inc"
+		;***************************************************
+		;  TRANSFERE ENTRADAS PARA AS SAÍDAS
+		;***************************************************
+		
+		;***********************************************************************
+			include	"defs.inc"
 **** defs.inc ****
 **** IN-OUT.ASM ****
-			;***********************************************************************
-			
-    -	2240          			org	$2240
-			
-				; INICIALIZA AS VARIÁVEIS
-   0+4	2240  AF      	INIT	xor a
-   4+13	2241  328122  			ld (INP), a
-  17+13	2244  328322  			ld (TIMES), a
-  30+13	2247  328022  			ld (OLDIN), a
-  43+11	224A  D304    			out (PPS), a
-				; LOOP PRINCIPAL
-  54+11	224C  DB02    	LOOP	in a, (PPE)		; LÊ A PORTA DE ENTRADA
-  65+4	224E  4F      			ld c, a			; SALVA EM "C"
-  69+13	224F  3A8122  			ld a, (INP)		; CARREGA O VALOR LIDO ANTERIORMENTE
-  82+4	2252  B9      			cp c			; COMPARA COM A LEITURA ATUAL
-  86+7+5	2253  280D    			jr z, SAME		; SE LEITURA ATUAL FOR IGUAL À ANTERIOR, ANALISA QUANTO TEMPO ESTÁ ESTÁVEL
-			
-  93+4	2255  79      			ld a, c			; SE NÃO FOR IGUAL:
-  97+13	2256  328122  			ld (INP), a		; SALVA O VALOR LIDO ATUAL
- 110+4	2259  AF      			xor a
- 114+13	225A  328322  			ld (TIMES), a	; LIMPA O CONTADOR DE VEZES DE LEITURAS
- 127+13	225D  328022  			ld (OLDIN), a	; LIMPA O BUFFER DE VALOR ANTERIORMENTE LIDO
- 140+12	2260  18EA    			jr LOOP			; RETORNA AO INÍCIO DO LOOP
-			
- 152+13	2262  3A8322  	SAME	ld a, (TIMES)	; CARREGA O CONTADOR DE LEITURAS IGUAIS
- 165+4	2265  3C      			inc a			; INCREMENTA
- 169+13	2266  328322  			ld (TIMES), a	; SALVA O CONTADOR DE LEITURAS IGUAIS
- 182+7	2269  FE32    			cp 50			; VERIFICA SE CHEGOU A 50 LEITURAS
- 189+10	226B  FA4C22  			jp m, LOOP		; SE NÃO CHEGOU A 50 LEITURAS, RETORNA AO INÍCIO DO LOOP
-			
- 199+13	226E  3A8122  			ld a, (INP)		; CARREGA O VALOR LIDO ATUAL
- 212+4	2271  4F      			ld c, a			; SALVA EM "C"
- 216+13	2272  3A8022  			ld a, (OLDIN)	; CARREGA O VALOR LIDO ANTERIOR
- 229+4	2275  B9      			cp c			; VERIFICA SE A LEITURA MUDOU
- 233+7+5	2276  28D4    			jr z, LOOP		; SE NÃO MUDOU, RETORNA AO INÍCIO DO LOOP
-			
- 240+4	2278  79      			ld a, c			; RECUPERA O VALOR DE "C"
- 244+13	2279  328022  			ld (OLDIN), a	; SALVA NO VALOR ANTERIOR
- 257+11	227C  D304    			out (PPS), a	; ACIONA AS SAÍDAS
- 268+12	227E  18CC    			jr LOOP			; RETORNA AO INÍCIO DO LOOP
-			
-    -	2280          	VARS:
-    -	2280  00      	OLDIN	db	0
-    -	2281  00      	INP		db	0
-    -	2282  00      	OUTP	db	0
-    -	2283  00      	TIMES	db	0
-			
-    -	2284          	FIM:
+		;***********************************************************************
+		
+2240          			org	$2240
+		
+			; INICIALIZA AS VARIÁVEIS
+2240  AF      	INIT	xor a
+2241  328122  			ld (INP), a
+2244  328322  			ld (TIMES), a
+2247  328022  			ld (OLDIN), a
+224A  D304    			out (PPS), a
+			; LOOP PRINCIPAL
+224C  DB02    	LOOP	in a, (PPE)		; LÊ A PORTA DE ENTRADA
+224E  4F      			ld c, a			; SALVA EM "C"
+224F  3A8122  			ld a, (INP)		; CARREGA O VALOR LIDO ANTERIORMENTE
+2252  B9      			cp c			; COMPARA COM A LEITURA ATUAL
+2253  280D    			jr z, SAME		; SE LEITURA ATUAL FOR IGUAL À ANTERIOR, ANALISA QUANTO TEMPO ESTÁ ESTÁVEL
+		
+2255  79      			ld a, c			; SE NÃO FOR IGUAL:
+2256  328122  			ld (INP), a		; SALVA O VALOR LIDO ATUAL
+2259  AF      			xor a
+225A  328322  			ld (TIMES), a	; LIMPA O CONTADOR DE VEZES DE LEITURAS
+225D  328022  			ld (OLDIN), a	; LIMPA O BUFFER DE VALOR ANTERIORMENTE LIDO
+2260  18EA    			jr LOOP			; RETORNA AO INÍCIO DO LOOP
+		
+2262  3A8322  	SAME	ld a, (TIMES)	; CARREGA O CONTADOR DE LEITURAS IGUAIS
+2265  3C      			inc a			; INCREMENTA
+2266  328322  			ld (TIMES), a	; SALVA O CONTADOR DE LEITURAS IGUAIS
+2269  FE32    			cp 50			; VERIFICA SE CHEGOU A 50 LEITURAS
+226B  FA4C22  			jp m, LOOP		; SE NÃO CHEGOU A 50 LEITURAS, RETORNA AO INÍCIO DO LOOP
+		
+226E  3A8122  			ld a, (INP)		; CARREGA O VALOR LIDO ATUAL
+2271  4F      			ld c, a			; SALVA EM "C"
+2272  3A8022  			ld a, (OLDIN)	; CARREGA O VALOR LIDO ANTERIOR
+2275  B9      			cp c			; VERIFICA SE A LEITURA MUDOU
+2276  28D4    			jr z, LOOP		; SE NÃO MUDOU, RETORNA AO INÍCIO DO LOOP
+		
+2278  79      			ld a, c			; RECUPERA O VALOR DE "C"
+2279  328022  			ld (OLDIN), a	; SALVA NO VALOR ANTERIOR
+227C  D304    			out (PPS), a	; ACIONA AS SAÍDAS
+227E  18CC    			jr LOOP			; RETORNA AO INÍCIO DO LOOP
+		
+2280          	VARS:
+2280  00      	OLDIN	db	0
+2281  00      	INP		db	0
+2282  00      	OUTP	db	0
+2283  00      	TIMES	db	0
+		
+2284          	FIM:
 
 
 

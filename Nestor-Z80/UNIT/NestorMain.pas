@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, Grids, ExtCtrls, StdCtrls, StdActns, ActnList, ImgList, ComCtrls,
-  ToolWin, Menus, ValEdit, Buttons, DBTables, EngineZ80, MemoryZ80, BSLed,
+  ToolWin, Menus, ValEdit, Buttons, DBTables, EngineZ80Ext, MemoryZ80, BSLed,
   LEDDisplay;
 
 type
@@ -67,7 +67,6 @@ type
     PS5: TBSLed;
     PS6: TBSLed;
     PS7: TBSLed;
-    Disassembler: TEdit;
     ImageList2: TImageList;
     Halt: TAction;
     pnlStatus: TPanel;
@@ -84,18 +83,18 @@ type
     Panel4: TPanel;
     Panel5: TPanel;
     ToolBar2: TToolBar;
-    ToolButton21: TToolButton;
-    ToolButton22: TToolButton;
-    ToolButton23: TToolButton;
-    ToolButton24: TToolButton;
-    ToolButton25: TToolButton;
+    BtnStep: TToolButton;
+    BtnRun: TToolButton;
+    BtnPause: TToolButton;
+    BtnReset: TToolButton;
+    BtnHalt: TToolButton;
     Ver1: TMenuItem;
     opcRegistros: TMenuItem;
     opcFlags: TMenuItem;
     opcMemoria: TMenuItem;
     opcFontes: TMenuItem;
-    ToolButton1: TToolButton;
-    ToolButton2: TToolButton;
+    BtnNew: TToolButton;
+    BtnOpen: TToolButton;
     ToolButton4: TToolButton;
     opcBreakpoints: TMenuItem;
     Settings: TAction;
@@ -131,7 +130,7 @@ type
     procedure HaltEvent(Sender: TObject);
     procedure ResetEvent(Sender: TObject);
     procedure StepEvent(Sender: TObject; IsRunning: Boolean);
-    procedure StopEvent(Sender: TObject);
+    procedure PauseEvent(Sender: TObject);
     procedure NMIEvent(Sender: TObject; IsRunning: Boolean);
     procedure Col0MouseDown(Sender: TObject; Button: TMouseButton; Shift:
       TShiftState; X, Y: Integer);
@@ -150,7 +149,6 @@ type
     procedure opcFlagsClick(Sender: TObject);
     procedure opcMemoriaClick(Sender: TObject);
     procedure opcFontesClick(Sender: TObject);
-    procedure opcBreakpointsClick(Sender: TObject);
     procedure DisplayHexaClick(Sender: TObject);
     procedure opcTerminalClick(Sender: TObject);
     procedure opcShellClick(Sender: TObject);
@@ -178,9 +176,8 @@ type
     function LEDsRead: Byte;
     function ButtonsRead: Byte;
     procedure LeHexNestorZ80;
-    procedure BreakEvent(Sender: TObject; Address: Word; var Go: Boolean);
+    procedure BreakEvent(Sender: TObject; Address: Word; var Ignore: Boolean);
     procedure Cleardata;
-    procedure PosDebug;
     procedure WriteTerminal(Data: Byte);
     function ReadTerminal: Byte;
     function ReadTerminalStatus: Byte;
@@ -198,9 +195,8 @@ var
 implementation
 
 uses
-  Math, StdConvs, XMLIni, StrUtils, HelpUnit, MI, NestorFlags, NestorBP,
-  NestorRegistros, NestorTerminal, NestorFonte, Memory, NestorZMac,
-  NestorShell;
+  Math, StdConvs, XMLIni, StrUtils, HelpUnit, MI, NestorFlags, NestorRegistros,
+  NestorTerminal, NestorFonte, Memory, NestorZMac, NestorShell, NestorDebug;
 
 {$R *.dfm}
 
@@ -220,10 +216,6 @@ begin
   FrmFlags.Show;
 
   FrmTerminal := TFrmTerminal.Create(Self);
-
-  FrmBreakPoints := TFrmBreakPoints.Create(Self);
-  FrmBreakPoints.Show;
-
   FrmMemory := TFrmMemory.Create(Self);
 
   KeyCol[1] := 0;
@@ -263,7 +255,6 @@ begin
   Memory := TMemoryView.Create(FrmMemory.MemGrid, True);
   Flags := TFlagsView.Create(FrmFlags.FGridFlags);
 
-  //IO := IOView.Create(IOGrid, True);
   IO := TIOView.Create(nil, True);
   IO.AssignIOPort($01, DispSetKbdGet);
   IO.AssignIOPort($02, Buttons);
@@ -273,11 +264,13 @@ begin
   IO.AssignIOPort($61, TerminalCtrl);
 
   CPU := TCPUZ80.Create(Memory, IO);
-  CPU.ExecMode := exMode1;
+
+  //CPU.ExecMode := exMode2;
+  
   CPU.OnHalt := HaltEvent;
   CPU.OnReset := ResetEvent;
   CPU.OnStep := StepEvent;
-  CPU.OnStop := StopEvent;
+  CPU.OnPause := PauseEvent;
   CPU.OnBreak := BreakEvent;
   CPU.OnNMI := NMIEvent;
 
@@ -312,13 +305,13 @@ begin
       E.Text := IntToHex(CPU.E, 2);
       H.Text := IntToHex(CPU.H, 2);
       L.Text := IntToHex(CPU.L, 2);
-      Acc2.Text := IntToHex(CPU.A2, 2);
-      B2.Text := IntToHex(CPU.B2, 2);
-      C2.Text := IntToHex(CPU.C2, 2);
-      D2.Text := IntToHex(CPU.D2, 2);
-      E2.Text := IntToHex(CPU.E2, 2);
-      H2.Text := IntToHex(CPU.H2, 2);
-      L2.Text := IntToHex(CPU.L2, 2);
+      Acc2.Text := IntToHex(CPU.A_, 2);
+      B2.Text := IntToHex(CPU.B_, 2);
+      C2.Text := IntToHex(CPU.C_, 2);
+      D2.Text := IntToHex(CPU.D_, 2);
+      E2.Text := IntToHex(CPU.E_, 2);
+      H2.Text := IntToHex(CPU.H_, 2);
+      L2.Text := IntToHex(CPU.L_, 2);
       I.Text := IntToHex(CPU.I, 2);
       R.Text := IntToHex(CPU.R, 2);
       IX.Text := IntToHex(CPU.IX, 4);
@@ -335,13 +328,13 @@ begin
       E.Text := Inttostr(CPU.E);
       H.Text := Inttostr(CPU.H);
       L.Text := Inttostr(CPU.L);
-      Acc2.Text := Inttostr(CPU.A2);
-      B2.Text := Inttostr(CPU.B2);
-      C2.Text := Inttostr(CPU.C2);
-      D2.Text := Inttostr(CPU.D2);
-      E2.Text := Inttostr(CPU.E2);
-      H2.Text := Inttostr(CPU.H2);
-      L2.Text := Inttostr(CPU.L2);
+      Acc2.Text := Inttostr(CPU.A_);
+      B2.Text := Inttostr(CPU.B_);
+      C2.Text := Inttostr(CPU.C_);
+      D2.Text := Inttostr(CPU.D_);
+      E2.Text := Inttostr(CPU.E_);
+      H2.Text := Inttostr(CPU.H_);
+      L2.Text := Inttostr(CPU.L_);
       I.Text := Inttostr(CPU.I);
       R.Text := Inttostr(CPU.R);
       IX.Text := Inttostr(CPU.IX);
@@ -351,17 +344,8 @@ begin
     end;
 
   Flags.Refresh(CPU.S, CPU.Z, CPU.F5, CPU.HF, CPU.F3, CPU.PV, CPU.N, CPU.CY,
-    CPU.SAlt, CPU.ZAlt, CPU.F5Alt, CPU.HFAlt, CPU.F3Alt, CPU.PVAlt, CPU.NAlt,
-    CPU.CYAlt);
-
-  {
-  try
-    Memory.HighLight(CPU_PC);
-  except
-  end;
-  }
-
-  Disassembler.Text := CPU.NextInstr;
+    CPU.S_, CPU.Z_, CPU.F5_, CPU.HF_, CPU.F3_, CPU.PV_, CPU.N_,
+    CPU.CY_);
 end;
 
 procedure TFrmMain.StepExecute(Sender: TObject);
@@ -414,7 +398,7 @@ end;
 
 procedure TFrmMain.TimerTimer(Sender: TObject);
 begin
-  Timer.Enabled := not CPU.Stopped;
+  Timer.Enabled := not CPU.Paused;
 
   if not Timer.Enabled then
   begin
@@ -441,12 +425,7 @@ end;
 
 procedure TFrmMain.PauseExecute(Sender: TObject);
 begin
-  CPU.Stop;
-  FrmFontes.Compile.Enabled := True;
-  Run.Enabled := True;
-  Step.Enabled := True;
-  Pause.Enabled := False;
-  CPUShow;
+  CPU.Pause;
 end;
 
 procedure TFrmMain.AccExit(Sender: TObject);
@@ -481,19 +460,19 @@ begin
       else if Sender = IY then
         CPU.IY := S
       else if Sender = Acc2 then
-        CPU.A2 := S
+        CPU.A_ := S
       else if Sender = B2 then
-        CPU.B2 := S
+        CPU.B_ := S
       else if Sender = C2 then
-        CPU.C2 := S
+        CPU.C_ := S
       else if Sender = D2 then
-        CPU.D2 := S
+        CPU.D_ := S
       else if Sender = E2 then
-        CPU.E2 := S
+        CPU.E_ := S
       else if Sender = H2 then
-        CPU.H2 := S
+        CPU.H_ := S
       else if Sender = L2 then
-        CPU.L2 := S
+        CPU.L_ := S
     end
     else
     begin
@@ -518,21 +497,21 @@ begin
       else if Sender = IX then
         CPU.IX := StrToInt(IX.Text)
       else if Sender = IY then
-        CPU.HIY := StrToInt(IY.Text)
+        CPU.IY := StrToInt(IY.Text)
       else if Sender = Acc2 then
-        CPU.A2 := StrToInt(Acc2.Text)
+        CPU.A_ := StrToInt(Acc2.Text)
       else if Sender = B2 then
-        CPU.B2 := StrToInt(B2.Text)
+        CPU.B_ := StrToInt(B2.Text)
       else if Sender = C2 then
-        CPU.C2 := StrToInt(C2.Text)
+        CPU.C_ := StrToInt(C2.Text)
       else if Sender = D2 then
-        CPU.D2 := StrToInt(D2.Text)
+        CPU.D_ := StrToInt(D2.Text)
       else if Sender = E2 then
-        CPU.E2 := StrToInt(E2.Text)
+        CPU.E_ := StrToInt(E2.Text)
       else if Sender = H2 then
-        CPU.H2 := StrToInt(H2.Text)
+        CPU.H_ := StrToInt(H2.Text)
       else if Sender = L2 then
-        CPU.L2 := StrToInt(L2.Text)
+        CPU.L_ := StrToInt(L2.Text)
     end;
 end;
 
@@ -638,8 +617,12 @@ end;
 
 procedure TFrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  CPU.Stop;
+  CPU.Pause;
   CPU.Terminate;
+
+  while not CPU.Terminated do
+    ;
+
   FrmFontes.SaveAll;
 end;
 
@@ -671,8 +654,8 @@ begin
   LEDReset.LightOn := False;
   LEDHalt.LightOn := False;
   Halt.ImageIndex := 15;
-  Halt.Enabled := not (CPU.Halted or CPU.Stopped);
-  Pause.Enabled := not CPU.Stopped;
+  Halt.Enabled := not (CPU.Halted or CPU.Paused);
+  Pause.Enabled := not CPU.Paused;
 end;
 
 procedure TFrmMain.StepEvent(Sender: TObject; IsRunning: Boolean);
@@ -680,7 +663,7 @@ begin
   if not IsRunning then
   begin
     CPUShow;
-    PosDebug;
+    FrmDebug.Listagem.Lines.Add(CPU.PreviousInstr);
   end;
 end;
 
@@ -784,13 +767,12 @@ begin
 
   try
     LoadHex(hexfile, FrmMain.Memory);
-    FrmBreakPoints.Debug(Memory, lstfile, True);
 
     Run.Enabled := True;
     Step.Enabled := True;
     Reset.Enabled := True;
     Halt.Enabled := True;
-    Pause.Enabled := True;
+    Pause.Enabled := False;
   finally
     Memory.WriteInROM := False;
     fimROM := 1023;
@@ -802,19 +784,30 @@ begin
   LEDsWrite($0);
 end;
 
-procedure TFrmMain.BreakEvent(Sender: TObject; Address: Word; var Go: Boolean);
+procedure TFrmMain.BreakEvent(Sender: TObject; Address: Word; var Ignore: Boolean);
 begin
-  Go := False;
+  Ignore := False;
+end;
+
+procedure TFrmMain.PauseEvent(Sender: TObject);
+var
+  Instr: string;
+begin
   FrmFontes.Compile.Enabled := True;
   Run.Enabled := True;
   Step.Enabled := True;
   Pause.Enabled := False;
-end;
 
-procedure TFrmMain.StopEvent(Sender: TObject);
-begin
   CPUShow;
-  PosDebug;
+
+  Instr := CPU.NextInstr;
+
+  if Trim(Instr) <> '' then
+  begin
+    FrmDebug.Listagem.Lines.Clear;
+    FrmDebug.Listagem.Lines.Add(Instr);
+    FrmDebug.Show;
+  end;
 end;
 
 procedure TFrmMain.Cleardata;
@@ -842,8 +835,6 @@ begin
     SP.Text := '';
     PC.Text := '';
   end;
-
-  Disassembler.Text := '';
 end;
 
 procedure TFrmMain.opcRegistrosClick(Sender: TObject);
@@ -864,30 +855,6 @@ end;
 procedure TFrmMain.opcFontesClick(Sender: TObject);
 begin
   FrmFontes.Show;
-end;
-
-procedure TFrmMain.opcBreakpointsClick(Sender: TObject);
-begin
-  FrmBreakPoints.Show;
-end;
-
-procedure TFrmMain.PosDebug;
-var
-  i: Integer;
-  CPU_PC: Word;
-begin
-  with FrmBreakPoints.ListDebug do
-  begin
-    ItemIndex := -1;
-    CPU_PC := CPU.PC;
-
-    for i := 0 to Items.Count - 1 do
-      if Integer(Items.Objects[i]) = CPU_PC then
-      begin
-        ItemIndex := i;
-        Break;
-      end;
-  end;
 end;
 
 function TFrmMain.ReadTerminal: Byte;
@@ -989,3 +956,4 @@ begin
 end;
 
 end.
+

@@ -1,0 +1,47 @@
+
+   DC STDOUT 0
+   DC ZRO 0
+   DC HALT $FFFF03
+
+// CODE SEGMENT
+START
+   ORG 0
+DS: DC INI
+   subleq  PNT  PNT         // if {PNT = PNT - PNT) <= 0 goto next    // Limpa PNT
+LOOP:
+   subleq  CHR  CHR         // if {CHR = CHR - CHR) <= 0 goto next    // Limpa CHR
+   subleq  INI  PNT         // if {PNT = PNT - INI) <= 0 goto next    // Obtém posição do caracter (-PNT)
+   subleq  PNT  CHR         // if {CHR = CHR - PNT) <= 0 goto next    // Coloca o caracter em CHR
+   subleq  PNT  PNT         // if {PNT = PNT - PNT) <= 0 goto CHR     // Limpa PNT
+CHR: subleq  ZRO  STDOUT    // Print CHR (INITXT ~ FIMTXT)
+   subleq  NEG  INI         // if {INI = INI - NEG) <= 0 goto next    // Incrementa INI
+   subleq  CHR  CHR         // if {CHR = CHR - CHR) <= 0 goto next    // Limpa CHR
+   subleq  FIM  PNT         // if {PNT = PNT - FIMTXT) <= 0 goto next // PNT = -FIMTXT = -FIM
+   subleq  PNT  CHR         // if {CHR = CHR - PNT) <= 0 goto next 
+   subleq  PNT  PNT         // if {PNT = PNT - PNT) <= 0 goto next
+   subleq  INI  CHR  HALT   // if (CHR = CHR - INI) <= 0 goto HALT
+   subleq  PNT  PNT  LOOP  // if {PNT = PNT - PNT) <= 0 goto 0
+
+// DATA SEGMENT
+   ORG 310
+PARS: DD  0  0  0  0  0  0  0  0
+
+INI: DD  INITXT
+FIM: DD  FIMTXT
+PNT: DD   0
+NEG: DD  -1
+INITXT:
+   DD  12 72 101 // CLS H E
+   DD 108        // L
+   DD 108        // L
+   DD 111        // O
+   DD  44        // 
+   DD  32        //
+   DD  87        // W
+   DD 111        // O
+   DD 114        // R
+   DD 108        // L
+   DD 100        // D
+   DD  33        // !
+   DD  10        // LF
+FIMTXT:
