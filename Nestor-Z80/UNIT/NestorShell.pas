@@ -9,7 +9,7 @@ uses
 type
   TComTerminal = class(CPortCtl.TComTerminal)
   public
-    procedure MoveCaret(AColumn, ARow: Integer); override;
+    procedure MoveCaret(AColumn, ARow: Integer); //override;
   end;
 
   TFrmShell = class(TForm)

@@ -175,7 +175,7 @@ type
     procedure LEDsWrite(Data: Byte);
     function LEDsRead: Byte;
     function ButtonsRead: Byte;
-    procedure LeHexNestorZ80;
+    procedure LeRomNestorZ80;
     procedure BreakEvent(Sender: TObject; Address: Word; var Ignore: Boolean);
     procedure Cleardata;
     procedure WriteTerminal(Data: Byte);
@@ -184,7 +184,7 @@ type
   public
     CPU: TCPUZ80;
     Memory: TMemoryView;
-    AsmFile, Compiler, Parameters: string;
+    AsmFile, OutExt, Compiler, Parameters: string;
   end;
 
 var
@@ -205,7 +205,7 @@ const
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
-  ReadConfig(AsmFile, ExePath, Compiler, Parameters);
+  ReadConfig(AsmFile, OutExt, ExePath, Compiler, Parameters);
 
   FrmFontes := TFrmFontes.Create(Self);
 
@@ -280,7 +280,7 @@ begin
   Halt.Enabled := False;
   Pause.Enabled := False;
 
-  LeHexNestorZ80;
+  LeRomNestorZ80;
 
   CPUShow;
   CPU.SP := MEM_SIZE;
@@ -691,32 +691,30 @@ begin
   KeyCol[2] := KeyCol[2] and (TSpeedButton(Sender).Tag xor -1);
 end;
 
-procedure TFrmMain.Col2MouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TFrmMain.Col2MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   KeyCol[3] := KeyCol[3] or TSpeedButton(Sender).Tag;
 end;
 
-procedure TFrmMain.Col2MouseUp(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TFrmMain.Col2MouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   KeyCol[3] := KeyCol[3] and (TSpeedButton(Sender).Tag xor -1);
 end;
 
-procedure TFrmMain.LeHexNestorZ80;
+procedure TFrmMain.LeRomNestorZ80;
 var
   f: TextFile;
-  command, lstfile, hexfile, asmpath: string;
+  command, lstfile, romfile, asmpath: string;
   elapsed: DWORD;
   MustCompile: Boolean;
 begin
-  hexfile := ChangeFileExt(AsmFile, '.HEX');
+  romfile := ChangeFileExt(AsmFile, '.' + OutExt);
   lstfile := ChangeFileExt(AsmFile, '.LST');
-  MustCompile := not (FileExists(hexfile) and FileExists(lstfile));
+
+  MustCompile := not (FileExists(romfile) and FileExists(lstfile));
 
   if MustCompile and not FileExists(AsmFile) then
-    raise Exception.Create('Fonte do programa monitor não existe (' + AsmFile +
-      ')');
+    raise Exception.Create('Fonte do programa monitor não existe (' + AsmFile + ')');
 
   if not FileExists(Compiler) then
     raise Exception.Create('Compilador não encontrado: ' + Compiler);
@@ -730,17 +728,15 @@ begin
       Rewrite(f);
 
       try
-        command := '"' + Compiler + '" ' + StringReplace(Parameters, '#ASM', '"'
-          + AsmFile + '"', [rfReplaceAll, rfIgnoreCase]);
-        command := StringReplace(command, '#LST', '"' + lstfile + '"',
-          [rfReplaceAll, rfIgnoreCase]);
+        command := '"' + Compiler + '" ' + StringReplace(Parameters, '#ASM', '"' + AsmFile + '"', [rfReplaceAll, rfIgnoreCase]);
+        command := StringReplace(command, '#LST', '"' + lstfile + '"', [rfReplaceAll, rfIgnoreCase]);
 
         Writeln(f, '@ECHO OFF');
         Writeln(f, 'CD "' + asmpath + '"');
         Writeln(f, 'IF EXIST ok.out DEL ok.out');
         Writeln(f, command);
         Writeln(f, 'IF NOT ERRORLEVEL 1 GOTO FIM');
-        Writeln(f, 'IF EXIST "' + hexfile + '" DEL "' + hexfile + '"');
+        Writeln(f, 'IF EXIST "' + romfile + '" DEL "' + romfile + '"');
         Writeln(f, ':FIM');
         Writeln(f, 'echo OK > ok.out');
       finally
@@ -756,7 +752,7 @@ begin
       if not FileExists(asmpath + 'ok.out') then
         raise Exception.Create('Erro de compilação. Tempo de execução ultrapassou limite.');
 
-      if not (FileExists(lstfile) and FileExists(hexfile)) then
+      if not (FileExists(lstfile) and FileExists(romfile)) then
         raise Exception.Create('Erro de compilação. Programa monitor não foi gerado.');
     finally
       DeleteFile(asmpath + 'ok.out');
@@ -766,7 +762,10 @@ begin
   Memory.WriteInROM := True;
 
   try
-    LoadHex(hexfile, FrmMain.Memory);
+    if SameText(OutExt, 'HEX') Then
+      LoadHex(romfile, FrmMain.Memory)
+    else
+      LoadBin(romfile, FrmMain.Memory);
 
     Run.Enabled := True;
     Step.Enabled := True;

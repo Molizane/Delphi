@@ -1,0 +1,4 @@
+<Configuration>
+  <Nestor Source=".\SOURCE-ZMAC\NESTORNE.ASM" Output="HEX"/>
+  <Compiler Command=".\TOOLS\zmac.exe" Parameters=" --zmac --oo hex,lst --od .\ -j -i -n -z -c #ASM"/>
+</Configuration>

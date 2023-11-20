@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, CheckLst, MemoryZ80;
 
-procedure ReadConfig(var AsmFile, ExePath, Compiler, Parameters: string);
+procedure ReadConfig(var AsmFile, OutExt, ExePath, Compiler, Parameters: string);
 procedure DoDebug(Mem: TMemoryView; ListDebug: TCheckListBox; ListSym: TStrings; FileName: string;
   Limpa: Boolean);
 
@@ -23,7 +23,7 @@ begin
   SetLength(text, v);
 end;
 
-procedure ReadConfig(var AsmFile, ExePath, Compiler, Parameters: string);
+procedure ReadConfig(var AsmFile, OutExt, ExePath, Compiler, Parameters: string);
 var
   XML: TXMLConfig;
   Save: Boolean;
@@ -46,6 +46,8 @@ begin
         AsmFile := ExePath + Copy(AsmFile, 4, Length(AsmFile))
       else
         AsmFile := ExePath + Copy(AsmFile, 3, Length(AsmFile));
+
+    OutExt := XML.ReadString('Nestor', 'Output', 'HEXS');
 
     Compiler := XML.ReadString('Compiler', 'Command', '');
 
